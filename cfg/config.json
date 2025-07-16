@@ -1,0 +1,141 @@
+{
+  "name": "kozen-iac",
+  "version": "1.0.0",
+  "engine": ">=1.0.0",
+  "description": "Infrastructure as Code Pipeline with configurable templates",
+  "dependencies": [
+    {
+      "target": "StackManager",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../services",
+      "args": [
+        {
+          "environment": {
+            "backendUrl": "KOZEN_PULUMI_BACKEND_URL"
+          },
+          "workspace": {
+            "url": "s3://kozen-pulumi-stacks",
+            "runtime": "nodejs"
+          }
+        }
+      ],
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "TemplateManager",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../services",
+      "args": [
+        {
+          "type": "MDB",
+          "file": {
+            "path": "./cfg/templates"
+          },
+          "mdb": {
+            "enabled": true,
+            "database": "kozen",
+            "collection": "templates",
+            "uri": "MDB_URI"
+          }
+        }
+      ],
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "TemplateManagerFile",
+      "type": "class",
+      "path": "../../services"
+    },
+    {
+      "target": "TemplateManagerMDB",
+      "type": "class",
+      "path": "../../services",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "SecretManager",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../services",
+      "args": [
+        {
+          "region": "us-east-1",
+          "accessKeyId": "AWS_ACCESS_KEY_ID",
+          "secretAccessKey": "AWS_SECRET_ACCESS_KEY"
+        }
+      ]
+    },
+    {
+      "target": "PipelineManager",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../services"
+    },
+    {
+      "target": "Logger",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../tools/log",
+      "args": [
+        {
+          "mongodb": {
+            "enabled": true,
+            "database": "kozen",
+            "collection": "logs",
+            "uri": "MDB_URI",
+            "level": "info"
+          },
+          "console": {
+            "enabled": true,
+            "level": "all"
+          }
+        }
+      ]
+    },
+    {
+      "path": "../../components",
+      "type": "auto",
+      "lifetime": "singleton",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "VarProcessorService",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../services",
+      "dependencies": [
+        {
+          "key": "srvSecret",
+          "target": "SecretManager",
+          "type": "ref"
+        }
+      ]
+    }
+  ]
+}

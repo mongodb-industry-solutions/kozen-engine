@@ -1,0 +1,54 @@
+{
+    "name": "iac-pipeline",
+    "version": "4.0.0",
+    "description": "Infrastructure as Code Pipeline with Pulumi and configurable templates",
+    "main": "dist/bin/pipeline.js",
+    "bin": {
+        "pipeline": "./dist/bin/pipeline.js"
+    },
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/bin/pipeline.js",
+        "dev": "ts-node bin/pipeline.ts",
+        "help": "ts-node bin/pipeline.ts --help",
+        "test:deploy": "ts-node bin/pipeline.ts --template=demo --config=cfg/config.json --action=deploy",
+        "test:validate": "ts-node bin/pipeline.ts --template=demo --config=cfg/config.json --action=validate",
+        "test:undeploy": "ts-node bin/pipeline.ts --template=demo --config=cfg/config.json --action=undeploy",
+        "test:status": "ts-node bin/pipeline.ts --template=demo --config=cfg/config.json --action=status",
+        "lint": "tslint -p tsconfig.json",
+        "clean": "rm -rf dist"
+    },
+    "keywords": [
+        "iac",
+        "infrastructure-as-code",
+        "pulumi",
+        "pipeline",
+        "mongodb",
+        "atlas",
+        "kubernetes",
+        "ops-manager",
+        "cli"
+    ],
+    "author": "MongoDB Solutions Assurance Team",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^18",
+        "cross-env": "^7.0.3",
+        "ts-node": "^10.9.0",
+        "tslint": "^6.1.3",
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "@aws-sdk/client-secrets-manager": "^3.840.0",
+        "@pulumi/aws": "^6.83.0",
+        "@pulumi/mongodbatlas": "^3.34.0",
+        "@pulumi/pulumi": "^3.113.0",
+        "awilix": "^8.0.1",
+        "dotenv": "^17.0.1",
+        "mongodb": "^6.17.0",
+        "ora": "^8.2.0"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    }
+}
