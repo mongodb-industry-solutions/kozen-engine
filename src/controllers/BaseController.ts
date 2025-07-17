@@ -122,16 +122,13 @@ export abstract class BaseController {
         if (!Array.isArray(this.config.setup)) {
             return {};
         }
-
         const output: Record<string, any> = {};
-
         for (let item of this.config.setup) {
             output[item.name] = {
                 value: input[item.name],
-                secret: item.type === "secret"
+                secret: (item.type === "secret" || item.type === "protected")
             }
         }
-
         return { output };
     }
 

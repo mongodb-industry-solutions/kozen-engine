@@ -175,7 +175,7 @@ export class PipelineManager extends BaseService {
                     components: template.components,
                     action: 'setup',
                     pipeline: { args, assistant: this.assistant, template, stack },
-                    trasnfor: (cmp, out) => this.transnforInput(cmp, out, "output")
+                    trasnfor: (cmp, out) => this.transnforInput(cmp, out, "setup")
                 });
                 return configs?.output || {};
             }

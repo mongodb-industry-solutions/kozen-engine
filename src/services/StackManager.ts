@@ -160,11 +160,11 @@ export class StackManager extends BaseService {
 
             // Create or select the stack
             const stack = await LocalWorkspace.createOrSelectStack(args, opts);
-            await stack.setAllConfig({
-                "aws:region": { value: process.env.AWS_REGION || "us-east-1" },
-                "aws:accessKey": { value: process.env.AWS_ACCESS_KEY_ID || "", secret: true },
-                "aws:secretKey": { value: process.env.AWS_SECRET_ACCESS_KEY || "", secret: true },
-            });
+            // await stack.setAllConfig({
+            //     "aws:region": { value: process.env.AWS_REGION || "us-east-1" },
+            //     "aws:accessKey": { value: process.env.AWS_ACCESS_KEY_ID || "", secret: true },
+            //     "aws:secretKey": { value: process.env.AWS_SECRET_ACCESS_KEY || "", secret: true },
+            // });
 
             if (!stack || !stack.workspace) {
                 throw new Error(`Failed to create or select stack '${args.stackName}' in project '${args.projectName}'.`);
