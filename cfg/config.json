@@ -79,11 +79,26 @@
       "path": "../../services",
       "args": [
         {
-          "region": "us-east-1",
-          "accessKeyId": "AWS_ACCESS_KEY_ID",
-          "secretAccessKey": "AWS_SECRET_ACCESS_KEY"
+          "type": "AWS",
+          "cloud": {
+            "region": "us-east-1",
+            "accessKeyId": "AWS_ACCESS_KEY_ID",
+            "secretAccessKey": "AWS_SECRET_ACCESS_KEY"
+          }
         }
       ]
+    },
+    {
+      "target": "SecretManagerAWS",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../services"
+    },
+    {
+      "target": "SecretManagerMDB",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../services"
     },
     {
       "target": "PipelineManager",

@@ -27,7 +27,7 @@ export class SecretManagerAWS extends SecretManager {
     public async resolve(key: string, options?: ISecretManagerOptions): Promise<string | null | undefined | number | boolean> {
         try {
             options = options || this.options;
-            const client = this.createClient(this.options);
+            const client = this.createClient(options);
             const command = new GetSecretValueCommand({ SecretId: key });
             const data = await client.send(command);
 
