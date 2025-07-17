@@ -16,7 +16,7 @@ export type IStruct = Record<string, any>;
  * Pipeline action type definition
  * @typedef {"deploy" | "undeploy" | "validate" | "status"} IAction
  */
-export type IAction = "deploy" | "undeploy" | "validate" | "status";
+export type IAction = "deploy" | "undeploy" | "destroy" | "validate" | "status";
 
 /**
  * Variable source type definition

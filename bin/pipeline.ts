@@ -31,14 +31,15 @@ import { PipelineController } from '../src/controllers/PipelineController';
     // Load environment variables
     dotenv.config();
 
+    // Create controller and parse arguments
+    const controller = new PipelineController();
+
     // Check for help flag
     if (process.argv.includes('--help') || process.argv.includes('-h')) {
-      PipelineController.displayUsage();
+      controller.displayUsage();
       process.exit(0);
     }
 
-    // Create controller and parse arguments
-    const controller = new PipelineController();
     const args = controller.parseArguments(process.argv.slice(2));
 
     // Execute pipeline operation
