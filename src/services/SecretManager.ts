@@ -61,18 +61,24 @@ export class SecretManager extends BaseService {
      * @throws {Error} When secret resolution fails
      */
     public async resolve(key: string, options?: ISecretManagerOptions): Promise<string | null | undefined | number | boolean> {
-        options = options || this.options;
+        const value = await this.getValue(key, options);
+        return value ?? process.env[key];
+    }
 
-        if (!this.options?.type) {
-            throw new Error("SecretManager options or type is not defined.");
+    protected async getValue(key: string, options?: ISecretManagerOptions): Promise<string | null | undefined | number | boolean> {
+        try {
+            options = options || this.options;
+            if (!this.options?.type) {
+                throw new Error("SecretManager options or type is not defined.");
+            }
+            const controllerName = "SecretManager" + options.type;
+            const controller = await this.assistant.resolve<SecretManager>(controllerName);
+            return await controller.resolve(key, options);
         }
-        const controllerName = "SecretManager" + options.type;
-        const controller = await this.assistant.resolve<SecretManager>(controllerName);
-        if (!controller) {
-            return process.env[key];
+        catch (error) {
+            console.log(error);
+            return null;
         }
-
-        return await controller.resolve(key, options);
     }
 
 }
