@@ -29,7 +29,7 @@
                 {
                     "type": "secret",
                     "name": "secs",
-                    "value": "MYSECRET",
+                    "value": "ATLAS_PRIVATE_KEY",
                     "default": "12345"
                 }
             ],

@@ -50,16 +50,14 @@ export class SecretManagerAWS extends SecretManager {
      * @throws {Error} When AWS configuration is invalid or credentials are missing
      */
     private createClient(options: ISecretManagerOptions): SecretsManagerClient {
-        const accessKeyId = options.cloud?.accessKeyId || "AWS_ACCESS_KEY_ID";
-        const secretAccessKey = options.cloud?.secretAccessKey || "AWS_SECRET_ACCESS_KEY";
+        const keyAKeyId = options.cloud?.accessKeyId || "AWS_ACCESS_KEY_ID";
+        const keySAKey = options.cloud?.secretAccessKey || "AWS_SECRET_ACCESS_KEY";
 
-        return new SecretsManagerClient({
-            region: options.cloud?.region || process.env.AWS_REGION || "us-east-1",
-            credentials: {
-                accessKeyId: process.env[accessKeyId] || "",
-                secretAccessKey: process.env[secretAccessKey] || "",
-            }
-        });
+        const region = options.cloud?.region || process.env.AWS_REGION || "us-east-1";
+        const accessKeyId = process.env[keyAKeyId] || "";
+        const secretAccessKey = process.env[keySAKey] || "";
+
+        return new SecretsManagerClient({ region, credentials: { accessKeyId, secretAccessKey } });
     }
 
 }

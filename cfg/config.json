@@ -12,7 +12,8 @@
       "args": [
         {
           "environment": {
-            "backendUrl": "KOZEN_PULUMI_BACKEND_URL"
+            "backendUrl": "KOZEN_PULUMI_BACKEND_URL",
+            "passphrase": "PULUMI_CONFIG_PASSPHRASE"
           },
           "workspace": {
             "url": "s3://kozen-pulumi-stacks",

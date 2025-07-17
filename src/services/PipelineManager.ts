@@ -159,7 +159,7 @@ export class PipelineManager extends BaseService {
         let template = await srvTemplate.load<ITemplate>(templateName);
         let result = {};
 
-        stack.deploy({
+        await stack.deploy({
             name,
             project,
             program: async () => {
@@ -238,9 +238,9 @@ export class PipelineManager extends BaseService {
         for (const component of components) {
             const delegate = await this.assistant.resolve<BaseController>(component.name);
             delegate.configure(component);
-            const input = trasnfor(component, output);
+            const input = await trasnfor(component, output);
             const method = (delegate as any)[action];
-            const result = ((method instanceof Function) && method.apply(delegate, [input, pipeline])) || null;
+            const result = ((method instanceof Function) && await method.apply(delegate, [input, pipeline])) || null;
 
             // const result = await delegate.deploy(input);
             results.push(result);

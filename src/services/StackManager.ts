@@ -7,14 +7,13 @@
  */
 
 import {
-    ConfigMap,
     InlineProgramArgs,
     LocalWorkspace,
     LocalWorkspaceOptions,
     ProjectRuntime,
     Stack
 } from "@pulumi/pulumi/automation";
-import { IConfigValue, IStackOptions } from "../models/Stack";
+import { IStackOptions } from "../models/Stack";
 import { getID } from "../tools";
 import { BaseService } from "./BaseService";
 
@@ -104,6 +103,9 @@ export class StackManager extends BaseService {
                 runtime: (this.config.workspace?.runtime || "nodejs") as ProjectRuntime,
                 backend: { url: process.env[envKeyUrl] || this.config.workspace?.url },
             },
+            envVars: {
+                PULUMI_CONFIG_PASSPHRASE: "kozenIsSoSecure"
+            }
         };
 
         return {
@@ -158,6 +160,11 @@ export class StackManager extends BaseService {
 
             // Create or select the stack
             const stack = await LocalWorkspace.createOrSelectStack(args, opts);
+            await stack.setAllConfig({
+                "aws:region": { value: process.env.AWS_REGION || "us-east-1" },
+                "aws:accessKey": { value: process.env.AWS_ACCESS_KEY_ID || "", secret: true },
+                "aws:secretKey": { value: process.env.AWS_SECRET_ACCESS_KEY || "", secret: true },
+            });
 
             if (!stack || !stack.workspace) {
                 throw new Error(`Failed to create or select stack '${args.stackName}' in project '${args.projectName}'.`);
@@ -180,21 +187,32 @@ export class StackManager extends BaseService {
      * @throws {Error} When deployment fails due to infrastructure, configuration, or runtime errors
      */
     public async deploy(config: IStackOptions) {
+        try {
+            const stack = await this.load(config);
 
-        const stack = await this.load(config);
+            await this.setup(stack, config);
+            await stack.refresh({ onOutput: (output: string) => console.info(`Stack output: ${output}`) });
+            const upRes = await stack.up({ onOutput: (output: string) => console.info(`Stack output: ${output}`) });
 
-        await this.setup(stack, config);
-        await stack.refresh({ onOutput: (output: string) => console.info(`Stack output: ${output}`) });
-        const upRes = await stack.up({ onOutput: (output: string) => console.info(`Stack output: ${output}`) });
-
-        return {
-            stackName: this.stackName,
-            projectName: this.projectName,
-            success: true,
-            timestamp: new Date(),
-            message: `Stack ${this.stackName} deployed successfully.`,
-            results: upRes
-        };
+            return {
+                stackName: this.stackName,
+                projectName: this.projectName,
+                success: true,
+                timestamp: new Date(),
+                message: `Stack ${this.stackName} deployed successfully.`,
+                results: upRes
+            };
+        }
+        catch (error) {
+            console.log(error)
+            return {
+                stackName: this.stackName,
+                projectName: this.projectName,
+                success: false,
+                timestamp: new Date(),
+                message: `Stack ${this.stackName} deployed faild.`,
+            };
+        }
     }
 
     /**
