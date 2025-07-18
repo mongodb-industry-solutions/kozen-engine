@@ -21,8 +21,8 @@ import { IIoC } from '../tools';
  * @abstract
  * @class BaseController
  * @author MDB SAT
- * @since 1.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  */
 export abstract class BaseController implements IController {
     /**

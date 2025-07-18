@@ -4,7 +4,7 @@
  * @fileoverview Simple CLI Interface for Infrastructure as Code (IaC) Pipeline
  * @description Lightweight command-line interface that delegates all logic to PipelineController
  * @author IaC Pipeline Team
- * @since 4.0.0
+ * @since 1.0.4
  * 
  * @usage
  * ts-node bin/pipeline.ts --template=basic.project --config=cfg/config.json --action=deploy
