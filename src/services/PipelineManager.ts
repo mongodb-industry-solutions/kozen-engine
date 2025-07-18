@@ -1,13 +1,12 @@
 import * as fs from 'fs';
-import { BaseController } from '../controllers/BaseController';
 import { IComponent, ITransformFn } from '../models/Component';
+import { IController } from '../models/Controller';
 import { IPipeline, IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
-import { ITemplate } from '../models/Template';
+import { IStackManager } from '../models/Stack';
+import { ITemplate, ITemplateManager } from '../models/Template';
 import { IAction, IResult, IStruct } from "../models/Types";
-import { IoC } from "../tools";
+import { IIoC, IoC } from "../tools";
 import { BaseService } from './BaseService';
-import { StackManager } from './StackManager';
-import { TemplateManager } from './TemplateManager';
 
 /**
  * @fileoverview Pipeline Manager Service - Core Bridge Component
@@ -95,7 +94,7 @@ export class PipelineManager extends BaseService {
      * 2. Setting up the IoC container for dependency injection
      * 3. Registering all service dependencies defined in the configuration
      */
-    public async configure(config: IPipelineConfig, ioc?: IoC): Promise<PipelineManager> {
+    public async configure(config: IPipelineConfig, ioc?: IIoC): Promise<PipelineManager> {
         try {
             this.config = config;
             this.assistant = ioc || this.assistant;
@@ -125,8 +124,8 @@ export class PipelineManager extends BaseService {
     public async deploy(args: IPipelineArgs): Promise<IResult> {
         const { template: templateName, action, project, stack: name } = args;
 
-        const srvTemplate = await this.assistant.resolve<TemplateManager>("TemplateManager");
-        const stackAdm = await this.assistant.resolve<StackManager>("StackManager");
+        const srvTemplate = await this.assistant.resolve<ITemplateManager>("TemplateManager");
+        const stackAdm = await this.assistant.resolve<IStackManager>("StackManager");
 
         let result = {};
         let template = await srvTemplate.load<ITemplate>(templateName);
@@ -199,7 +198,7 @@ export class PipelineManager extends BaseService {
 
         // TODO: create a generic method for executing multiple components (async | sync)
         for (const component of components) {
-            const delegate = await this.assistant.resolve<BaseController>(component.name!);
+            const delegate = await this.assistant.resolve<IController>(component.name!);
             delegate.configure(component);
             const input = await transform(component, output);
             const method = (delegate as any)[action];

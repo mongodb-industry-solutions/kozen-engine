@@ -73,4 +73,3 @@ export interface IComponent {
  * @typedef {(component: IComponent, output: IStruct) => Promise<IStruct>} ITransformFn
  */
 export type ITransformFn = (component: IComponent, output: IStruct) => Promise<IStruct>;
-
