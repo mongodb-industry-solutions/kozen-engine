@@ -1,5 +1,6 @@
 
 import { IMetadata, IStruct } from "../models/Types";
+import { IIoC } from "../tools";
 import SecretManager from "./SecretManager";
 
 /**
@@ -38,6 +39,15 @@ import SecretManager from "./SecretManager";
  */
 export class VarProcessorService {
     /**
+     * Optional assistant for IoC resolution
+     * 
+     * @public
+     * @type {IIoC}
+     * @description Used for resolving dependencies such as SecretManager if not provided directly.
+     */
+    public assistant?: IIoC;
+
+    /**
      * Variable scope for reference resolution
      * 
      * @private
@@ -56,7 +66,7 @@ export class VarProcessorService {
      * @description Secret manager service for resolving secure variables from external
      * secret stores like AWS Secrets Manager, Azure Key Vault, or other secure backends.
      */
-    private srvSecret: SecretManager;
+    private srvSecret!: SecretManager;
 
     /**
      * Creates a new VarProcessorService instance
@@ -87,9 +97,8 @@ export class VarProcessorService {
      * });
      * ```
      */
-    constructor({ scope = {}, srvSecret }: { scope?: IStruct; srvSecret: SecretManager }) {
+    constructor(scope: IStruct = {}) {
         this.scope = scope;
-        this.srvSecret = srvSecret;
     }
 
     /**
@@ -211,7 +220,10 @@ export class VarProcessorService {
      */
     private async resolveSecret(secretKey: string, defaultValue?: any): Promise<any> {
         try {
-            const resolvedSecret = await this.srvSecret.resolve(secretKey);
+            if (!this.srvSecret && this.assistant) {
+                this.srvSecret = await this.assistant.resolve<SecretManager>('SecretManager');
+            }
+            const resolvedSecret = await this.srvSecret?.resolve(secretKey);
             return resolvedSecret ?? defaultValue;
         } catch (error) {
             console.error(`Failed to resolve secret for key "${secretKey}":`, error);
