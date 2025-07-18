@@ -1,7 +1,8 @@
 
+import { IVarProcessorService } from "../models/Processor";
+import { ISecretManager } from "../models/Secret";
 import { IMetadata, IStruct } from "../models/Types";
 import { IIoC } from "../tools";
-import SecretManager from "./SecretManager";
 
 /**
  * @fileoverview Variable Processor Service - Variable Resolution Bridge Component
@@ -37,7 +38,7 @@ import SecretManager from "./SecretManager";
  * // Returns: { environment: 'production', deploymentId: 'prod-001', apiKey: '***', region: 'us-east-1' }
  * ```
  */
-export class VarProcessorService {
+export class VarProcessorService implements IVarProcessorService {
     /**
      * Optional assistant for IoC resolution
      * 
@@ -62,11 +63,11 @@ export class VarProcessorService {
      * Secret manager service instance
      * 
      * @private
-     * @type {SecretManager}
+     * @type {ISecretManager}
      * @description Secret manager service for resolving secure variables from external
      * secret stores like AWS Secrets Manager, Azure Key Vault, or other secure backends.
      */
-    private srvSecret!: SecretManager;
+    private srvSecret!: ISecretManager;
 
     /**
      * Creates a new VarProcessorService instance
@@ -74,7 +75,7 @@ export class VarProcessorService {
      * @constructor
      * @param {Object} options - Configuration options for the variable processor
      * @param {IStruct} [options.scope={}] - Optional initial scope for reference variable resolution
-     * @param {SecretManager} options.srvSecret - Secret manager service for secure variable resolution
+     * @param {ISecretManager} options.srvSecret - Secret manager service for secure variable resolution
      * 
      * @description Initializes the variable processor with a reference scope and secret manager.
      * The processor serves as a bridge between template variable definitions and their actual
@@ -221,7 +222,7 @@ export class VarProcessorService {
     private async resolveSecret(secretKey: string, defaultValue?: any): Promise<any> {
         try {
             if (!this.srvSecret && this.assistant) {
-                this.srvSecret = await this.assistant.resolve<SecretManager>('SecretManager');
+                this.srvSecret = await this.assistant.resolve<ISecretManager>('SecretManager');
             }
             const resolvedSecret = await this.srvSecret?.resolve(secretKey);
             return resolvedSecret ?? defaultValue;
