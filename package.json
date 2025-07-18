@@ -29,7 +29,7 @@
         "ops-manager",
         "cli"
     ],
-    "author": "MongoDB Solutions Assurance Team",
+    "author": "MDB SAT",
     "license": "MIT",
     "devDependencies": {
         "@types/node": "^18",

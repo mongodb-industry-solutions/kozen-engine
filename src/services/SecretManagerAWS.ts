@@ -1,7 +1,7 @@
 /**
  * @fileoverview AWS Secret Manager Service - AWS Secrets Manager Implementation
  * @description AWS-specific implementation of the secret management bridge for AWS Secrets Manager integration
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  */
@@ -37,7 +37,7 @@ export class SecretManagerAWS extends SecretManager {
 
             throw new Error(`Secret '${key}' was found but the SecretString is empty.`);
         } catch (error) {
-            console.error(`Failed to retrieve secret '${key}' from AWS Secrets Manager.`, error);
+            console.error(`Failed to retrieve secret '${key}' from AWS Secrets Manager.`, (error as Error).message);
             throw error;
         }
     }

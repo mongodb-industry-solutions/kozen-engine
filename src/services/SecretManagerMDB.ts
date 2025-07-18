@@ -1,7 +1,7 @@
 /**
  * @fileoverview MongoDB Secret Manager Service - MongoDB Implementation with Encryption Support
  * @description MongoDB-specific implementation of secret management with Client-Side Field Level Encryption support
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  */
