@@ -182,22 +182,22 @@ export class StackManagerPulumi extends StackManager {
             const stack = await this.load(config);
             const upRes = await stack.up({ onOutput: (output: string) => console.info(`Stack output: ${output}`) });
             return {
-                stackName: this.stackName,
-                projectName: this.projectName,
+                stackName: config.name,
+                projectName: config.project,
                 success: true,
                 timestamp: new Date(),
-                message: `Stack ${this.stackName} deployed successfully.`,
+                message: `Stack ${config.name} deployed successfully.`,
                 output: upRes
             };
         }
         catch (error) {
             console.log(error)
             return {
-                stackName: this.stackName,
-                projectName: this.projectName,
+                stackName: config.name,
+                projectName: config.project,
                 success: false,
                 timestamp: new Date(),
-                message: `Stack ${this.stackName} deployed faild.`,
+                message: `Stack ${config.name} deployed faild.`,
             };
         }
     }
@@ -214,11 +214,11 @@ export class StackManagerPulumi extends StackManager {
         const stack = await this.select(config);
         const destroyRes = await stack.destroy({ onOutput: console.info });
         return {
-            stackName: this.stackName,
-            projectName: this.projectName,
+            stackName: config.name,
+            projectName: config.project,
             success: true,
             timestamp: new Date(),
-            message: `Stack ${this.stackName} undeployed successfully.`,
+            message: `Stack ${config.name} undeployed successfully.`,
             output: destroyRes
         };
     }
@@ -235,11 +235,11 @@ export class StackManagerPulumi extends StackManager {
         // This should validate configuration, templates, and dependencies
         // without performing actual deployment
         return {
-            stackName: this.stackName,
-            projectName: this.projectName,
+            stackName: config.name,
+            projectName: config.project,
             success: true,
             timestamp: new Date(),
-            message: `Stack ${this.stackName} configuration validation completed.`,
+            message: `Stack ${config.name} configuration validation completed.`,
             results: []
         };
     }
