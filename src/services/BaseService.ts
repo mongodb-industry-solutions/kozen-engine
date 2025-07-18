@@ -1,4 +1,5 @@
 import { IComponent } from "../models/Component";
+import { ILoggerService } from "../models/Logger";
 import { IVarProcessorService } from "../models/Processor";
 import { IStruct } from "../models/Types";
 import { IIoC } from "../tools";
@@ -14,8 +15,8 @@ import { IIoC } from "../tools";
  * @abstract
  * @class BaseService
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  *
  * @example
  * ```typescript
@@ -50,6 +51,9 @@ export class BaseService {
      * - Enable easy mocking for unit testing
      */
     protected assistant!: IIoC;
+
+
+    public logger!: ILoggerService;
 
     /**
      * Transforms component input by processing variables through VarProcessorService
