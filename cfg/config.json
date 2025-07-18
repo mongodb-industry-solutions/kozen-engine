@@ -123,13 +123,13 @@
       "path": "../../services"
     },
     {
-      "target": "Logger",
+      "target": "LoggerService",
       "type": "class",
       "lifetime": "singleton",
-      "path": "../../tools/log",
+      "path": "../../services",
       "args": [
         {
-          "mongodb": {
+          "mdb": {
             "enabled": true,
             "database": "kozen",
             "collection": "logs",
