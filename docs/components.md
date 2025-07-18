@@ -4,6 +4,8 @@
 
 Kozen Engine's component system is the heart of the platform's extensibility. Components are autonomous units that can perform infrastructure deployment, testing execution, API calls, or any custom logic. Each component implements a standardized interface while maintaining complete flexibility in their internal implementation.
 
+![Component Architecture](../images/kozen-architecture-Component.jpg)
+
 ## Component Architecture
 
 ### Base Component Structure
@@ -23,6 +25,8 @@ export abstract class BaseController {
 ```
 
 ### Component Lifecycle
+
+![Component Flow](../images/kozen-architecture-Component.Flow.jpg)
 
 1. **Configuration**: Component receives configuration from template
 2. **Input Processing**: Variables are resolved and inputs prepared
