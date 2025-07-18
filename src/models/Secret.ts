@@ -1,7 +1,7 @@
 /**
  * @fileoverview Secret management configuration models
  * @description Defines interfaces for secure secret storage and retrieval configuration
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  */

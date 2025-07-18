@@ -1,5 +1,5 @@
 
-import { IStruct, IStructDef } from "../models/Types";
+import { IMetadata, IStruct } from "../models/Types";
 import SecretManager from "./SecretManager";
 
 /**
@@ -13,7 +13,7 @@ import SecretManager from "./SecretManager";
  * without knowing their specific resolution mechanisms.
  * 
  * @class VarProcessorService
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  * 
@@ -96,7 +96,7 @@ export class VarProcessorService {
      * Processes variable definitions and resolves their values from various sources
      * 
      * @public
-     * @param {IStructDef[]} inputs - Array of variable definitions to process
+     * @param {IMetadata[]} inputs - Array of variable definitions to process
      * @param {IStruct} [scope] - Optional scope to use for reference resolution, defaults to instance scope
      * @returns {Promise<IStruct>} Promise resolving to an object containing resolved variable values
      * @throws {Error} When variable resolution fails due to missing sources or access issues
@@ -153,7 +153,7 @@ export class VarProcessorService {
      * // }
      * ```
      */
-    public async process(inputs: IStructDef[], scope?: IStruct): Promise<IStruct> {
+    public async process(inputs: IMetadata[], scope?: IStruct): Promise<IStruct> {
         const result: IStruct = {};
         scope = scope || this.scope;
         await Promise.all(inputs.map(definition => this.transform(definition, scope, result)));
@@ -163,25 +163,25 @@ export class VarProcessorService {
     /**
      * Transforms a single variable definition by resolving its value from the appropriate source
      * @public
-     * @param {IStructDef} definition - Variable definition containing type, value, and metadata
+     * @param {IMetadata} definition - Variable definition containing type, value, and metadata
      * @param {IStruct} [scope={}] - Optional scope context for reference variable resolution
      * @param {IStruct} [result={}] - Result object to accumulate resolved variables
      * @returns {Promise<IStruct>} Promise resolving to the result object with the resolved variable added
      */
-    public async transform(definition: IStructDef, scope: IStruct = {}, result: IStruct = {}): Promise<IStruct> {
+    public async transform(definition: IMetadata, scope: IStruct = {}, result: IStruct = {}): Promise<IStruct> {
         const { type, value, default: defaultValue, name: key } = definition;
         switch (type) {
             case "protected":
             case "environment":
-                result[key] = process.env[value] ?? defaultValue;
+                result[key] = process.env[value || key] ?? defaultValue;
                 break;
 
             case "reference":
-                result[key] = scope[value] ?? defaultValue;
+                result[key] = scope[value || key] ?? defaultValue;
                 break;
 
             case "secret":
-                result[key] = await this.resolveSecret(value, defaultValue);
+                result[key] = await this.resolveSecret(value || key, defaultValue);
                 break;
 
             default:
