@@ -1,11 +1,19 @@
-import { LogProcessor, LogEntry, LogLevel, LogOutputType } from '../types';
+import { LogEntry, LogLevel, LogOutputType, LogProcessor } from '../types';
 
 /**
  * Hybrid log processor - combines multiple processors to output logs to multiple destinations
  */
 export class HybridLogProcessor implements LogProcessor {
+  /**
+   * Array of log processors for multi-destination output
+   * @private
+   */
   private processors: LogProcessor[];
 
+  /**
+   * Creates new HybridLogProcessor instance combining multiple output processors
+   * @param processors - Array of LogProcessor instances for simultaneous log handling
+   */
   constructor(processors: LogProcessor[]) {
     this.processors = processors;
   }
