@@ -14,6 +14,8 @@ Kozen Engine is a mono-stack pipeline platform that transforms JSON configuratio
 - **Data Analytics**: Collect and store all execution data in MongoDB for visualization with MongoDB Charts
 - **NPM Distribution**: Package-ready for easy integration into existing projects and platforms
 
+![Current Scope](docs/images/kozen-architecture-Scope.Current.jpg)
+
 ## 🚀 Quick Start
 
 ```bash
@@ -34,11 +36,15 @@ npm run dev -- --template=atlas.basic --config=cfg/config.json --action=undeploy
 
 Kozen Engine follows an extensible, plugin-based architecture with three core extensible managers:
 
+![Kozen Engine Architecture Layers](docs/images/kozen-architecture-Layers.jpg)
+
 ### Core Extensible Components
 
 - **StackManager**: Dynamic infrastructure orchestration with pluggable providers
 - **TemplateManager**: Flexible template storage and retrieval system  
 - **SecretManager**: Multi-provider secret management with security abstraction
+
+![Component Architecture](docs/images/kozen-architecture-Component.jpg)
 
 ### Mono-Stack Pipeline Concept
 
@@ -47,12 +53,18 @@ Each template defines a single stack instance composed of:
 - **Input/Output Configuration**: Data flow between components
 - **Setup Parameters**: Initial configuration and environment setup
 
+![Component Flow](docs/images/kozen-architecture-Component.Flow.jpg)
+
 Each component autonomously decides its execution behavior and can:
 - Deploy cloud infrastructure
 - Execute various test types (e2e, integration, performance)
 - Call external APIs
 - Run CLI commands
 - Collect and process data
+
+### Logical System View
+
+![Logical Architecture View](docs/images/kozen-architecture-Logical.View.jpg)
 
 ## 📚 Documentation
 
@@ -65,6 +77,10 @@ Each component autonomously decides its execution behavior and can:
 | **Testing** | Testing capabilities and execution patterns | [docs/testing.md](docs/testing.md) |
 | **API Reference** | Complete API documentation | [docs/api-reference.md](docs/api-reference.md) |
 | **Deployment** | Production deployment and NPM integration | [docs/deployment.md](docs/deployment.md) |
+
+### Template System Architecture
+
+![Template System](docs/images/kozen-architecture-Template.drawio.svg)
 
 ## 🔧 Core Features
 
@@ -174,6 +190,12 @@ kozen-engine/
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔮 Future Vision
+
+![Next Generation Architecture](docs/images/kozen-architecture-Next.jpg)
+
+The next generation of Kozen Engine will expand capabilities to support multi-cloud deployments, advanced AI-driven testing, and enhanced analytics dashboards.
 
 ## 🆘 Support
 

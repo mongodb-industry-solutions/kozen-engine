@@ -4,6 +4,8 @@
 
 Kozen Engine implements a layered, extensible architecture designed for scalability, maintainability, and plugin-based extensibility. The system follows Domain-Driven Design principles with clear separation of concerns.
 
+![Kozen Engine Architecture Layers](../images/kozen-architecture-Layers.jpg)
+
 ## Architecture Layers
 
 ### 1. CLI Layer (`bin/`)
@@ -152,6 +154,8 @@ export class CustomTestComponent extends BaseController {
 
 ### 1. Pipeline Execution Flow
 
+![Component Flow](../images/kozen-architecture-Component.Flow.jpg)
+
 ```mermaid
 graph TD
     A[CLI Input] --> B[PipelineController]
@@ -165,7 +169,11 @@ graph TD
     I --> J[MongoDB Charts]
 ```
 
-### 2. Component Interaction
+### 2. Component Architecture
+
+![Component Architecture](../images/kozen-architecture-Component.jpg)
+
+### 3. Component Interaction
 
 ```mermaid
 graph LR
@@ -176,7 +184,7 @@ graph LR
     E --> F[Next Component Input]
 ```
 
-### 3. Service Layer Interaction
+### 4. Service Layer Interaction
 
 ```mermaid
 graph TD
@@ -187,6 +195,10 @@ graph TD
     C --> F[Infrastructure Provider]
     D --> G[Secret Provider]
 ```
+
+### 5. Logical System View
+
+![Logical Architecture View](../images/kozen-architecture-Logical.View.jpg)
 
 ## Dependency Injection Architecture
 
@@ -305,7 +317,15 @@ kozen-engine/
 - **Service Integration**: Embed in applications
 - **Platform Building**: Foundation for IaaS/TaaS
 
+## Current Implementation Scope
+
+![Current Scope](../images/kozen-architecture-Scope.Current.jpg)
+
+The current implementation focuses on the core pipeline execution engine with extensible managers for stack, template, and secret management.
+
 ## Future Architecture Considerations
+
+![Next Generation Architecture](../images/kozen-architecture-Next.jpg)
 
 ### 1. Microservices Migration
 - Service decomposition strategy
