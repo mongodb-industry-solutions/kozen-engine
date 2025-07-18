@@ -66,6 +66,14 @@ export class StackManager extends BaseService implements IStackManager {
         return this.config.name;
     }
 
+    /**
+     * Executes stack operations through orchestrator-specific implementations
+     * @protected
+     * @param config - Stack configuration options for orchestrator selection
+     * @param action - Operation name to execute on stack manager
+     * @param args - Arguments array to pass to operation method
+     * @returns Promise resolving to operation result with status and metadata
+     */
     protected async execute(config: IStackOptions, action: string, args: Array<any>): Promise<IResult> {
         const type = config.orchestrator || "Pulumi";
         const controllerName = "StackManager" + type;
@@ -74,6 +82,12 @@ export class StackManager extends BaseService implements IStackManager {
         return await method?.apply(controller, args);
     }
 
+    /**
+     * Configures stack manager with project and stack naming for deployment operations
+     * @public
+     * @param config - Stack configuration options to merge with existing settings
+     * @returns Merged configuration with project and stack names properly set
+     */
     public configure(config: IStackOptions) {
         // Create a unique project name for each cluster to avoid conflicts.
         config = { ...this.config, ...config };
@@ -179,6 +193,14 @@ export class StackManager extends BaseService implements IStackManager {
         }
     }
 
+    /**
+     * Transforms component setup configuration through orchestrator-specific implementations
+     * @public
+     * @param component - Component configuration containing setup definitions
+     * @param output - Output object to accumulate transformed values
+     * @param key - Property key to process for setup configuration
+     * @returns Promise resolving to transformed setup configuration object
+     */
     public async transformSetup(component: IComponent, output: IStruct = {}, key: string = "input"): Promise<IStruct> {
         return await this.execute(this.config, "transformSetup", [component, output, key]);
     }

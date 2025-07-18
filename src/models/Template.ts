@@ -55,7 +55,10 @@ export interface ITemplate {
      */
     deploymentMode?: IDeploymentMode;
 
-
+    /**
+     * Stack configuration options for infrastructure deployment
+     * @type {IStackOptions}
+     */
     stack?: IStackOptions;
 }
 
