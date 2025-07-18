@@ -552,4 +552,4 @@ For support and questions:
 
 ---
 
-**Built with ❤️ by the MongoDB Solutions Assurance Team**
+**Built with ❤️ by the MongoDB Solutions Assurance Team (SAT)**

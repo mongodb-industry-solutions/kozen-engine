@@ -1,7 +1,7 @@
 /**
  * @fileoverview MongoDB Template Manager Service - MongoDB Implementation
  * @description MongoDB-specific implementation for loading infrastructure templates from MongoDB collections
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  */
