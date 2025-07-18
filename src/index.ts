@@ -30,15 +30,14 @@ export { PipelineManager } from './services/PipelineManager';
 export { StackManager } from './services/StackManager';
 
 // Core Services
-
+export { LoggerService } from './services/LoggerService';
 
 // Controllers
 export { PipelineController } from './controllers/PipelineController';
 
-
 // IoC Container and Tools
 export { IoC } from './tools/ioc/IoC';
-export { Logger } from './tools/log/Logger';
+export { Logger, LogLevel } from './tools/log';
 
 // Configuration Models
 export { IPipelineArgs, IPipelineConfig } from './models/Pipeline';
