@@ -79,3 +79,21 @@ export interface ISecretManagerOptions {
         secretSource?: string;
     };
 }
+
+export interface ISecretManager {
+
+    /**
+     * The secret manager configuration options.
+     * @param {ISecretManagerOptions} value - Secret manager configuration to set.
+     */
+    options: ISecretManagerOptions;
+
+    /**
+     * Resolves a secret value from the configured backend.
+     * @param {string} key - The secret key to resolve.
+     * @param {ISecretManagerOptions} [options] - Optional configuration override.
+     * @returns {Promise<string | null | undefined | number | boolean>} Promise resolving to the secret value.
+     * @throws {Error} When secret resolution fails.
+     */
+    resolve(key: string, options?: ISecretManagerOptions): Promise<string | null | undefined | number | boolean>;
+}  

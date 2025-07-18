@@ -5,7 +5,7 @@
  * @since 4.0.0
  * @version 4.0.0
  */
-import { ISecretManagerOptions } from "../models/Secret";
+import { ISecretManager, ISecretManagerOptions } from "../models/Secret";
 import { BaseService } from "./BaseService";
 
 /**
@@ -13,7 +13,7 @@ import { BaseService } from "./BaseService";
  * @extends BaseService
  * @description Bridge service for secret resolution from multiple backends
  */
-export class SecretManager extends BaseService {
+export class SecretManager extends BaseService implements ISecretManager {
     /**
      * Secret manager configuration options
      * @protected
@@ -72,7 +72,7 @@ export class SecretManager extends BaseService {
                 throw new Error("SecretManager options or type is not defined.");
             }
             const controllerName = "SecretManager" + options.type;
-            const controller = await this.assistant.resolve<SecretManager>(controllerName);
+            const controller = await this.assistant.resolve<ISecretManager>(controllerName);
             return await controller.resolve(key, options);
         }
         catch (error) {
