@@ -2,8 +2,8 @@
  * @fileoverview Stack Manager Service - Infrastructure Stack Bridge Component
  * @description Service for managing infrastructure stacks using Pulumi automation
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  */
 
 import { IStackOptions } from "../models/Stack";

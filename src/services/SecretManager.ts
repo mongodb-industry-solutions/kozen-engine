@@ -2,8 +2,8 @@
  * @fileoverview Secret Manager Service - Secret Resolution Bridge Component
  * @description Bridge service for managing secrets from various backends (AWS, MongoDB, environment variables)
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  */
 import { ISecretManager, ISecretManagerOptions } from "../models/Secret";
 import { BaseService } from "./BaseService";
