@@ -110,9 +110,10 @@ export class SecretManagerMDB extends SecretManager {
     }
 
     /**
-     * Initializes KMS providers configuration for Client-Side Field Level Encryption
+     * Initializes KMS providers configuration for Client-Side Field Level Encryption support
      * @private
-     * @returns {void}
+     * @returns void
+     * @description Sets up local and AWS KMS providers for encryption operations based on environment variables and configuration
      */
     private initializeKmsProviders(): void {
         const localMasterKeyBase64 = process.env.LOCAL_MASTER_KEY;

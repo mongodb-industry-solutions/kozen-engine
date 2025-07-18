@@ -1,13 +1,33 @@
-import { LogProcessor, LogEntry, LogLevel, LogOutputType } from '../types';
+import { LogEntry, LogLevel, LogOutputType, LogProcessor } from '../types';
 
 /**
  * MongoDB log processor - stores logs in a MongoDB database
  */
 export class MongoDBLogProcessor implements LogProcessor {
+  /**
+   * MongoDB connection string for database connectivity
+   * @private
+   */
   private connectionString: string;
+
+  /**
+   * Target database name for log storage
+   * @private
+   */
   private database: string;
+
+  /**
+   * Target collection name within database for log entries
+   * @private
+   */
   private collection: string;
 
+  /**
+   * Creates new MongoDBLogProcessor instance with database connection configuration
+   * @param connectionString - MongoDB connection URI, defaults to 'mongodb://localhost:27017'
+   * @param database - Target database name, defaults to 'logs'
+   * @param collection - Target collection name, defaults to 'application_logs'
+   */
   constructor(connectionString: string = 'mongodb://localhost:27017', database: string = 'logs', collection: string = 'application_logs') {
     this.connectionString = connectionString;
     this.database = database;
@@ -33,7 +53,7 @@ export class MongoDBLogProcessor implements LogProcessor {
 
     // Simulate MongoDB insertion
     console.log(`[MongoDB] Storing log in ${this.database}.${this.collection}:`, mongoDocument);
-    
+
     // Real implementation would be:
     // const client = new MongoClient(this.connectionString);
     // await client.db(this.database).collection(this.collection).insertOne(mongoDocument);

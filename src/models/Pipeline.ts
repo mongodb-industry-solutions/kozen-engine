@@ -85,12 +85,32 @@ export interface IPipelineConfig {
 }
 
 
+/**
+ * @interface IPipeline
+ * @description Pipeline runtime context interface for operation execution
+ */
 export interface IPipeline {
+  /**
+   * CLI arguments for pipeline operation
+   * @type {IPipelineArgs}
+   */
   args?: IPipelineArgs;
 
+  /**
+   * Template definition for infrastructure deployment
+   * @type {ITemplate}
+   */
   template?: ITemplate;
 
+  /**
+   * IoC container for dependency resolution
+   * @type {IIoC}
+   */
   assistant?: IIoC;
 
+  /**
+   * Stack manager for infrastructure operations
+   * @type {IStackManager}
+   */
   stack?: IStackManager
 }

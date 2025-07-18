@@ -13,7 +13,18 @@ import { ClassConstructor, IIoC, JsonValue, ServiceConfig } from './types';
  * - Enhanced clarity with focused, single-responsibility methods
  */
 export class IoC implements IIoC {
+  /**
+   * Singleton instance for global IoC container access
+   * @private
+   * @static
+   */
   private static instance: IIoC;
+
+  /**
+   * Returns singleton IoC container instance for application-wide dependency management
+   * @returns Singleton IoC container instance
+   * @static
+   */
   public static getInstance(): IIoC {
     if (!IoC.instance) {
       IoC.instance = new IoC();
@@ -21,16 +32,40 @@ export class IoC implements IIoC {
     return IoC.instance;
   }
 
+  /**
+   * Underlying Awilix container for dependency injection operations
+   * @private
+   * @readonly
+   */
   private readonly container: AwilixContainer;
+
+  /**
+   * Registry storing service configurations for tracking and management
+   * @private
+   * @readonly
+   */
   private readonly registeredConfigs = new Map<string, ServiceConfig>();
 
-  // Auto-registration configurations (regex patterns)
+  /**
+   * Auto-registration configurations containing regex patterns for dynamic service discovery
+   * @private
+   * @readonly
+   */
   private readonly autoRegistrationPatterns: ServiceConfig[] = [];
 
-  // Cache for resolved auto-registrations to avoid re-processing
+  /**
+   * Cache for resolved auto-registrations to prevent duplicate processing
+   * @private
+   * @readonly
+   */
   private readonly autoRegistrationCache = new Map<string, boolean>();
 
-  // Error messages for consistency
+  /**
+   * Standardized error messages for consistent exception handling
+   * @private
+   * @static
+   * @readonly
+   */
   private static readonly ERRORS = {
     REFERENCE_NOT_FOUND: (ref: string) => `Reference '${ref}' not found in registered dependencies.`,
     INVALID_TARGET: (key: string, type: string) => `Invalid target for type '${type}' for key '${key}'.`,
