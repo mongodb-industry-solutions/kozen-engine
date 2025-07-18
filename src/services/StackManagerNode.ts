@@ -27,6 +27,14 @@ export class StackManagerNode extends StackManager {
         try {
             config?.program instanceof Function && await config.program();
 
+            this.logger?.debug({
+                data: {
+                    stackName: config.name,
+                    projectName: config.project,
+                },
+                message: `Stack ${config.name} deployed successfully.`,
+            });
+
             return {
                 stackName: config.name,
                 projectName: config.project,
@@ -36,13 +44,19 @@ export class StackManagerNode extends StackManager {
             };
         }
         catch (error) {
-            console.log(error)
+            this.logger?.error({
+                data: {
+                    stackName: config.name,
+                    projectName: config.project,
+                },
+                message: `Stack ${config.name} deployed failed.`,
+            });
             return {
                 stackName: config.name,
                 projectName: config.project,
                 success: false,
                 timestamp: new Date(),
-                message: `Stack ${config.name} deployed faild.`,
+                message: `Stack ${config.name} deployed failed.`,
             };
         }
     }
