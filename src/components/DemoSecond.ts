@@ -7,7 +7,11 @@ import { IResult, IStruct } from '../models/Types';
  */
 export class DemoSecond extends BaseController {
 
-
+  /**
+   * Deploys the DemoSecond component with logging and result generation
+   * @param input - Optional deployment input parameters with message
+   * @returns Promise resolving to deployment result with success status
+   */
   async deploy(input?: IStruct): Promise<IResult> {
     console.log(`Deploying DemoFirst with message: ${input?.message}`);
     return {
@@ -19,6 +23,11 @@ export class DemoSecond extends BaseController {
     };
   }
 
+  /**
+   * Undeploys the DemoSecond component with cleanup confirmation
+   * @param input - Optional undeployment input parameters
+   * @returns Promise resolving to undeployment result with success status
+   */
   async undeploy(input?: IStruct): Promise<IResult> {
     console.log(`Undeploying DemoFirst`);
     return {
@@ -30,6 +39,11 @@ export class DemoSecond extends BaseController {
     };
   }
 
+  /**
+   * Validates the DemoSecond component configuration
+   * @param input - Optional validation input parameters
+   * @returns Promise resolving to validation result with status confirmation
+   */
   async validate(input?: IStruct): Promise<IResult> {
     return {
       templateName: this.config.name,
@@ -40,6 +54,11 @@ export class DemoSecond extends BaseController {
     };
   }
 
+  /**
+   * Retrieves current status information for the DemoSecond component
+   * @param input - Optional status query input parameters
+   * @returns Promise resolving to status result with operational state
+   */
   async status(input?: IStruct): Promise<IResult> {
     return {
       templateName: this.config.name,

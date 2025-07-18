@@ -1,16 +1,39 @@
-import { LogLevel, LogEntry, LogOutputType, LogProcessor, LoggerConfig, LogInput, LogOptions } from './types';
 import { ConsoleLogProcessor } from './processors/ConsoleLogProcessor';
+import { LogEntry, LoggerConfig, LogInput, LogLevel, LogOptions, LogOutputType, LogProcessor } from './types';
 
 /**
  * Simplified Logger class with configurable output format and pluggable processors
  * Now supports flow-based logging with automatic flow ID generation and simplified input structure
  */
 export class Logger {
-  private currentLevel: LogLevel;     // Current minimum log level to display
-  private category?: string;          // Category/module name for this logger instance
-  private outputType: LogOutputType;  // Output format (json or object)
-  protected processor: LogProcessor;  // Log processor that handles the actual output/storage
+  /**
+   * Current minimum log level threshold for message filtering
+   * @private
+   */
+  private currentLevel: LogLevel;
 
+  /**
+   * Optional category identifier for logging context organization
+   * @private
+   */
+  private category?: string;
+
+  /**
+   * Output format type controlling serialization behavior
+   * @private
+   */
+  private outputType: LogOutputType;
+
+  /**
+   * Processor instance responsible for log message output handling
+   * @protected
+   */
+  protected processor: LogProcessor;
+
+  /**
+   * Creates new Logger instance with optional configuration settings
+   * @param config - Optional logger configuration with level, category, type and processor settings
+   */
   constructor(config: LoggerConfig = {}) {
     this.currentLevel = config.level ?? LogLevel.INFO;
     this.category = config.category;
@@ -101,7 +124,7 @@ export class Logger {
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
     const random = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-    
+
     return `${year}${month}${day}${hours}${minutes}${seconds}${random}`;
   }
 

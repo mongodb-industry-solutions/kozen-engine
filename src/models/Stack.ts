@@ -34,6 +34,10 @@ export interface IConfigValue extends ConfigMap { }
  */
 export interface IStackOptions extends IComponent {
 
+    /**
+     * Infrastructure orchestration tool type
+     * @type {string}
+     */
     orchestrator?: string;
 
     /**
@@ -211,12 +215,34 @@ export interface IStackManager {
      */
     status(config: IStackOptions): Promise<IResult>;
 
-
+    /**
+     * Transforms component input configuration through variable processing
+     * @param component - Component configuration containing input definitions
+     * @param output - Output context for variable resolution  
+     * @param key - Property key to process for input configuration
+     * @returns Promise resolving to transformed input configuration object
+     */
     transformInput(component: IComponent, output: IStruct, key: string): Promise<IStruct>;
 
+    /**
+     * Transforms component setup configuration for stack initialization
+     * @param component - Component configuration containing setup definitions
+     * @param output - Output context for variable resolution
+     * @param key - Property key to process for setup configuration  
+     * @returns Promise resolving to transformed setup configuration object
+     */
     transformSetup(component: IComponent, output: IStruct, key: string): Promise<IStruct>;
 }
 
+/**
+ * @interface IStackManagerPulumi
+ * @description Extended stack manager interface for Pulumi-specific operations
+ * @extends IStackManager
+ */
 export interface IStackManagerPulumi extends IStackManager {
+    /**
+     * Pulumi stack instance for direct automation access
+     * @type {Stack}
+     */
     stack?: Stack;
 }

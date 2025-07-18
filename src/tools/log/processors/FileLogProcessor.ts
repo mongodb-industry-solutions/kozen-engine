@@ -1,11 +1,19 @@
-import { LogProcessor, LogEntry, LogLevel, LogOutputType } from '../types';
+import { LogEntry, LogLevel, LogOutputType, LogProcessor } from '../types';
 
 /**
  * File log processor - appends logs to a file
  */
 export class FileLogProcessor implements LogProcessor {
+  /**
+   * File system path where log entries are written
+   * @private
+   */
   private filePath: string;
 
+  /**
+   * Creates new FileLogProcessor instance with specified output file path
+   * @param filePath - Target file path for log output, defaults to './application.log'
+   */
   constructor(filePath: string = './application.log') {
     this.filePath = filePath;
   }
@@ -18,10 +26,10 @@ export class FileLogProcessor implements LogProcessor {
    */
   process(entry: LogEntry, level: LogLevel, outputType: LogOutputType): void {
     const logLine = this.formatLogLine(entry, outputType);
-    
+
     // Simulate file writing
     console.log(`[FILE] Writing to ${this.filePath}: ${logLine}`);
-    
+
     // Real implementation would be:
     // import * as fs from 'fs';
     // fs.appendFileSync(this.filePath, logLine + '\n');
@@ -53,7 +61,7 @@ export class FileLogProcessor implements LogProcessor {
     if (outputType === 'json') {
       return JSON.stringify(entry);
     }
-    
+
     // Human-readable format
     const date = entry.date;
     const level = `[${entry.level}]`;
@@ -61,7 +69,7 @@ export class FileLogProcessor implements LogProcessor {
     const flow = `[${entry.flow}]`;
     const message = entry.message;
     const data = entry.data ? ` ${JSON.stringify(entry.data)}` : '';
-    
+
     return `${date} ${level} ${category} ${flow} ${message}${data}`.trim();
   }
 } 
