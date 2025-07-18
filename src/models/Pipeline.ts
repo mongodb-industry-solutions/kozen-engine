@@ -7,8 +7,8 @@ import { ITemplate } from "./Template";
  * @fileoverview Pipeline configuration models for CLI arguments and deployment settings
  * @description Defines interfaces for pipeline arguments and configuration management
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  */
 
 /**

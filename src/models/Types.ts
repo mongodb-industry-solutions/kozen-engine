@@ -2,8 +2,8 @@
  * @fileoverview Core type definitions and interfaces for pipeline operations
  * @description Defines fundamental types and interfaces used throughout the pipeline system
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  */
 
 /**
