@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import { IComponent, ITransformFn } from '../models/Component';
 import { IController } from '../models/Controller';
+import { ILoggerService } from '../models/Logger';
 import { IPipeline, IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
 import { IStackManager } from '../models/Stack';
 import { ITemplate, ITemplateManager } from '../models/Template';
@@ -17,8 +18,8 @@ import { BaseService } from './BaseService';
  * deployment and providing a unified interface for different deployment operations (deploy, undeploy, validate, status).
  * 
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  * 
  * @example
  * ```typescript
@@ -99,6 +100,8 @@ export class PipelineManager extends BaseService {
             this.config = config;
             this.assistant = ioc || this.assistant;
             await this.assistant.register(this.config.dependencies);
+            // TODO: move this to the config
+            this.logger = await this.assistant.resolve<ILoggerService>('LoggerService');
             return this;
         } catch (error) {
             throw new Error(`Failed to configure pipeline: ${error instanceof Error ? error.message : String(error)}`);
