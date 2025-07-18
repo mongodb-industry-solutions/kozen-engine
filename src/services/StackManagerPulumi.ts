@@ -25,12 +25,26 @@ import StackManager from "./StackManager";
  */
 export class StackManagerPulumi extends StackManager {
 
+    /**
+     * Internal Pulumi stack instance for deployment operations
+     * @protected
+     */
     protected _stack?: Stack
 
+    /**
+     * Gets the current Pulumi stack instance
+     * @public
+     * @returns Current stack instance for deployment operations
+     */
     public get stack(): Stack {
         return this._stack!;
     }
 
+    /**
+     * Sets the Pulumi stack instance for deployment operations
+     * @protected
+     * @param stack - Pulumi stack instance to configure for operations
+     */
     protected set stack(stack: Stack) {
         this._stack = stack;
     }
@@ -99,6 +113,14 @@ export class StackManagerPulumi extends StackManager {
         return stack;
     }
 
+    /**
+     * Transforms component setup configuration into Pulumi configuration format
+     * @public
+     * @param opts - Component configuration containing setup definitions
+     * @param output - Output object to accumulate transformed values
+     * @param key - Property key to process for setup configuration
+     * @returns Promise resolving to transformed setup configuration object
+     */
     public async transformSetup(opts: IComponent, output: IStruct = {}, key: string = "setup"): Promise<IStruct> {
         if (Array.isArray(opts[key])) {
             let input = await this.transformInput(opts, {}, key);
@@ -110,6 +132,13 @@ export class StackManagerPulumi extends StackManager {
         return output;
     }
 
+    /**
+     * Transforms individual setup metadata item into Pulumi configuration format
+     * @public
+     * @param meta - Metadata definition containing name, type, and configuration details
+     * @param input - Input values to resolve configuration values from
+     * @returns Promise resolving to Pulumi configuration object with value and secret flag
+     */
     public async transformSetupItem(meta: IMetadata, input: IStruct): Promise<IStruct> {
         return {
             [meta.name]: {
