@@ -1,6 +1,6 @@
 import { IComponent } from '../models/Component';
+import { IController } from '../models/Controller';
 import { IPipeline } from '../models/Pipeline';
-import { IConfigValue } from '../models/Stack';
 import { IResult, IStruct } from '../models/Types';
 import { IIoC } from '../tools';
 
@@ -24,7 +24,7 @@ import { IIoC } from '../tools';
  * @since 1.0.0
  * @version 4.0.0
  */
-export abstract class BaseController {
+export abstract class BaseController implements IController {
     /**
      * @description IoC container instance for dependency management
      * Protected IoC container providing dependency injection capabilities.
