@@ -41,7 +41,7 @@ Kozen Engine follows an extensible, plugin-based architecture with three core ex
 ### Core Extensible Components
 
 - **StackManager**: Dynamic infrastructure orchestration with pluggable providers
-- **TemplateManager**: Flexible template storage and retrieval system  
+- **TemplateManager**: Flexible template storage and retrieval system
 - **SecretManager**: Multi-provider secret management with security abstraction
 
 ![Component Architecture](docs/images/kozen-architecture-Component.jpg)
@@ -49,6 +49,7 @@ Kozen Engine follows an extensible, plugin-based architecture with three core ex
 ### Mono-Stack Pipeline Concept
 
 Each template defines a single stack instance composed of:
+
 - **Components List**: Ordered sequence of infrastructure and testing components
 - **Input/Output Configuration**: Data flow between components
 - **Setup Parameters**: Initial configuration and environment setup
@@ -56,6 +57,7 @@ Each template defines a single stack instance composed of:
 ![Component Flow](docs/images/kozen-architecture-Component.Flow.jpg)
 
 Each component autonomously decides its execution behavior and can:
+
 - Deploy cloud infrastructure
 - Execute various test types (e2e, integration, performance)
 - Call external APIs
@@ -68,15 +70,15 @@ Each component autonomously decides its execution behavior and can:
 
 ## 📚 Documentation
 
-| Topic | Description | Link |
-|-------|-------------|------|
-| **Architecture** | Detailed system architecture and component design | [docs/architecture.md](docs/architecture.md) |
-| **Components** | Component system and extensibility guide | [docs/components.md](docs/components.md) |
-| **Configuration** | Configuration files and environment setup | [docs/configuration.md](docs/configuration.md) |
-| **Templates** | Template system and creation guide | [docs/templates.md](docs/templates.md) |
-| **Testing** | Testing capabilities and execution patterns | [docs/testing.md](docs/testing.md) |
-| **API Reference** | Complete API documentation | [docs/api-reference.md](docs/api-reference.md) |
-| **Deployment** | Production deployment and NPM integration | [docs/deployment.md](docs/deployment.md) |
+| Topic             | Description                                       | Link                                           |
+| ----------------- | ------------------------------------------------- | ---------------------------------------------- |
+| **Architecture**  | Detailed system architecture and component design | [docs/architecture.md](docs/architecture.md)   |
+| **Components**    | Component system and extensibility guide          | [docs/components.md](docs/components.md)       |
+| **Configuration** | Configuration files and environment setup         | [docs/configuration.md](docs/configuration.md) |
+| **Templates**     | Template system and creation guide                | [docs/templates.md](docs/templates.md)         |
+| **Testing**       | Testing capabilities and execution patterns       | [docs/testing.md](docs/testing.md)             |
+| **API Reference** | Complete API documentation                        | [docs/api-reference.md](docs/api-reference.md) |
+| **Deployment**    | Production deployment and NPM integration         | [docs/deployment.md](docs/deployment.md)       |
 
 ### Template System Architecture
 
@@ -85,21 +87,25 @@ Each component autonomously decides its execution behavior and can:
 ## 🔧 Core Features
 
 ### 🏭 Extensible Stack Management
+
 - **StackManagerPulumi**: Infrastructure-focused Pulumi automation
 - **StackManagerNode**: Node.js runtime execution environment
 - **Custom Providers**: Extensible architecture for additional stack managers
 
 ### 📋 Flexible Template System
+
 - **TemplateManagerFile**: File system-based template storage
 - **TemplateManagerMDB**: MongoDB-based template management
 - **Multi-Source Support**: Extensible to additional storage providers
 
 ### 🔐 Multi-Provider Secret Management
+
 - **SecretManagerAWS**: AWS Secrets Manager integration
 - **SecretManagerMDB**: MongoDB-based secure secret storage
 - **Provider Agnostic**: Support for additional secret providers
 
 ### 📊 Data Collection & Analytics
+
 - **MongoDB Integration**: Comprehensive data storage
 - **Chart Visualization**: MongoDB Charts for statistical analysis
 - **Execution Tracking**: Complete pipeline execution monitoring
@@ -107,15 +113,17 @@ Each component autonomously decides its execution behavior and can:
 ## 🎮 Usage Examples
 
 ### Basic Infrastructure Deployment
+
 ```bash
 # Deploy MongoDB Atlas cluster
 npm run dev -- --template=atlas.basic --config=cfg/config.json --action=deploy
 
-# Deploy Kubernetes resources  
+# Deploy Kubernetes resources
 npm run dev -- --template=k8s.standard --config=cfg/config.json --action=deploy
 ```
 
 ### Testing Pipeline Execution
+
 ```bash
 # Run end-to-end tests
 npm run dev -- --template=e2e.tests --config=cfg/config.json --action=validate
@@ -125,6 +133,7 @@ npm run dev -- --template=performance.suite --config=cfg/config.json --action=va
 ```
 
 ### Multi-Component Pipeline
+
 ```bash
 # Deploy infrastructure + run tests + collect data
 npm run dev -- --template=full.pipeline --config=cfg/config.json --action=deploy
@@ -135,45 +144,47 @@ npm run dev -- --template=full.pipeline --config=cfg/config.json --action=deploy
 Kozen Engine is designed for distribution as an NPM package, enabling:
 
 ```typescript
-import { PipelineManager, IoC } from 'kozen-engine';
+import { PipelineManager, IoC } from "kozen-engine";
 
 const ioc = new IoC();
 const pipeline = new PipelineManager(ioc);
 
 // Deploy infrastructure
 await pipeline.deploy({
-  template: 'atlas.basic',
-  config: 'cfg/config.json',
-  action: 'deploy'
+  template: "atlas.basic",
+  config: "cfg/config.json",
+  action: "deploy",
 });
 
 // Execute tests
 await pipeline.validate({
-  template: 'e2e.tests', 
-  config: 'cfg/config.json',
-  action: 'validate'
+  template: "e2e.tests",
+  config: "cfg/config.json",
+  action: "validate",
 });
 ```
 
 ## 🛠️ Development
 
 ### Prerequisites
+
 - Node.js 16.0.0 or higher
 - TypeScript 5.0.0 or higher
 - MongoDB instance (for data storage and templates)
 - Cloud provider credentials (AWS, etc.)
 
 ### Project Structure
+
 ```
 kozen-engine/
-├── bin/                    # CLI entry points
-├── cfg/                    # Configuration files
-│   ├── config.json         # Main configuration
-│   └── templates/          # Template definitions
-├── src/                    # Source code
-│   ├── components/         # Infrastructure & testing components
-│   ├── controllers/        # Request handling layer
-│   ├── models/            # Data models and interfaces  
+├── bin/                   # CLI entry points
+├── cfg/                   # Configuration files
+│   ├── config.json        # Main configuration
+│   └── templates/         # Template definitions
+├── src/                   # Source code
+│   ├── components/        # Infrastructure & testing components
+│   ├── controllers/       # Request handling layer
+│   ├── models/            # Data models and interfaces
 │   ├── services/          # Core business logic
 │   └── tools/             # Utility libraries (IoC, logging)
 └── docs/                  # Comprehensive documentation
@@ -205,4 +216,4 @@ The next generation of Kozen Engine will expand capabilities to support multi-cl
 
 ---
 
-**Built with ❤️ for the Infrastructure and Testing automation community**
+**Built with ❤️ for the MongoDB Solution Assurance Team (SAT)**
