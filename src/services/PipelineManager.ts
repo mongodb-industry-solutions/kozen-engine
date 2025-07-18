@@ -1,13 +1,13 @@
 import * as fs from 'fs';
 import { BaseController } from '../controllers/BaseController';
+import { IComponent, ITransformFn } from '../models/Component';
 import { IPipeline, IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
-import { IComponent, ITemplate, ITransformFn } from '../models/Template';
+import { ITemplate } from '../models/Template';
 import { IAction, IResult, IStruct } from "../models/Types";
 import { IoC } from "../tools";
 import { BaseService } from './BaseService';
 import { StackManager } from './StackManager';
 import { TemplateManager } from './TemplateManager';
-import { VarProcessorService } from './VarProcessorService';
 
 /**
  * @fileoverview Pipeline Manager Service - Core Bridge Component
@@ -17,7 +17,7 @@ import { VarProcessorService } from './VarProcessorService';
  * The PipelineManager implements the Bridge pattern by abstracting the complexity of infrastructure
  * deployment and providing a unified interface for different deployment operations (deploy, undeploy, validate, status).
  * 
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  * 
@@ -94,18 +94,6 @@ export class PipelineManager extends BaseService {
      * 1. Storing the provided configuration
      * 2. Setting up the IoC container for dependency injection
      * 3. Registering all service dependencies defined in the configuration
-     * 
-     * @example
-     * ```typescript
-     * const config = {
-     *   name: 'my-pipeline',
-     *   dependencies: [
-     *     { target: 'StackManager', type: 'class', lifetime: 'singleton' }
-     *   ]
-     * };
-     * 
-     * await pipelineManager.configure(config);
-     * ```
      */
     public async configure(config: IPipelineConfig, ioc?: IoC): Promise<PipelineManager> {
         try {
@@ -133,50 +121,41 @@ export class PipelineManager extends BaseService {
      * 4. Executing the deployment through stack manager
      * 5. Processing all template components sequentially
      * 6. Returning comprehensive deployment results
-     * 
-     * @example
-     * ```typescript
-     * const deploymentArgs = {
-     *   template: 'atlas.basic',
-     *   action: 'deploy',
-     *   config: 'cfg/config.json',
-     *   stack: 'prod-stack-001',
-     *   project: 'my-project'
-     * };
-     * 
-     * const result = await pipelineManager.deploy(deploymentArgs);
-     * if (result.success) {
-     *   console.log(`Deployment completed: ${result.message}`);
-     * }
-     * ```
      */
     public async deploy(args: IPipelineArgs): Promise<IResult> {
         const { template: templateName, action, project, stack: name } = args;
 
-        const stack = await this.assistant.resolve<StackManager>("StackManager");
         const srvTemplate = await this.assistant.resolve<TemplateManager>("TemplateManager");
+        const stackAdm = await this.assistant.resolve<StackManager>("StackManager");
 
-        let template = await srvTemplate.load<ITemplate>(templateName);
         let result = {};
+        let template = await srvTemplate.load<ITemplate>(templateName);
+        let pipeline = { args, assistant: this.assistant, template, stack: stackAdm };
 
-        await stack.deploy({
+        await stackAdm.deploy({
             name,
             project,
+            ...template?.stack,
             program: async () => {
-                result = await this.process({
-                    components: template.components,
-                    action: 'deploy',
-                    pipeline: { args, assistant: this.assistant, template },
-                    trasnfor: (cmp, out) => this.transnforInput(cmp, out, "input")
-                });
+                if (template.stack?.components) {
+                    result = await this.process({
+                        pipeline,
+                        action: 'deploy',
+                        components: template.stack.components,
+                        transform: (cmp, out) => stackAdm.transformInput(cmp, out, "input")
+                    });
+                }
             },
-            setup: async (stack) => {
-                let configs = await this.process({
-                    components: template.components,
-                    action: 'setup',
-                    pipeline: { args, assistant: this.assistant, template, stack },
-                    trasnfor: (cmp, out) => this.transnforInput(cmp, out, "setup")
-                });
+            init: async (stack) => {
+                let configs = null;
+                if (template.stack?.components) {
+                    configs = await this.process({
+                        pipeline,
+                        action: 'setup',
+                        components: template.stack?.components,
+                        transform: (cmp, out) => stackAdm.transformInput(cmp, out, "setup")
+                    });
+                }
                 return configs?.output || {};
             }
         });
@@ -207,28 +186,12 @@ export class PipelineManager extends BaseService {
      * 5. Processing input variables with scope and context
      * 6. Executing component deployment
      * 7. Aggregating results and outputs for final response
-     * 
-     * @example
-     * ```typescript
-     * const template = {
-     *   name: 'atlas-cluster',
-     *   components: [
-     *     {
-     *       name: 'AtlasCluster',
-     *       input: [{ name: 'clusterName', value: 'prod-cluster' }]
-     *     }
-     *   ]
-     * };
-     * 
-     * const result = await pipelineManager.process(template);
-     * console.log('Processed components:', result.results.length);
-     * ```
      */
-    protected async process({ components, action = 'deploy', pipeline, trasnfor }: {
+    protected async process({ components, action = 'deploy', pipeline, transform }: {
         components: IComponent[],
         action: string,
         pipeline?: IPipeline
-        trasnfor: ITransformFn
+        transform: ITransformFn
     }): Promise<IResult> {
 
         const results: IResult[] = [];
@@ -236,9 +199,9 @@ export class PipelineManager extends BaseService {
 
         // TODO: create a generic method for executing multiple components (async | sync)
         for (const component of components) {
-            const delegate = await this.assistant.resolve<BaseController>(component.name);
+            const delegate = await this.assistant.resolve<BaseController>(component.name!);
             delegate.configure(component);
-            const input = await trasnfor(component, output);
+            const input = await transform(component, output);
             const method = (delegate as any)[action];
             const result = ((method instanceof Function) && await method.apply(delegate, [input, pipeline])) || null;
 
@@ -254,20 +217,6 @@ export class PipelineManager extends BaseService {
     }
 
     /**
-     * Transforms component input by processing variables through VarProcessorService
-     * @protected
-     * @param {IComponent} component - Component containing input definitions
-     * @param {IStruct} output - Current output scope for variable resolution
-     * @param {string} [key="input"] - Property key to process (default: "input")
-     * @returns {Promise<IStruct>} Promise resolving to processed input variables
-     */
-    protected async transnforInput(component: IComponent, output: IStruct, key: string = "input"): Promise<IStruct> {
-        const srvVar = await this.assistant.resolve<VarProcessorService>('VarProcessorService');
-        const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output));
-        return input || {};
-    }
-
-    /**
      * Undeploys infrastructure using the specified template and pipeline arguments
      * 
      * @public
@@ -277,19 +226,6 @@ export class PipelineManager extends BaseService {
      * 
      * @description Removes previously deployed infrastructure by reversing the deployment process.
      * This method coordinates with stack managers and component controllers to clean up resources.
-     * 
-     * @example
-     * ```typescript
-     * const undeployArgs = {
-     *   template: 'atlas.basic',
-     *   action: 'undeploy',
-     *   config: 'cfg/config.json',
-     *   stack: 'prod-stack-001'
-     * };
-     * 
-     * const result = await pipelineManager.undeploy(undeployArgs);
-     * console.log('Undeployment result:', result.message);
-     * ```
      */
     public async undeploy(pipeline: IPipelineArgs): Promise<IResult> {
         const { template: templateName, action, project, stack: name } = pipeline;
@@ -313,20 +249,6 @@ export class PipelineManager extends BaseService {
      * @description Performs comprehensive validation of template configuration, dependencies,
      * and component settings without deploying actual infrastructure. This helps catch
      * configuration errors early in the deployment pipeline.
-     * 
-     * @example
-     * ```typescript
-     * const validateArgs = {
-     *   template: 'atlas.basic',
-     *   action: 'validate',
-     *   config: 'cfg/config.json'
-     * };
-     * 
-     * const result = await pipelineManager.validate(validateArgs);
-     * if (result.success) {
-     *   console.log('Template validation passed');
-     * }
-     * ```
      */
     public async validate(pipeline: IPipelineArgs): Promise<IResult> {
         const { template: templateName, action, project, stack: name } = pipeline;
@@ -349,19 +271,6 @@ export class PipelineManager extends BaseService {
      * 
      * @description Queries the current state of deployed infrastructure components and provides
      * comprehensive status information including health, configuration, and operational metrics.
-     * 
-     * @example
-     * ```typescript
-     * const statusArgs = {
-     *   template: 'atlas.basic',
-     *   action: 'status',
-     *   config: 'cfg/config.json',
-     *   stack: 'prod-stack-001'
-     * };
-     * 
-     * const result = await pipelineManager.status(statusArgs);
-     * console.log('Infrastructure status:', result.message);
-     * ```
      */
     public async status(pipeline: IPipelineArgs): Promise<IResult> {
         const { template: templateName, action, project, stack: name } = pipeline;

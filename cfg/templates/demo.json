@@ -6,114 +6,129 @@
     "release": "20241201",
     "requires": [],
     "deploymentMode": "synchronous",
-    "components": [
-        {
-            "name": "DemoFirst",
-            "input": [
-                {
-                    "type": "environment",
-                    "name": "projectName",
-                    "value": "DEMO_NAME"
-                },
-                {
-                    "type": "value",
-                    "name": "message",
-                    "value": "Welcome to the IaC Pipeline Demo! 🚀"
-                },
-                {
-                    "type": "reference",
-                    "name": "delay",
-                    "value": "DEMO_DELAY",
-                    "default": 1000
-                },
-                {
-                    "type": "secret",
-                    "name": "secs",
-                    "value": "ATLAS_PRIVATE_KEY",
-                    "default": "12345"
-                }
-            ],
-            "output": [
-                {
-                    "type": "reference",
-                    "name": "ipAddress",
-                    "value": "ipAddress",
-                    "description": "IP address of the HelloWorld component"
-                },
-                {
-                    "type": "value",
-                    "name": "format",
-                    "value": "${message} - ${reference}",
-                    "description": "Formatted message from HelloWorld"
-                }
-            ],
-            "setup": [
-                {
-                    "type": "environment",
-                    "name": "aws:region",
-                    "value": "AWS_REGION",
-                    "default": "us-east-1"
-                },
-                {
-                    "type": "protected",
-                    "name": "aws:accessKey",
-                    "value": "AWS_ACCESS_KEY_ID",
-                    "default": ""
-                },
-                {
-                    "type": "protected",
-                    "name": "aws:secretKey",
-                    "value": "AWS_SECRET_ACCESS_KEY",
-                    "default": ""
-                },
-                {
-                    "type": "secret",
-                    "name": "mongodb-atlas:publicKey",
-                    "value": "ATLAS_PUBLIC_KEY"
-                },
-                {
-                    "type": "secret",
-                    "name": "mongodb-atlas:privateKey",
-                    "value": "ATLAS_PRIVATE_KEY"
-                },
-                {
-                    "type": "secret",
-                    "name": "mongodb-atlas:projectId",
-                    "value": "ATLAS_PROJECT_ID"
-                }
-            ]
-        },
-        {
-            "name": "DemoSecond",
-            "input": [
-                {
-                    "type": "reference",
-                    "name": "adddress",
-                    "value": "ipAddress",
-                    "default": "127.0.0.1"
-                },
-                {
-                    "type": "value",
-                    "name": "message",
-                    "value": "Hello from DemoSecond! 🌍"
-                },
-                {
-                    "name": "delay",
-                    "value": 500
-                },
-                {
-                    "type": "secret",
-                    "name": "delay",
-                    "value": "MYSECRET",
-                    "default": [
-                        "Pipeline initialization started",
-                        "Loading component configurations",
-                        "Validating template structure",
-                        "Executing deployment sequence",
-                        "Demo pipeline completed successfully"
-                    ]
-                }
-            ]
-        }
-    ]
+    "stack": {
+        "orchestrator": "Pulumi",
+        "input": [
+            {
+                "type": "environment",
+                "name": "PULUMI_CONFIG_PASSPHRASE"
+            },
+            {
+                "type": "environment",
+                "name": "PULUMI_BACKEND_URL"
+            }
+        ],
+        "setup": [
+            {
+                "type": "environment",
+                "name": "aws:region",
+                "value": "AWS_REGION",
+                "default": "us-east-1"
+            },
+            {
+                "type": "protected",
+                "name": "aws:accessKey",
+                "value": "AWS_ACCESS_KEY_ID",
+                "default": ""
+            },
+            {
+                "type": "protected",
+                "name": "aws:secretKey",
+                "value": "AWS_SECRET_ACCESS_KEY",
+                "default": ""
+            }
+        ],
+        "components": [
+            {
+                "name": "DemoFirst",
+                "input": [
+                    {
+                        "type": "environment",
+                        "name": "projectName",
+                        "value": "DEMO_NAME"
+                    },
+                    {
+                        "type": "value",
+                        "name": "message",
+                        "value": "Welcome to the IaC Pipeline Demo! 🚀"
+                    },
+                    {
+                        "type": "reference",
+                        "name": "delay",
+                        "value": "DEMO_DELAY",
+                        "default": 1000
+                    },
+                    {
+                        "type": "secret",
+                        "name": "secs",
+                        "value": "ATLAS_PRIVATE_KEY",
+                        "default": "12345"
+                    }
+                ],
+                "output": [
+                    {
+                        "type": "reference",
+                        "name": "ipAddress",
+                        "value": "ipAddress",
+                        "description": "IP address of the HelloWorld component"
+                    },
+                    {
+                        "type": "value",
+                        "name": "format",
+                        "value": "${message} - ${reference}",
+                        "description": "Formatted message from HelloWorld"
+                    }
+                ],
+                "setup": [
+                    {
+                        "type": "secret",
+                        "name": "mongodb-atlas:publicKey",
+                        "value": "ATLAS_PUBLIC_KEY"
+                    },
+                    {
+                        "type": "secret",
+                        "name": "mongodb-atlas:privateKey",
+                        "value": "ATLAS_PRIVATE_KEY"
+                    },
+                    {
+                        "type": "secret",
+                        "name": "mongodb-atlas:projectId",
+                        "value": "ATLAS_PROJECT_ID"
+                    }
+                ]
+            },
+            {
+                "name": "DemoSecond",
+                "input": [
+                    {
+                        "type": "reference",
+                        "name": "adddress",
+                        "value": "ipAddress",
+                        "default": "127.0.0.1"
+                    },
+                    {
+                        "type": "value",
+                        "name": "message",
+                        "value": "Hello from DemoSecond! 🌍"
+                    },
+                    {
+                        "name": "delay",
+                        "value": 500
+                    },
+                    {
+                        "type": "secret",
+                        "name": "delay",
+                        "value": "MYSECRET",
+                        "default": [
+                            "Pipeline initialization started",
+                            "Loading component configurations",
+                            "Validating template structure",
+                            "Executing deployment sequence",
+                            "Demo pipeline completed successfully"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
 }
