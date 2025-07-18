@@ -226,7 +226,7 @@ export class StackManagerPulumi extends StackManager {
                 projectName: config.project,
                 success: false,
                 timestamp: new Date(),
-                message: `Stack ${config.name} deployed faild.`,
+                message: `Stack ${config.name} deployed failed.`,
             };
         }
     }
