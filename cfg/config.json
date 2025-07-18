@@ -29,13 +29,37 @@
       "target": "StackManagerNode",
       "type": "class",
       "lifetime": "transient",
-      "path": "../../services"
+      "path": "../../services",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
     },
     {
       "target": "StackManagerPulumi",
       "type": "class",
       "lifetime": "transient",
-      "path": "../../services"
+      "path": "../../services",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
     },
     {
       "target": "TemplateManager",
@@ -67,7 +91,19 @@
     {
       "target": "TemplateManagerFile",
       "type": "class",
-      "path": "../../services"
+      "path": "../../services",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
     },
     {
       "target": "TemplateManagerMDB",
@@ -77,6 +113,11 @@
         {
           "key": "assistant",
           "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
           "type": "ref"
         }
       ]
@@ -108,13 +149,27 @@
       "target": "SecretManagerAWS",
       "type": "class",
       "lifetime": "singleton",
-      "path": "../../services"
+      "path": "../../services",
+      "dependencies": [
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
     },
     {
       "target": "SecretManagerMDB",
       "type": "class",
       "lifetime": "singleton",
-      "path": "../../services"
+      "path": "../../services",
+      "dependencies": [
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
     },
     {
       "target": "PipelineManager",
@@ -151,6 +206,11 @@
         {
           "key": "assistant",
           "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
           "type": "ref"
         }
       ]
