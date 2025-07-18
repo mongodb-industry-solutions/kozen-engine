@@ -1,4 +1,4 @@
-import { ITemplateConfig } from "../models/Template";
+import { ITemplateConfig, ITemplateManager } from "../models/Template";
 import { BaseService } from "./BaseService";
 
 /**
@@ -42,7 +42,7 @@ import { BaseService } from "./BaseService";
  * const template = await templateManager.load('atlas.basic');
  * ```
  */
-export class TemplateManager extends BaseService {
+export class TemplateManager extends BaseService implements TemplateManager {
 
     /**
      * Template configuration options
@@ -174,7 +174,7 @@ export class TemplateManager extends BaseService {
         }
         options = options || this.options;
         const controllerName = "TemplateManager" + options.type;
-        const controller = await this.assistant.resolve<TemplateManager>(controllerName);
+        const controller = await this.assistant.resolve<ITemplateManager>(controllerName);
         const data = await controller.load<T>(templateName, options);
         return data;
     }
