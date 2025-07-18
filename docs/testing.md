@@ -4,6 +4,8 @@
 
 Kozen Engine provides comprehensive testing capabilities as part of its pipeline execution framework. The platform supports multiple testing types including end-to-end (E2E), integration, performance, and API testing. All testing results are collected and stored in MongoDB for analysis through MongoDB Charts.
 
+![Solutions Assurance Architecture](../images/kozen-architecture-SAU.jpg)
+
 ## Testing Architecture
 
 ### Testing Integration Patterns

@@ -4,6 +4,8 @@
 
 The Kozen Engine template system enables the creation of reusable, configurable pipeline definitions. Templates define the structure, components, and data flow for infrastructure deployment and testing operations. The system supports dynamic variable resolution, component chaining, and flexible storage backends.
 
+![Template System Architecture](../images/kozen-architecture-Template.drawio.svg)
+
 ## Template Architecture
 
 ### Core Concepts
