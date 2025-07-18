@@ -1,7 +1,7 @@
 /**
  * @fileoverview Core type definitions and interfaces for pipeline operations
  * @description Defines fundamental types and interfaces used throughout the pipeline system
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  */
@@ -25,10 +25,10 @@ export type IAction = "deploy" | "undeploy" | "destroy" | "validate" | "status";
 export type IStructType = "reference" | "value" | "environment" | "secret" | "protected";
 
 /**
- * @interface IStructDef
+ * @interface IMetadata
  * @description Variable definition interface for value resolution
  */
-export interface IStructDef {
+export interface IMetadata {
     /**
      * Actual value or reference key
      * @type {any}
@@ -58,6 +58,8 @@ export interface IStructDef {
      * @type {any}
      */
     default?: any;
+
+    [key: string]: any
 }
 
 /**
@@ -100,6 +102,19 @@ export interface IResult {
      * @type {IAction}
      */
     action?: IAction;
+
+
+    /**
+     * Stack identifier
+     * @type {string}
+     */
+    stackName?: string;
+
+    /**
+     * Project logical grouping
+     * @type {string}
+     */
+    projectName?: string;
 
     /**
      * Template name used in operation

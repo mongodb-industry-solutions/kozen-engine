@@ -11,9 +11,6 @@
       "path": "../../services",
       "args": [
         {
-          "environment": {
-            "backendUrl": "KOZEN_PULUMI_BACKEND_URL"
-          },
           "workspace": {
             "url": "s3://kozen-pulumi-stacks",
             "runtime": "nodejs"
@@ -29,13 +26,25 @@
       ]
     },
     {
+      "target": "StackManagerNode",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../services"
+    },
+    {
+      "target": "StackManagerPulumi",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../services"
+    },
+    {
       "target": "TemplateManager",
       "type": "class",
       "lifetime": "singleton",
       "path": "../../services",
       "args": [
         {
-          "type": "MDB",
+          "type": "File",
           "file": {
             "path": "./cfg/templates"
           },
@@ -85,6 +94,13 @@
             "accessKeyId": "AWS_ACCESS_KEY_ID",
             "secretAccessKey": "AWS_SECRET_ACCESS_KEY"
           }
+        }
+      ],
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
         }
       ]
     },

@@ -1,16 +1,15 @@
 
-import { Stack } from "@pulumi/pulumi/automation";
 import { IIoC, ServiceConfig } from "../tools";
+import { IStackManager } from "./Stack";
 import { ITemplate } from "./Template";
 
 /**
  * @fileoverview Pipeline configuration models for CLI arguments and deployment settings
  * @description Defines interfaces for pipeline arguments and configuration management
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  */
-
 
 /**
  * @interface IPipelineArgs
@@ -89,9 +88,9 @@ export interface IPipelineConfig {
 export interface IPipeline {
   args?: IPipelineArgs;
 
-  stack?: Stack;
-
   template?: ITemplate;
 
   assistant?: IIoC;
+
+  stack?: IStackManager
 }

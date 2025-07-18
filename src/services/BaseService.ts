@@ -1,4 +1,7 @@
+import { IComponent } from "../models/Component";
+import { IStruct } from "../models/Types";
 import { IIoC } from "../tools";
+import VarProcessorService from "./VarProcessorService";
 
 /**
  * @fileoverview Base Service - Foundation Class for All Services
@@ -11,7 +14,7 @@ import { IIoC } from "../tools";
  * 
  * @abstract
  * @class BaseService
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  * 
@@ -46,20 +49,20 @@ export class BaseService {
      * - Maintain loose coupling between components
      * - Support dependency injection patterns
      * - Enable easy mocking for unit testing
-     * 
-     * @example
-     * ```typescript
-     * // Resolving dependencies in derived service classes
-     * export class EmailService extends BaseService {
-     *   public async sendEmail(recipient: string, message: string): Promise<void> {
-     *     const logger = await this.assistant.resolve<Logger>('Logger');
-     *     const configService = await this.assistant.resolve<ConfigService>('ConfigService');
-     *     
-     *     logger.info(`Sending email to ${recipient}`);
-     *     // Email sending logic using resolved dependencies
-     *   }
-     * }
-     * ```
      */
     protected assistant!: IIoC;
+
+    /**
+     * Transforms component input by processing variables through VarProcessorService
+     * @protected
+     * @param {IComponent} component - Component containing input definitions
+     * @param {IStruct} output - Current output scope for variable resolution
+     * @param {string} [key="input"] - Property key to process (default: "input")
+     * @returns {Promise<IStruct>} Promise resolving to processed input variables
+     */
+    public async transformInput(component: IComponent, output: IStruct = {}, key: string = "input"): Promise<IStruct> {
+        const srvVar = await this.assistant.resolve<VarProcessorService>('VarProcessorService');
+        const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output));
+        return input || {};
+    }
 }

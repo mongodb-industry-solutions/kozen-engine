@@ -1,7 +1,7 @@
 /**
  * @fileoverview File-based Template Manager Service - File System Implementation
  * @description File system-specific implementation for loading infrastructure templates from local or network directories
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  */

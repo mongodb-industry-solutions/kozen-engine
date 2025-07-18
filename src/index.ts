@@ -3,7 +3,7 @@
  * @description Entry point for the IaC Pipeline package, exporting main classes
  * for distribution as an npm package and CLI usage.
  * 
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @version 4.0.0
  * @since 2024-01-01
  * 

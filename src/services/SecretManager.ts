@@ -1,7 +1,7 @@
 /**
  * @fileoverview Secret Manager Service - Secret Resolution Bridge Component
  * @description Bridge service for managing secrets from various backends (AWS, MongoDB, environment variables)
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  */

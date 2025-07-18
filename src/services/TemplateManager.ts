@@ -15,7 +15,7 @@ import { BaseService } from "./BaseService";
  * 
  * @class TemplateManager
  * @extends BaseService
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  * 

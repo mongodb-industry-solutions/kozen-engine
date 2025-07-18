@@ -1,5 +1,6 @@
 
-import { IStruct, IStructDef } from "../models/Types";
+import { IMetadata, IStruct } from "../models/Types";
+import { IIoC } from "../tools";
 import SecretManager from "./SecretManager";
 
 /**
@@ -13,7 +14,7 @@ import SecretManager from "./SecretManager";
  * without knowing their specific resolution mechanisms.
  * 
  * @class VarProcessorService
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  * 
@@ -38,6 +39,15 @@ import SecretManager from "./SecretManager";
  */
 export class VarProcessorService {
     /**
+     * Optional assistant for IoC resolution
+     * 
+     * @public
+     * @type {IIoC}
+     * @description Used for resolving dependencies such as SecretManager if not provided directly.
+     */
+    public assistant?: IIoC;
+
+    /**
      * Variable scope for reference resolution
      * 
      * @private
@@ -56,7 +66,7 @@ export class VarProcessorService {
      * @description Secret manager service for resolving secure variables from external
      * secret stores like AWS Secrets Manager, Azure Key Vault, or other secure backends.
      */
-    private srvSecret: SecretManager;
+    private srvSecret!: SecretManager;
 
     /**
      * Creates a new VarProcessorService instance
@@ -87,16 +97,15 @@ export class VarProcessorService {
      * });
      * ```
      */
-    constructor({ scope = {}, srvSecret }: { scope?: IStruct; srvSecret: SecretManager }) {
+    constructor(scope: IStruct = {}) {
         this.scope = scope;
-        this.srvSecret = srvSecret;
     }
 
     /**
      * Processes variable definitions and resolves their values from various sources
      * 
      * @public
-     * @param {IStructDef[]} inputs - Array of variable definitions to process
+     * @param {IMetadata[]} inputs - Array of variable definitions to process
      * @param {IStruct} [scope] - Optional scope to use for reference resolution, defaults to instance scope
      * @returns {Promise<IStruct>} Promise resolving to an object containing resolved variable values
      * @throws {Error} When variable resolution fails due to missing sources or access issues
@@ -153,7 +162,7 @@ export class VarProcessorService {
      * // }
      * ```
      */
-    public async process(inputs: IStructDef[], scope?: IStruct): Promise<IStruct> {
+    public async process(inputs: IMetadata[], scope?: IStruct): Promise<IStruct> {
         const result: IStruct = {};
         scope = scope || this.scope;
         await Promise.all(inputs.map(definition => this.transform(definition, scope, result)));
@@ -163,25 +172,25 @@ export class VarProcessorService {
     /**
      * Transforms a single variable definition by resolving its value from the appropriate source
      * @public
-     * @param {IStructDef} definition - Variable definition containing type, value, and metadata
+     * @param {IMetadata} definition - Variable definition containing type, value, and metadata
      * @param {IStruct} [scope={}] - Optional scope context for reference variable resolution
      * @param {IStruct} [result={}] - Result object to accumulate resolved variables
      * @returns {Promise<IStruct>} Promise resolving to the result object with the resolved variable added
      */
-    public async transform(definition: IStructDef, scope: IStruct = {}, result: IStruct = {}): Promise<IStruct> {
+    public async transform(definition: IMetadata, scope: IStruct = {}, result: IStruct = {}): Promise<IStruct> {
         const { type, value, default: defaultValue, name: key } = definition;
         switch (type) {
             case "protected":
             case "environment":
-                result[key] = process.env[value] ?? defaultValue;
+                result[key] = process.env[value || key] ?? defaultValue;
                 break;
 
             case "reference":
-                result[key] = scope[value] ?? defaultValue;
+                result[key] = scope[value || key] ?? defaultValue;
                 break;
 
             case "secret":
-                result[key] = await this.resolveSecret(value, defaultValue);
+                result[key] = await this.resolveSecret(value || key, defaultValue);
                 break;
 
             default:
@@ -211,7 +220,10 @@ export class VarProcessorService {
      */
     private async resolveSecret(secretKey: string, defaultValue?: any): Promise<any> {
         try {
-            const resolvedSecret = await this.srvSecret.resolve(secretKey);
+            if (!this.srvSecret && this.assistant) {
+                this.srvSecret = await this.assistant.resolve<SecretManager>('SecretManager');
+            }
+            const resolvedSecret = await this.srvSecret?.resolve(secretKey);
             return resolvedSecret ?? defaultValue;
         } catch (error) {
             console.error(`Failed to resolve secret for key "${secretKey}":`, error);

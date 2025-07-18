@@ -1,12 +1,13 @@
 /**
  * @fileoverview Pulumi stack configuration models for infrastructure management
  * @description Defines interfaces and types for Pulumi-based infrastructure stack operations
- * @author MongoDB Solutions Assurance Team
+ * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
  */
-
-import { ConfigMap } from "@pulumi/pulumi/automation";
+import { ConfigMap, Stack } from "@pulumi/pulumi/automation";
+import { IComponent } from "./Component";
+import { IResult, IStruct } from "./Types";
 
 /**
  * Pulumi program function type for stack deployment
@@ -31,24 +32,15 @@ export interface IConfigValue extends ConfigMap { }
  * @interface IStackOptions
  * @description Complete configuration options for Pulumi stack management
  */
-export interface IStackOptions {
-    /**
-     * Stack description
-     * @type {string}
-     */
-    description?: string;
+export interface IStackOptions extends IComponent {
+
+    orchestrator?: string;
 
     /**
      * Stack metadata tags
      * @type {Record<string, string>}
      */
     tags?: Record<string, string>;
-
-    /**
-     * Stack identifier
-     * @type {string}
-     */
-    name?: string;
 
     /**
      * Project logical grouping
@@ -66,7 +58,7 @@ export interface IStackOptions {
      * Configuration setup function
      * @type {ISetupFn}
      */
-    setup?: ISetupFn;
+    init?: ISetupFn;
 
     /**
      * Workspace backend configuration
@@ -121,4 +113,110 @@ export interface IStackOptions {
      * @type {Record<string, any>}
      */
     config?: Record<string, any>;
+
+    /**
+     * Array of infrastructure components
+     * @type {IComponent[]}
+     */
+    components?: IComponent[];
+}
+
+/**
+ * @interface IStackConfig
+ * @description Generic interface for stack configuration
+ * @template T - Type for arguments
+ * @template H - Type for options
+ */
+export interface IStackConfig<T = any, H = any> {
+    /**
+     * Generic inline program arguments
+     * @type {T}
+     */
+    args: T;
+
+    /**
+     * Generic local workspace options
+     * @type {H}
+     */
+    opts: H;
+
+    /**
+     * Stack name for deployment identification
+     * @type {string}
+     */
+    stackName: string;
+
+    /**
+     * Project name for stack identification
+     * @type {string}
+     */
+    projectName: string;
+
+    /**
+     * Region environment variable
+     * @type {string}
+     */
+    region?: string;
+}
+
+
+/**
+ * @interface IStackManager
+ * @description Interface for StackManager, exposing public properties and methods
+ */
+export interface IStackManager {
+    /**
+     * Gets the project name for stack identification
+     * @readonly
+     * @type {string}
+     */
+    readonly projectName: string;
+
+    /**
+     * Gets the stack name for deployment identification
+     * @readonly
+     * @type {string}
+     */
+    readonly stackName: string;
+
+    /**
+     * Deploys infrastructure using Pulumi automation
+     * @param {IStackOptions} config - Configuration options for stack deployment
+     * @returns {Promise<Object>} Promise resolving to deployment result with status and metadata
+     * @throws {Error} When deployment fails
+     */
+    deploy(config: IStackOptions): Promise<IResult>;
+
+    /**
+     * Destroys infrastructure using Pulumi automation
+     * @param {IStackOptions} config - Configuration options for stack destruction
+     * @returns {Promise<Object>} Promise resolving to destruction result with status and metadata
+     * @throws {Error} When destruction fails
+     */
+    undeploy(config: IStackOptions): Promise<IResult>;
+
+    /**
+     * Validates stack configuration
+     * @param {IStackOptions} config - Configuration options for stack validation
+     * @returns {Promise<Object>} Promise resolving to validation result with status and details
+     * @throws {Error} When validation fails
+     */
+    validate(config: IStackOptions): Promise<IResult>;
+
+    /**
+     * Retrieves current status and information about deployed stacks
+     * @param {IStackOptions} config - Configuration options for status query
+     * @returns {Promise<Object>} Promise resolving to status information
+     * @throws {Error} When status query fails
+     */
+    status(config: IStackOptions): Promise<IResult>;
+
+
+    transformInput(component: IComponent, output: IStruct, key: string): Promise<IStruct>;
+
+    transformSetup(component: IComponent, output: IStruct, key: string): Promise<IStruct>;
+}
+
+export interface IStackManagerPulumi extends IStackManager {
+    stack?: Stack;
 }
