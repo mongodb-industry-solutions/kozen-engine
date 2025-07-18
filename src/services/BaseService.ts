@@ -1,23 +1,22 @@
 import { IComponent } from "../models/Component";
+import { IVarProcessorService } from "../models/Processor";
 import { IStruct } from "../models/Types";
 import { IIoC } from "../tools";
-import VarProcessorService from "./VarProcessorService";
 
 /**
  * @fileoverview Base Service - Foundation Class for All Services
  * @description Abstract base class that provides common functionality and dependency injection
  * capabilities for all service classes in the application. This class establishes a consistent
  * pattern for service implementation and ensures proper IoC container integration.
- * 
  * All service classes should extend this base class to maintain consistency in dependency
  * management and to benefit from shared functionality across the service layer.
- * 
+ *
  * @abstract
  * @class BaseService
  * @author MDB SAT
  * @since 4.0.0
  * @version 4.0.0
- * 
+ *
  * @example
  * ```typescript
  * // Implementing a custom service
@@ -25,10 +24,10 @@ import VarProcessorService from "./VarProcessorService";
  *   public async processData(data: any): Promise<any> {
  *     // Access IoC container through inherited assistant property
  *     const logger = await this.assistant.resolve<Logger>('Logger');
- *     
+ *
  *     logger.info('Processing data...');
  *     // Custom service logic here
- *     
+ *
  *     return processedData;
  *   }
  * }
@@ -61,7 +60,7 @@ export class BaseService {
      * @returns {Promise<IStruct>} Promise resolving to processed input variables
      */
     public async transformInput(component: IComponent, output: IStruct = {}, key: string = "input"): Promise<IStruct> {
-        const srvVar = await this.assistant.resolve<VarProcessorService>('VarProcessorService');
+        const srvVar = await this.assistant.resolve<IVarProcessorService>('VarProcessorService');
         const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output));
         return input || {};
     }

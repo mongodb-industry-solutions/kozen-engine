@@ -116,3 +116,21 @@ export interface ITemplateConfig {
         path: string;
     };
 }
+
+export interface ITemplateManager {
+    /**
+     * Sets the template configuration options.
+     * @param {ITemplateConfig} value - Template configuration to set.
+     */
+    options: ITemplateConfig;
+
+    /**
+     * Loads a template from the configured storage backend.
+     * @template T - The expected type of the loaded template.
+     * @param {string} templateName - Name of the template to load.
+     * @param {ITemplateConfig} [options] - Optional configuration override for this operation.
+     * @returns {Promise<T>} Promise resolving to the loaded template data.
+     * @throws {Error} When template loading fails due to configuration issues, network problems, or missing templates.
+     */
+    load<T = any>(templateName: string, options?: ITemplateConfig): Promise<T>;
+}  
