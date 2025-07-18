@@ -28,21 +28,21 @@ export class StackManagerNode extends StackManager {
             config?.program instanceof Function && await config.program();
 
             return {
-                stackName: this.stackName,
-                projectName: this.projectName,
+                stackName: config.name,
+                projectName: config.project,
                 success: true,
                 timestamp: new Date(),
-                message: `Stack ${this.stackName} deployed successfully.`,
+                message: `Stack ${config.name} deployed successfully.`,
             };
         }
         catch (error) {
             console.log(error)
             return {
-                stackName: this.stackName,
-                projectName: this.projectName,
+                stackName: config.name,
+                projectName: config.project,
                 success: false,
                 timestamp: new Date(),
-                message: `Stack ${this.stackName} deployed faild.`,
+                message: `Stack ${config.name} deployed faild.`,
             };
         }
     }
@@ -58,11 +58,11 @@ export class StackManagerNode extends StackManager {
         // Configure the stack with the provided options
         config?.program instanceof Function && await config.program();
         return {
-            stackName: this.stackName,
-            projectName: this.projectName,
+            stackName: config.name,
+            projectName: config.project,
             success: true,
             timestamp: new Date(),
-            message: `Stack ${this.stackName} undeployed successfully.`
+            message: `Stack ${config.name} undeployed successfully.`
         };
     }
 
@@ -79,11 +79,11 @@ export class StackManagerNode extends StackManager {
         // without performing actual deployment
 
         return {
-            stackName: this.stackName,
-            projectName: this.projectName,
+            stackName: config.name,
+            projectName: config.project,
             success: true,
             timestamp: new Date(),
-            message: `Stack ${this.stackName} configuration validation completed.`,
+            message: `Stack ${config.name} configuration validation completed.`,
             results: []
         };
     }
@@ -99,11 +99,11 @@ export class StackManagerNode extends StackManager {
         // Configure the stack with the provided options
         config?.program instanceof Function && await config.program();
         return {
-            stackName: this.stackName,
-            projectName: this.projectName,
+            stackName: config.name,
+            projectName: config.project,
             success: true,
             timestamp: new Date(),
-            message: `Stack ${this.stackName} configuration status completed.`,
+            message: `Stack ${config.name} configuration status completed.`,
         };
     }
 }
