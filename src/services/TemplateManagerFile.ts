@@ -16,6 +16,7 @@ import TemplateManager from "./TemplateManager";
  * @description File system implementation for template loading with JSON parsing and error handling
  */
 export class TemplateManagerFile extends TemplateManager {
+
     /**
      * Loads a template from the file system by name
      * @public
