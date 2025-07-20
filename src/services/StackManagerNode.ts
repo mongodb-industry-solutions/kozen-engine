@@ -2,8 +2,8 @@
  * @fileoverview Stack Manager Service - Infrastructure Stack Bridge Component
  * @description Service for managing infrastructure stacks using Pulumi automation
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  */
 
 import { IStackOptions } from "../models/Stack";
@@ -27,6 +27,14 @@ export class StackManagerNode extends StackManager {
         try {
             config?.program instanceof Function && await config.program();
 
+            this.logger?.debug({
+                data: {
+                    stackName: config.name,
+                    projectName: config.project,
+                },
+                message: `Stack ${config.name} deployed successfully.`,
+            });
+
             return {
                 stackName: config.name,
                 projectName: config.project,
@@ -36,13 +44,19 @@ export class StackManagerNode extends StackManager {
             };
         }
         catch (error) {
-            console.log(error)
+            this.logger?.error({
+                data: {
+                    stackName: config.name,
+                    projectName: config.project,
+                },
+                message: `Stack ${config.name} deployed failed.`,
+            });
             return {
                 stackName: config.name,
                 projectName: config.project,
                 success: false,
                 timestamp: new Date(),
-                message: `Stack ${config.name} deployed faild.`,
+                message: `Stack ${config.name} deployed failed.`,
             };
         }
     }

@@ -2,8 +2,8 @@
  * @fileoverview Pulumi stack configuration models for infrastructure management
  * @description Defines interfaces and types for Pulumi-based infrastructure stack operations
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  */
 import { ConfigMap, Stack } from "@pulumi/pulumi/automation";
 import { IComponent } from "./Component";

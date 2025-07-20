@@ -1,4 +1,6 @@
+import { ILoggerService } from "../models/Logger";
 import { ITemplateConfig, ITemplateManager } from "../models/Template";
+import { IIoC } from "../tools";
 import { BaseService } from "./BaseService";
 
 /**
@@ -16,8 +18,8 @@ import { BaseService } from "./BaseService";
  * @class TemplateManager
  * @extends BaseService
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  * 
  * @example
  * ```typescript
@@ -52,7 +54,7 @@ export class TemplateManager extends BaseService implements TemplateManager {
      * @description Configuration object containing template storage settings and connection parameters.
      * This includes storage type, file paths, database connections, and other backend-specific options.
      */
-    protected _options?: ITemplateConfig;
+    protected _options: ITemplateConfig | null;
 
     /**
      * Gets the current template configuration options
@@ -126,9 +128,9 @@ export class TemplateManager extends BaseService implements TemplateManager {
      * manager.options = { type: 'File', file: { path: './templates' } };
      * ```
      */
-    constructor(options?: ITemplateConfig) {
-        super();
-        this.options = options!;
+    constructor(options?: ITemplateConfig | null, dep?: { assistant: IIoC, logger: ILoggerService }) {
+        super(dep);
+        this._options = options ?? null;
     }
 
     /**
@@ -172,9 +174,13 @@ export class TemplateManager extends BaseService implements TemplateManager {
         if (!this.options?.type) {
             throw new Error("TemplateManager options or type is not defined.");
         }
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
+        }
         options = options || this.options;
         const controllerName = "TemplateManager" + options.type;
         const controller = await this.assistant.resolve<ITemplateManager>(controllerName);
+        this.logger?.info({ src: 'TemplateManager:load', message: 'Loading template', data: { controllerName, templateName } });
         const data = await controller.load<T>(templateName, options);
         return data;
     }

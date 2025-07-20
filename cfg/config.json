@@ -22,6 +22,11 @@
           "key": "assistant",
           "target": "IoC",
           "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
         }
       ]
     },
@@ -29,13 +34,43 @@
       "target": "StackManagerNode",
       "type": "class",
       "lifetime": "transient",
-      "path": "../../services"
+      "path": "../../services",
+      "args": [
+        null
+      ],
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
     },
     {
       "target": "StackManagerPulumi",
       "type": "class",
       "lifetime": "transient",
-      "path": "../../services"
+      "path": "../../services",
+      "args": [
+        null
+      ],
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
     },
     {
       "target": "TemplateManager",
@@ -61,22 +96,50 @@
           "key": "assistant",
           "target": "IoC",
           "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
         }
       ]
     },
     {
       "target": "TemplateManagerFile",
       "type": "class",
-      "path": "../../services"
+      "path": "../../services",
+      "args": [
+        null
+      ],
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
     },
     {
       "target": "TemplateManagerMDB",
       "type": "class",
       "path": "../../services",
+      "args": [
+        null
+      ],
       "dependencies": [
         {
           "key": "assistant",
           "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
           "type": "ref"
         }
       ]
@@ -101,6 +164,11 @@
           "key": "assistant",
           "target": "IoC",
           "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
         }
       ]
     },
@@ -108,28 +176,70 @@
       "target": "SecretManagerAWS",
       "type": "class",
       "lifetime": "singleton",
-      "path": "../../services"
+      "path": "../../services",
+      "args": [
+        null
+      ],
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
     },
     {
       "target": "SecretManagerMDB",
       "type": "class",
       "lifetime": "singleton",
-      "path": "../../services"
+      "path": "../../services",
+      "args": [
+        null
+      ],
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
     },
     {
       "target": "PipelineManager",
       "type": "class",
       "lifetime": "singleton",
-      "path": "../../services"
+      "path": "../../services",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
     },
     {
-      "target": "Logger",
+      "target": "LoggerService",
       "type": "class",
       "lifetime": "singleton",
-      "path": "../../tools/log",
+      "path": "../../services",
       "args": [
         {
-          "mongodb": {
+          "mdb": {
             "enabled": true,
             "database": "kozen",
             "collection": "logs",
@@ -147,10 +257,18 @@
       "path": "../../components",
       "type": "auto",
       "lifetime": "singleton",
+      "args": [
+        {}
+      ],
       "dependencies": [
         {
           "key": "assistant",
           "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
           "type": "ref"
         }
       ]
@@ -160,10 +278,23 @@
       "type": "class",
       "lifetime": "singleton",
       "path": "../../services",
+      "args": [
+        {}
+      ],
       "dependencies": [
         {
           "key": "srvSecret",
           "target": "SecretManager",
+          "type": "ref"
+        },
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
           "type": "ref"
         }
       ]

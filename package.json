@@ -1,6 +1,6 @@
 {
-    "name": "iac-pipeline",
-    "version": "4.0.0",
+    "name": "kozen-engine",
+    "version": "1.0.5",
     "description": "Infrastructure as Code Pipeline with Pulumi and configurable templates",
     "main": "dist/bin/pipeline.js",
     "bin": {
@@ -22,6 +22,7 @@
         "iac",
         "infrastructure-as-code",
         "pulumi",
+        "test",
         "pipeline",
         "mongodb",
         "atlas",

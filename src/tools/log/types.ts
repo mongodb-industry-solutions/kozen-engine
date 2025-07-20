@@ -33,6 +33,7 @@ export interface LogEntry {
 export interface LogOptions {
   message: string;         // The main log message
   data?: any;             // Additional data/context provided by the caller
+  src?: any;             // Additional data/context provided by the caller
   flow?: string;          // Optional workflow/process identifier. If not provided, auto-generated
 }
 
