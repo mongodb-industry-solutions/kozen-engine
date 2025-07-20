@@ -2,8 +2,8 @@
  * @fileoverview AWS Secret Manager Service - AWS Secrets Manager Implementation
  * @description AWS-specific implementation of the secret management bridge for AWS Secrets Manager integration
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  */
 import { GetSecretValueCommand, SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 import { ISecretManagerOptions } from "../models/Secret";

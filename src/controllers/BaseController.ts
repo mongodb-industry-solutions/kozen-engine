@@ -1,5 +1,6 @@
 import { IComponent } from '../models/Component';
 import { IController } from '../models/Controller';
+import { ILoggerService } from '../models/Logger';
 import { IPipeline } from '../models/Pipeline';
 import { IResult, IStruct } from '../models/Types';
 import { IIoC } from '../tools';
@@ -21,8 +22,8 @@ import { IIoC } from '../tools';
  * @abstract
  * @class BaseController
  * @author MDB SAT
- * @since 1.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  */
 export abstract class BaseController implements IController {
     /**
@@ -39,7 +40,10 @@ export abstract class BaseController implements IController {
      * const secretManager = await this.assistant.resolve<SecretManager>('SecretManager');
      * ```
      */
-    protected assistant!: IIoC;
+    protected assistant?: IIoC | null;
+
+
+    public logger?: ILoggerService | null;
 
     /**
      * @description Component configuration object
@@ -59,8 +63,10 @@ export abstract class BaseController implements IController {
      * @constructor
      * @param {IComponent} [config] - Optional initial component configuration
      */
-    constructor(config?: IComponent) {
+    constructor(config?: IComponent, dependency?: { assistant: IIoC, logger: ILoggerService }) {
         this.config = config || {};
+        this.assistant = dependency?.assistant ?? null;
+        this.logger = dependency?.logger ?? null;
     }
 
     /**
@@ -74,8 +80,10 @@ export abstract class BaseController implements IController {
      * @returns {BaseController} Returns the configured controller instance for method chaining
      *
      */
-    configure(config: IComponent): BaseController {
+    configure(config: IComponent, dependency?: { assistant: IIoC, logger: ILoggerService }): BaseController {
         this.config = config;
+        dependency?.assistant && (this.assistant = dependency.assistant);
+        dependency?.logger && (this.logger = dependency.logger);
         return this;
     }
 

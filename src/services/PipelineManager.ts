@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import { IComponent, ITransformFn } from '../models/Component';
 import { IController } from '../models/Controller';
+import { ILoggerService } from '../models/Logger';
 import { IPipeline, IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
 import { IStackManager } from '../models/Stack';
 import { ITemplate, ITemplateManager } from '../models/Template';
@@ -17,8 +18,8 @@ import { BaseService } from './BaseService';
  * deployment and providing a unified interface for different deployment operations (deploy, undeploy, validate, status).
  * 
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  * 
  * @example
  * ```typescript
@@ -68,16 +69,20 @@ export class PipelineManager extends BaseService {
      * ```typescript
      * // Create with default IoC container
      * const manager = new PipelineManager();
-     * 
+     * `
      * // Create with custom configuration and IoC
      * const customIoC = new IoC();
      * const manager = new PipelineManager(config, customIoC);
      * ```
      */
-    constructor(config?: IPipelineConfig, ioc?: IoC) {
-        super();
+    constructor(config?: IPipelineConfig, dependency?: { assistant?: IIoC, logger?: ILoggerService }) {
+        // Ensure assistant is always present for BaseService
+        if (!dependency?.assistant) {
+            dependency = dependency || {};
+            dependency.assistant = new IoC();
+        }
+        super(dependency as { assistant: IIoC, logger: ILoggerService } | undefined);
         this.config = config || null;
-        this.assistant = ioc || new IoC();
     }
 
     /**
@@ -96,9 +101,14 @@ export class PipelineManager extends BaseService {
      */
     public async configure(config: IPipelineConfig, ioc?: IIoC): Promise<PipelineManager> {
         try {
+            if (!this.assistant) {
+                throw new Error("Incorrect dependency injection configuration.");
+            }
             this.config = config;
             this.assistant = ioc || this.assistant;
             await this.assistant.register(this.config.dependencies);
+            // TODO: move this to the config
+            this.logger = await this.assistant.resolve<ILoggerService>('LoggerService');
             return this;
         } catch (error) {
             throw new Error(`Failed to configure pipeline: ${error instanceof Error ? error.message : String(error)}`);
@@ -123,6 +133,10 @@ export class PipelineManager extends BaseService {
      */
     public async deploy(args: IPipelineArgs): Promise<IResult> {
         const { template: templateName, action, project, stack: name } = args;
+
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
+        }
 
         const srvTemplate = await this.assistant.resolve<ITemplateManager>("TemplateManager");
         const stackAdm = await this.assistant.resolve<IStackManager>("StackManager");
@@ -196,8 +210,12 @@ export class PipelineManager extends BaseService {
         const results: IResult[] = [];
         let output: IStruct = {};
 
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
+        }
         // TODO: create a generic method for executing multiple components (async | sync)
         for (const component of components) {
+            // TODO add dynamic constructor arguments
             const delegate = await this.assistant.resolve<IController>(component.name!);
             delegate.configure(component);
             const input = await transform(component, output);

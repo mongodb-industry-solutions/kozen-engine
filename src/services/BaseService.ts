@@ -1,4 +1,5 @@
 import { IComponent } from "../models/Component";
+import { ILoggerService } from "../models/Logger";
 import { IVarProcessorService } from "../models/Processor";
 import { IStruct } from "../models/Types";
 import { IIoC } from "../tools";
@@ -14,8 +15,8 @@ import { IIoC } from "../tools";
  * @abstract
  * @class BaseService
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  *
  * @example
  * ```typescript
@@ -49,7 +50,16 @@ export class BaseService {
      * - Support dependency injection patterns
      * - Enable easy mocking for unit testing
      */
-    protected assistant!: IIoC;
+    protected assistant?: IIoC | null;
+
+
+    public logger?: ILoggerService | null;
+
+    constructor(dependency?: { assistant: IIoC, logger: ILoggerService }) {
+        this.assistant = dependency?.assistant ?? null;
+        this.logger = dependency?.logger ?? null;
+        // this.assistant?.resolve<ILoggerService>('LoggerService').then(obj => this.logger = obj);
+    }
 
     /**
      * Transforms component input by processing variables through VarProcessorService
@@ -60,6 +70,9 @@ export class BaseService {
      * @returns {Promise<IStruct>} Promise resolving to processed input variables
      */
     public async transformInput(component: IComponent, output: IStruct = {}, key: string = "input"): Promise<IStruct> {
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
+        }
         const srvVar = await this.assistant.resolve<IVarProcessorService>('VarProcessorService');
         const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output));
         return input || {};
