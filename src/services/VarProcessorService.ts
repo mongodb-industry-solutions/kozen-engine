@@ -1,4 +1,5 @@
 
+import { ILoggerService } from "../models/Logger";
 import { IVarProcessorService } from "../models/Processor";
 import { ISecretManager } from "../models/Secret";
 import { IMetadata, IStruct } from "../models/Types";
@@ -48,6 +49,9 @@ export class VarProcessorService implements IVarProcessorService {
      */
     public assistant?: IIoC;
 
+
+    public logger?: ILoggerService | null;
+
     /**
      * Variable scope for reference resolution
      * 
@@ -67,7 +71,7 @@ export class VarProcessorService implements IVarProcessorService {
      * @description Secret manager service for resolving secure variables from external
      * secret stores like AWS Secrets Manager, Azure Key Vault, or other secure backends.
      */
-    private srvSecret!: ISecretManager;
+    private srvSecret?: ISecretManager;
 
     /**
      * Creates a new VarProcessorService instance
@@ -98,8 +102,11 @@ export class VarProcessorService implements IVarProcessorService {
      * });
      * ```
      */
-    constructor(scope: IStruct = {}) {
+    constructor(scope: IStruct = {}, dep?: { assistant: IIoC, logger: ILoggerService, srvSecret?: ISecretManager }) {
         this.scope = scope;
+        this.assistant = dep?.assistant;
+        this.logger = dep?.logger;
+        this.srvSecret = dep?.srvSecret;
     }
 
     /**

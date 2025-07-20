@@ -5,7 +5,9 @@
  * @since 1.0.4
  * @version 1.0.5
  */
+import { ILoggerService } from "../models/Logger";
 import { ISecretManager, ISecretManagerOptions } from "../models/Secret";
+import { IIoC } from "../tools";
 import { BaseService } from "./BaseService";
 
 /**
@@ -47,8 +49,8 @@ export class SecretManager extends BaseService implements ISecretManager {
      * @constructor
      * @param {ISecretManagerOptions} [options] - Optional secret manager configuration
      */
-    constructor(options?: ISecretManagerOptions) {
-        super();
+    constructor(options?: ISecretManagerOptions, dep?: { assistant: IIoC, logger: ILoggerService }) {
+        super(dep);
         this.options = options!;
     }
 
@@ -67,6 +69,9 @@ export class SecretManager extends BaseService implements ISecretManager {
 
     protected async getValue(key: string, options?: ISecretManagerOptions): Promise<string | null | undefined | number | boolean> {
         try {
+            if (!this.assistant) {
+                throw new Error("Incorrect dependency injection configuration.");
+            }
             options = options || this.options;
             if (!this.options?.type) {
                 throw new Error("SecretManager options or type is not defined.");
