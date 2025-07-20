@@ -135,4 +135,6 @@ export class LoggerService implements ILoggerService {
     public add(processor: LogProcessor): void {
         this.hybridProcessor.addProcessor(processor);
     }
-} 
+}
+
+export default LoggerService;

@@ -89,6 +89,10 @@ export class SecretManagerMDB extends SecretManager {
             throw new Error("MongoDB URI is required to initialize SecretManagerMDB.");
         }
 
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
+        }
+
         const secret = await this.assistant.resolve<SecretManager>(`SecretManager`);
         const uri = await secret.resolve(mdb.uri) as string;
 
