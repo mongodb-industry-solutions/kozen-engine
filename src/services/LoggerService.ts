@@ -1,4 +1,4 @@
-import { ILoggerServiceConfig } from '../models/Logger';
+import { ILoggerConfig, ILoggerService } from '../models/Logger';
 import {
     ConsoleLogProcessor,
     HybridLogProcessor,
@@ -35,7 +35,7 @@ import {
  * });
  * ```
  */
-export class LoggerService {
+export class LoggerService implements ILoggerService {
     /** Internal logger instance configured with hybrid processor */
     private readonly logger: Logger;
 
@@ -46,27 +46,25 @@ export class LoggerService {
      * Creates new LoggerService instance with console and MongoDB processors
      * @param config - Optional configuration for log level, category and MongoDB settings
      */
-    constructor(config: ILoggerServiceConfig = {}) {
-        const {
-            level = LogLevel.INFO,
-            category = 'APPLICATION',
-            mongoUri = 'mongodb://localhost:27017',
-            mongoDatabase = 'kozen',
-            mongoCollection = 'application_logs'
-        } = config;
+    constructor(config: ILoggerConfig = {}) {
 
         // Create processors for dual output destination
-        const consoleProcessor = new ConsoleLogProcessor();
-        const mongoProcessor = new MongoDBLogProcessor(mongoUri, mongoDatabase, mongoCollection);
+        const processors = [];
+        config.console?.enabled && processors.push(new ConsoleLogProcessor());
+        config.mdb?.enabled && processors.push(new MongoDBLogProcessor(
+            config.mdb.uri,
+            config.mdb.database || 'kozen',
+            config.mdb.collection || 'logs'
+        ));
 
         // Combine processors for simultaneous console and database logging
-        this.hybridProcessor = new HybridLogProcessor([consoleProcessor, mongoProcessor]);
+        this.hybridProcessor = new HybridLogProcessor(processors);
 
         // Initialize logger with hybrid processor and configuration
         this.logger = new Logger({
-            level,
-            category,
-            type: 'object',
+            level: LogLevel[config.console?.level as keyof typeof LogLevel] || LogLevel.INFO,
+            category: config.category || 'KOZEN',
+            type: config?.type || 'object',
             processor: this.hybridProcessor
         });
     }
@@ -75,7 +73,7 @@ export class LoggerService {
      * Logs error message with highest priority for critical issues
      * @param input - Error message string or structured log options object
      */
-    error(input: LogInput): void {
+    public error(input: LogInput): void {
         this.logger.error(input);
     }
 
@@ -83,7 +81,7 @@ export class LoggerService {
      * Logs warning message for potentially harmful situations requiring attention
      * @param input - Warning message string or structured log options object
      */
-    warn(input: LogInput): void {
+    public warn(input: LogInput): void {
         this.logger.warn(input);
     }
 
@@ -91,7 +89,7 @@ export class LoggerService {
      * Logs debug message with detailed information for troubleshooting problems
      * @param input - Debug message string or structured log options object
      */
-    debug(input: LogInput): void {
+    public debug(input: LogInput): void {
         this.logger.debug(input);
     }
 
@@ -99,7 +97,7 @@ export class LoggerService {
      * Logs informational message about normal application flow and operations
      * @param input - Info message string or structured log options object
      */
-    info(input: LogInput): void {
+    public info(input: LogInput): void {
         this.logger.info(input);
     }
 
@@ -107,7 +105,7 @@ export class LoggerService {
      * Updates logger configuration at runtime for dynamic behavior changes
      * @param config - New configuration options for level, category and MongoDB
      */
-    updateConfig(config: ILoggerServiceConfig): void {
+    public configure(config: ILoggerConfig): void {
         this.logger.setting({
             level: config.level,
             category: config.category
@@ -118,7 +116,7 @@ export class LoggerService {
      * Gets current logging level for external validation and debugging
      * @returns Current LogLevel enum value for filtering threshold
      */
-    getCurrentLevel(): LogLevel {
+    public get level(): LogLevel {
         return this.logger.getLevel();
     }
 
@@ -126,7 +124,7 @@ export class LoggerService {
      * Gets current category identifier for context organization and filtering
      * @returns Current category string or undefined if not set
      */
-    getCurrentCategory(): string | undefined {
+    public get category(): string | undefined {
         return this.logger.getCategory();
     }
 
@@ -134,7 +132,9 @@ export class LoggerService {
      * Adds additional processor to hybrid configuration for extended output destinations
      * @param processor - LogProcessor implementation for custom log handling
      */
-    addProcessor(processor: LogProcessor): void {
+    public add(processor: LogProcessor): void {
         this.hybridProcessor.addProcessor(processor);
     }
-} 
+}
+
+export default LoggerService;

@@ -2,8 +2,8 @@
  * @fileoverview MongoDB Secret Manager Service - MongoDB Implementation with Encryption Support
  * @description MongoDB-specific implementation of secret management with Client-Side Field Level Encryption support
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  */
 import { ClientEncryption, MongoClient } from "mongodb";
 import { ISecretManagerOptions } from "../models/Secret";
@@ -87,6 +87,10 @@ export class SecretManagerMDB extends SecretManager {
 
         if (!mdb?.uri) {
             throw new Error("MongoDB URI is required to initialize SecretManagerMDB.");
+        }
+
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
         }
 
         const secret = await this.assistant.resolve<SecretManager>(`SecretManager`);

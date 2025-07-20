@@ -2,14 +2,15 @@
  * @fileoverview Stack Manager Service - Infrastructure Stack Bridge Component
  * @description Service for managing infrastructure stacks using Pulumi automation
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  */
 
 import { IComponent } from "../models/Component";
+import { ILoggerService } from "../models/Logger";
 import { IStackManager, IStackOptions } from "../models/Stack";
 import { IResult, IStruct } from "../models/Types";
-import { getID } from "../tools";
+import { getID, IIoC } from "../tools";
 import { BaseService } from "./BaseService";
 
 /**
@@ -31,8 +32,8 @@ export class StackManager extends BaseService implements IStackManager {
      * @constructor
      * @param {IStackOptions} [config] - Optional stack configuration options
      */
-    constructor(config?: IStackOptions) {
-        super();
+    constructor(config?: IStackOptions | null, dep?: { assistant: IIoC, logger: ILoggerService }) {
+        super(dep);
         this.config = config || {};
     }
 
@@ -77,6 +78,9 @@ export class StackManager extends BaseService implements IStackManager {
     protected async execute(config: IStackOptions, action: string, args: Array<any>): Promise<IResult> {
         const type = config.orchestrator || "Pulumi";
         const controllerName = "StackManager" + type;
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
+        }
         const controller = await this.assistant.resolve<IStackManager>(controllerName);
         const method = controller[action as keyof IStackManager] as Function;
         return await method?.apply(controller, args);
