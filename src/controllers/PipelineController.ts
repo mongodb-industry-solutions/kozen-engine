@@ -9,8 +9,8 @@
  * interact with the same underlying pipeline services without modification.
  * 
  * @author IaC Pipeline Team
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  * 
  * @example
  * ```typescript
@@ -36,8 +36,6 @@ import * as fs from 'fs';
 import { IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
 import { IAction, IResult } from '../models/Types';
 import { PipelineManager } from '../services/PipelineManager';
-import { Logger } from '../tools/log/Logger';
-import { LogLevel } from '../tools/log/types';
 
 /**
  * @class PipelineController
@@ -61,13 +59,6 @@ import { LogLevel } from '../tools/log/types';
  * ```
  */
 export class PipelineController {
-  /**
-   * Logger instance for controller operations
-   * 
-   * @private
-   * @type {Logger}
-   */
-  private logger: Logger;
 
   /**
    * Pipeline manager service instance
@@ -84,10 +75,6 @@ export class PipelineController {
    * @param {PipelineManager} pipeline - Optional pipeline manager instance
    */
   constructor(pipeline?: PipelineManager) {
-    this.logger = new Logger({
-      level: LogLevel.INFO,
-      category: 'Kozen:Pipeline'
-    });
     this.pipeline = pipeline || new PipelineManager();
   }
 
@@ -198,7 +185,9 @@ export class PipelineController {
       // Configure pipeline manager
       await this.pipeline.configure(config);
 
-      this.logger.info(`Executing ${args.action} operation for template: ${args.template}`);
+      this.pipeline.logger?.info({
+        message: `Executing ${args.action} operation for template: ${args.template}`
+      });
 
       // Execute the requested action
       let result: IResult;
@@ -226,7 +215,10 @@ export class PipelineController {
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      this.logger.error(`Pipeline execution failed: ${errorMessage}`);
+
+      this.pipeline.logger?.error({
+        message: `Pipeline execution failed: ${errorMessage}`
+      });
 
       return {
         action: args.action as IAction,
@@ -322,15 +314,15 @@ Examples:
    */
   private logExecutionResult(result: IResult): void {
     if (result.success) {
-      this.logger.info(`✅ ${result.action} operation completed successfully in ${result.duration}ms`);
+      this.pipeline.logger?.info(`✅ ${result.action} operation completed successfully in ${result.duration}ms`);
       if (result.results && result.results.length > 0) {
-        this.logger.info(`Processed ${result.results.length} component(s)`);
+        this.pipeline.logger?.info(`Processed ${result.results.length} component(s)`);
       }
     } else {
-      this.logger.error(`❌ ${result.action} operation failed after ${result.duration}ms`);
+      this.pipeline.logger?.error(`❌ ${result.action} operation failed after ${result.duration}ms`);
       if (result.errors && result.errors.length > 0) {
         result.errors.forEach(error => {
-          this.logger.error(`Error: ${error}`);
+          this.pipeline.logger?.error(`Error: ${error}`);
         });
       }
     }

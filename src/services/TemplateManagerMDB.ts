@@ -2,12 +2,12 @@
  * @fileoverview MongoDB Template Manager Service - MongoDB Implementation
  * @description MongoDB-specific implementation for loading infrastructure templates from MongoDB collections
  * @author MDB SAT
- * @since 4.0.0
- * @version 4.0.0
+ * @since 1.0.4
+ * @version 1.0.5
  */
 import { MongoClient } from "mongodb";
+import { ISecretManager } from "../models/Secret";
 import { ITemplateConfig } from "../models/Template";
-import SecretManager from "./SecretManager";
 import TemplateManager from "./TemplateManager";
 
 /**
@@ -16,6 +16,7 @@ import TemplateManager from "./TemplateManager";
  * @description MongoDB implementation for template loading with secure URI resolution and connection management
  */
 export class TemplateManagerMDB extends TemplateManager {
+
     /**
      * MongoDB client instance for database operations
      * @private
@@ -34,12 +35,16 @@ export class TemplateManagerMDB extends TemplateManager {
      */
     async load<T = any>(templateName: string, options?: ITemplateConfig): Promise<T> {
         try {
-            const secret = await this.assistant.resolve<SecretManager>(`SecretManager`);
+            if (!this.assistant) {
+                throw new Error("Incorrect dependency injection configuration.");
+            }
+
+            const secret = await this.assistant.resolve<ISecretManager>(`SecretManager`) || null;
             // Use provided options or fallback to the default options
             options = options || this.options;
 
-            if (!options?.mdb) {
-                throw new Error("MongoDB configuration is missing.");
+            if (!options?.mdb || !secret) {
+                throw new Error("MongoDB configuration is missing or the secret manager is invalid.");
             }
 
             const { uri: uriKey, database, collection } = options.mdb;
