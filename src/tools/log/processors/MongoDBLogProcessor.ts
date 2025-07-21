@@ -57,12 +57,6 @@ export class MongoDBLogProcessor extends LogProcessor {
       storedAt: new Date().toISOString()
     };
 
-    if (this.level > level) {
-      return;
-    }
-    // Simulate MongoDB insertion
-    // console.log(`[MongoDB] Storing log in ${this.database}.${this.collection}:`, mongoDocument);
-
     // Real implementation would be:
     const client = new MongoClient(this.uri);
     await client.db(this.database).collection(this.collection).insertOne(mongoDocument);

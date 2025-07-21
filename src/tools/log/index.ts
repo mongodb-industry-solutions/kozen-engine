@@ -4,11 +4,8 @@ export { Logger } from './Logger';
 // Types and interfaces
 export { ILogLevel } from './types';
 export type {
-  ILogEntry,
-  ILoggerConfig,
-  ILogInput,
-  ILogOptions,
-  ILogOutputType,
+  ILogEntry, ILoggerConfig,
+  ILogInput, ILogOutputType,
   ILogProcessor
 } from './types';
 

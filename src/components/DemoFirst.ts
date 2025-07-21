@@ -1,4 +1,5 @@
 import { BaseController } from '../controllers/BaseController';
+import { IPipeline } from '../models/Pipeline';
 import { IResult, IStruct } from '../models/Types';
 
 /**
@@ -12,17 +13,24 @@ export class DemoFirst extends BaseController {
    * @param input - Optional deployment input parameters with message and timeout
    * @returns Promise resolving to deployment result with success status and IP address output
    */
-  async deploy(input?: IStruct): Promise<IResult> {
+  async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
     this.logger?.info({
       src: 'component:DemoFirst:deploy',
       message: `Deploying with message: ${input?.message}`,
       data: {
-        templateName: this.config.name,
+        // Get the current component name
+        componentName: this.config.name,
+        // Get the current template name
+        templateName: pipeline?.template?.name,
+        // Get the current stack name (usually the execution environment like: dev, stg, prd, test, etc.)
+        stackName: pipeline?.stack?.config?.name,
+        // Get the current project name, which can be used in combination with the stackName as prefix for internal resource deployment (ex. K2025072112202952-dev)
+        projectName: pipeline?.stack?.config?.project,
       }
     });
     // await new Promise(resolve => setTimeout(resolve, input?. || 1000));
     return {
-      templateName: this.config.name,
+      templateName: pipeline?.template?.name,
       action: 'deploy',
       success: true,
       message: `DemoFirst deployed successfully with message: ${input?.message}`,
@@ -38,7 +46,7 @@ export class DemoFirst extends BaseController {
    * @param input - Optional undeployment input parameters
    * @returns Promise resolving to undeployment result with success status
    */
-  async undeploy(input?: IStruct): Promise<IResult> {
+  async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
     console.log(`Undeploying DemoFirst`);
     return {
       templateName: this.config.name,
@@ -54,7 +62,7 @@ export class DemoFirst extends BaseController {
    * @param input - Optional validation input parameters
    * @returns Promise resolving to validation result with success confirmation
    */
-  async validate(input?: IStruct): Promise<IResult> {
+  async validate(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
     return {
       templateName: this.config.name,
       action: 'validate',
@@ -69,7 +77,7 @@ export class DemoFirst extends BaseController {
    * @param input - Optional status query input parameters
    * @returns Promise resolving to status result with operational state
    */
-  async status(input?: IStruct): Promise<IResult> {
+  async status(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
     return {
       templateName: this.config.name,
       action: 'status',
