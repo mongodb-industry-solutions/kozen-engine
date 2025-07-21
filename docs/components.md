@@ -383,7 +383,7 @@ Components are automatically discovered and registered through the IoC container
 For custom components, register explicitly:
 
 ```typescript
-const configs: ServiceConfig[] = [
+const configs: IDependency[] = [
   {
     key: "CustomComponent",
     target: CustomComponent,
