@@ -37,7 +37,7 @@ export { PipelineController } from './controllers/PipelineController';
 
 // IoC Container and Tools
 export { IoC } from './tools/ioc/IoC';
-export { Logger, LogLevel } from './tools/log';
+export { ILogLevel, Logger } from './tools/log';
 
 // Configuration Models
 export { IPipelineArgs, IPipelineConfig } from './models/Pipeline';
