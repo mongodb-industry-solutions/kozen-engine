@@ -1,5 +1,5 @@
 import { ConsoleLogProcessor } from './processors/ConsoleLogProcessor';
-import { LogEntry, LoggerConfig, LogInput, LogLevel, LogOptions, LogOutputType, LogProcessor } from './types';
+import { ILogEntry, ILoggerConfig, ILogInput, ILogLevel, ILogOptions, ILogOutputType, ILogProcessor } from './types';
 
 /**
  * Simplified Logger class with configurable output format and pluggable processors
@@ -10,7 +10,7 @@ export class Logger {
    * Current minimum log level threshold for message filtering
    * @private
    */
-  private currentLevel: LogLevel;
+  private currentLevel: ILogLevel;
 
   /**
    * Optional category identifier for logging context organization
@@ -22,20 +22,20 @@ export class Logger {
    * Output format type controlling serialization behavior
    * @private
    */
-  private outputType: LogOutputType;
+  private outputType: ILogOutputType;
 
   /**
    * Processor instance responsible for log message output handling
    * @protected
    */
-  protected processor: LogProcessor;
+  protected processor: ILogProcessor;
 
   /**
    * Creates new Logger instance with optional configuration settings
    * @param config - Optional logger configuration with level, category, type and processor settings
    */
-  constructor(config: LoggerConfig = {}) {
-    this.currentLevel = config.level ?? LogLevel.INFO;
+  constructor(config: ILoggerConfig = {}) {
+    this.currentLevel = config.level ?? ILogLevel.ALL;
     this.category = config.category;
     this.outputType = config.type ?? 'object';
     this.processor = config.processor ?? new ConsoleLogProcessor();
@@ -45,7 +45,7 @@ export class Logger {
    * Configures the logger settings - allows changing behavior at runtime
    * @param config - Logger configuration object
    */
-  setting(config: LoggerConfig): void {
+  setting(config: ILoggerConfig): void {
     if (config.level !== undefined) {
       this.currentLevel = config.level;
     }
@@ -64,7 +64,7 @@ export class Logger {
    * Gets the current logging level
    * @returns The current log level
    */
-  getLevel(): LogLevel {
+  getLevel(): ILogLevel {
     return this.currentLevel;
   }
 
@@ -80,7 +80,7 @@ export class Logger {
    * Gets the current output type
    * @returns The current output type
    */
-  getOutputType(): LogOutputType {
+  getOutputType(): ILogOutputType {
     return this.outputType;
   }
 
@@ -89,9 +89,9 @@ export class Logger {
    * @param level - The level to check
    * @returns True if the level should be logged
    */
-  private shouldLog(level: LogLevel): boolean {
-    if (this.currentLevel === LogLevel.NONE) return false;
-    if (this.currentLevel === LogLevel.ALL) return true;
+  private shouldLog(level: ILogLevel): boolean {
+    if (this.currentLevel === ILogLevel.NONE) return false;
+    if (this.currentLevel === ILogLevel.ALL) return true;
     return level <= this.currentLevel;
   }
 
@@ -100,13 +100,13 @@ export class Logger {
    * @param level - The log level
    * @returns The level name
    */
-  private getLevelName(level: LogLevel): string {
+  private getLevelName(level: ILogLevel): string {
     switch (level) {
-      case LogLevel.ERROR: return 'ERROR';
-      case LogLevel.WARN: return 'WARN';
-      case LogLevel.DEBUG: return 'DEBUG';
-      case LogLevel.INFO: return 'INFO';
-      case LogLevel.ALL: return 'VERBOSE';
+      case ILogLevel.ERROR: return 'ERROR';
+      case ILogLevel.WARN: return 'WARN';
+      case ILogLevel.DEBUG: return 'DEBUG';
+      case ILogLevel.INFO: return 'INFO';
+      case ILogLevel.ALL: return 'VERBOSE';
       default: return 'LOG';
     }
   }
@@ -129,11 +129,11 @@ export class Logger {
   }
 
   /**
-   * Normalizes input to LogOptions format
-   * @param input - The input to normalize (string, number, or LogOptions)
-   * @returns Normalized LogOptions object
+   * Normalizes input to ILogOptions format
+   * @param input - The input to normalize (string, number, or ILogOptions)
+   * @returns Normalized ILogOptions object
    */
-  private normalizeInput(input: LogInput): LogOptions {
+  private normalizeInput(input: ILogInput): ILogOptions {
     if (typeof input === 'string' || typeof input === 'number') {
       return {
         message: String(input)
@@ -148,8 +148,8 @@ export class Logger {
    * @param options - The normalized log options
    * @returns Complete log entry object
    */
-  private createLogEntry(level: LogLevel, options: LogOptions): LogEntry {
-    const entry: LogEntry = {
+  private createILogEntry(level: ILogLevel, options: ILogOptions): ILogEntry {
+    const entry: ILogEntry = {
       level: this.getLevelName(level),
       message: options.message,
       date: new Date().toISOString(),
@@ -171,75 +171,75 @@ export class Logger {
    * @param entry - The log entry to process
    * @param level - The numeric log level for processor logic
    */
-  protected process(entry: LogEntry, level: LogLevel): void {
+  protected process(entry: ILogEntry, level: ILogLevel): void {
     this.processor.process(entry, level, this.outputType);
   }
 
   /**
    * Internal method to log a message with the specified level
    * @param level - The log level to use
-   * @param input - The log input (string, number, or LogOptions object)
+   * @param input - The log input (string, number, or ILogOptions object)
    */
-  private logWithLevel(level: LogLevel, input: LogInput): void {
+  private logWithLevel(level: ILogLevel, input: ILogInput): void {
     if (!this.shouldLog(level)) return;
 
     const options = this.normalizeInput(input);
-    const entry = this.createLogEntry(level, options);
+    const entry = this.createILogEntry(level, options);
     this.process(entry, level);
   }
 
   /**
    * Logs an error message - highest priority, usually for critical issues
-   * @param input - The error input: string/number for simple message, or LogOptions object for complex logging
+   * @param input - The error input: string/number for simple message, or ILogOptions object for complex logging
    * @example
    * logger.error('Simple error message');
    * logger.error({ message: 'Database error', data: { code: 500, query: 'SELECT * FROM users' }, flow: 'auth-flow' });
    */
-  error(input: LogInput): void {
-    this.logWithLevel(LogLevel.ERROR, input);
+  error(input: ILogInput): void {
+    this.logWithLevel(ILogLevel.ERROR, input);
   }
 
   /**
    * Logs a warning message - for potentially harmful situations
-   * @param input - The warning input: string/number for simple message, or LogOptions object for complex logging
+   * @param input - The warning input: string/number for simple message, or ILogOptions object for complex logging
    * @example
    * logger.warn('Deprecated function used');
    * logger.warn({ message: 'Memory usage high', data: { usage: '85%', threshold: '80%' } });
    */
-  warn(input: LogInput): void {
-    this.logWithLevel(LogLevel.WARN, input);
+  warn(input: ILogInput): void {
+    this.logWithLevel(ILogLevel.WARN, input);
   }
 
   /**
    * Logs a debug message - detailed information for diagnosing problems
-   * @param input - The debug input: string/number for simple message, or LogOptions object for complex logging
+   * @param input - The debug input: string/number for simple message, or ILogOptions object for complex logging
    * @example
    * logger.debug('Processing user request');
    * logger.debug({ message: 'Variable state', data: { userId: 123, step: 'validation' } });
    */
-  debug(input: LogInput): void {
-    this.logWithLevel(LogLevel.DEBUG, input);
+  debug(input: ILogInput): void {
+    this.logWithLevel(ILogLevel.DEBUG, input);
   }
 
   /**
    * Logs an info message - general information about application flow
-   * @param input - The info input: string/number for simple message, or LogOptions object for complex logging
+   * @param input - The info input: string/number for simple message, or ILogOptions object for complex logging
    * @example
    * logger.info('User logged in successfully');
    * logger.info({ message: 'User session started', data: { userId: 'user123', sessionId: 'sess456' } });
    */
-  info(input: LogInput): void {
-    this.logWithLevel(LogLevel.INFO, input);
+  info(input: ILogInput): void {
+    this.logWithLevel(ILogLevel.INFO, input);
   }
 
   /**
    * Logs a general message - alias for info() method for compatibility
-   * @param input - The log input: string/number for simple message, or LogOptions object for complex logging
+   * @param input - The log input: string/number for simple message, or ILogOptions object for complex logging
    * @example
    * logger.log('General message');
    * logger.log({ message: 'Process completed', data: { duration: '2.5s', items: 150 } });
    */
-  log(input: LogInput): void {
-    this.logWithLevel(LogLevel.INFO, input);
+  log(input: ILogInput): void {
+    this.logWithLevel(ILogLevel.INFO, input);
   }
 } 
