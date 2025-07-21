@@ -13,7 +13,13 @@ export class DemoFirst extends BaseController {
    * @returns Promise resolving to deployment result with success status and IP address output
    */
   async deploy(input?: IStruct): Promise<IResult> {
-    console.log(`Deploying DemoFirst with message: ${input?.message}`);
+    this.logger?.info({
+      src: 'component:DemoFirst:deploy',
+      message: `Deploying with message: ${input?.message}`,
+      data: {
+        templateName: this.config.name,
+      }
+    });
     // await new Promise(resolve => setTimeout(resolve, input?. || 1000));
     return {
       templateName: this.config.name,
