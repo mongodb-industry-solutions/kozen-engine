@@ -1,5 +1,5 @@
 import { ConsoleLogProcessor } from './processors/ConsoleLogProcessor';
-import { ILogEntry, ILoggerConfig, ILogInput, ILogLevel, ILogOptions, ILogOutputType, ILogProcessor } from './types';
+import { ILogEntry, ILoggerConfig, ILogInput, ILogLevel, ILogOutputType, ILogProcessor } from './types';
 
 /**
  * Simplified Logger class with configurable output format and pluggable processors
@@ -129,11 +129,11 @@ export class Logger {
   }
 
   /**
-   * Normalizes input to ILogOptions format
-   * @param input - The input to normalize (string, number, or ILogOptions)
-   * @returns Normalized ILogOptions object
+   * Normalizes input to ILogEntry format
+   * @param input - The input to normalize (string, number, or ILogEntry)
+   * @returns Normalized ILogEntry object
    */
-  private normalizeInput(input: ILogInput): ILogOptions {
+  private normalizeInput(input: ILogInput): ILogEntry {
     if (typeof input === 'string' || typeof input === 'number') {
       return {
         message: String(input)
@@ -148,14 +148,12 @@ export class Logger {
    * @param options - The normalized log options
    * @returns Complete log entry object
    */
-  private createILogEntry(level: ILogLevel, options: ILogOptions): ILogEntry {
+  private createILogEntry(level: ILogLevel, options: ILogEntry): ILogEntry {
     const entry: ILogEntry = {
+      ...options,
       level: this.getLevelName(level),
-      message: options.message,
-      date: new Date().toISOString(),
+      date: options.date || new Date().toISOString(),
       flow: options.flow || this.generateFlowId(),
-      category: this.category,
-      data: options.data
     };
 
     // Remove undefined fields to keep the log clean
@@ -178,7 +176,7 @@ export class Logger {
   /**
    * Internal method to log a message with the specified level
    * @param level - The log level to use
-   * @param input - The log input (string, number, or ILogOptions object)
+   * @param input - The log input (string, number, or ILogEntry object)
    */
   private logWithLevel(level: ILogLevel, input: ILogInput): void {
     if (!this.shouldLog(level)) return;
@@ -190,7 +188,7 @@ export class Logger {
 
   /**
    * Logs an error message - highest priority, usually for critical issues
-   * @param input - The error input: string/number for simple message, or ILogOptions object for complex logging
+   * @param input - The error input: string/number for simple message, or ILogEntry object for complex logging
    * @example
    * logger.error('Simple error message');
    * logger.error({ message: 'Database error', data: { code: 500, query: 'SELECT * FROM users' }, flow: 'auth-flow' });
@@ -201,7 +199,7 @@ export class Logger {
 
   /**
    * Logs a warning message - for potentially harmful situations
-   * @param input - The warning input: string/number for simple message, or ILogOptions object for complex logging
+   * @param input - The warning input: string/number for simple message, or ILogEntry object for complex logging
    * @example
    * logger.warn('Deprecated function used');
    * logger.warn({ message: 'Memory usage high', data: { usage: '85%', threshold: '80%' } });
@@ -212,7 +210,7 @@ export class Logger {
 
   /**
    * Logs a debug message - detailed information for diagnosing problems
-   * @param input - The debug input: string/number for simple message, or ILogOptions object for complex logging
+   * @param input - The debug input: string/number for simple message, or ILogEntry object for complex logging
    * @example
    * logger.debug('Processing user request');
    * logger.debug({ message: 'Variable state', data: { userId: 123, step: 'validation' } });
@@ -223,7 +221,7 @@ export class Logger {
 
   /**
    * Logs an info message - general information about application flow
-   * @param input - The info input: string/number for simple message, or ILogOptions object for complex logging
+   * @param input - The info input: string/number for simple message, or ILogEntry object for complex logging
    * @example
    * logger.info('User logged in successfully');
    * logger.info({ message: 'User session started', data: { userId: 'user123', sessionId: 'sess456' } });
@@ -234,7 +232,7 @@ export class Logger {
 
   /**
    * Logs a general message - alias for info() method for compatibility
-   * @param input - The log input: string/number for simple message, or ILogOptions object for complex logging
+   * @param input - The log input: string/number for simple message, or ILogEntry object for complex logging
    * @example
    * logger.log('General message');
    * logger.log({ message: 'Process completed', data: { duration: '2.5s', items: 150 } });

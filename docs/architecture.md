@@ -230,7 +230,7 @@ The system uses a sophisticated IoC container with:
 ### Service Registration
 
 ```typescript
-const configs: ServiceConfig[] = [
+const configs: IDependency[] = [
   {
     key: "StackManagerPulumi",
     target: StackManagerPulumi,
