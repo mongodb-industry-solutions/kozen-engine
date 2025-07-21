@@ -178,7 +178,7 @@ export class Logger {
    * @param level - The log level to use
    * @param input - The log input (string, number, or ILogEntry object)
    */
-  private logWithLevel(level: ILogLevel, input: ILogInput): void {
+  protected logWithLevel(level: ILogLevel, input: ILogInput): void {
     if (!this.shouldLog(level)) return;
 
     const options = this.normalizeInput(input);
@@ -232,12 +232,13 @@ export class Logger {
 
   /**
    * Logs a general message - alias for info() method for compatibility
+   * @param level - The log level to use
    * @param input - The log input: string/number for simple message, or ILogEntry object for complex logging
    * @example
    * logger.log('General message');
    * logger.log({ message: 'Process completed', data: { duration: '2.5s', items: 150 } });
    */
-  log(input: ILogInput): void {
-    this.logWithLevel(ILogLevel.INFO, input);
+  log(input: ILogInput, level: ILogLevel = ILogLevel.INFO): void {
+    this.logWithLevel(level, input);
   }
 } 
