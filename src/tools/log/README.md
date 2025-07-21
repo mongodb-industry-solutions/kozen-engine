@@ -21,39 +21,48 @@ src/tools/log/
 ## 🔧 Main Components
 
 ### 1. **Logger.ts**
+
 The main logging system class that:
+
 - Manages different log levels (ERROR, WARN, DEBUG, INFO, ALL, NONE)
 - Supports categories to identify log sources
 - Allows dynamic runtime configuration
 - Uses interchangeable processors for output
 
 ### 2. **types.ts**
+
 Defines all interfaces and types:
-- `LogLevel`: Enum with logging levels
-- `LogEntry`: Structure of a log entry
+
+- `ILogLevel`: Enum with logging levels
+- `ILogEntry`: Structure of a log entry
 - `LogProcessor`: Interface for custom processors
-- `LoggerConfig`: Logger configuration
-- `LogOutputType`: Output format type ('json' | 'object')
+- `ILoggerConfig`: Logger configuration
+- `ILogOutputType`: Output format type ('json' | 'object')
 
 ### 3. **Processors (processors/)**
+
 Interchangeable implementations for log handling:
 
 #### **ConsoleLogProcessor**
+
 - Default processor
 - Outputs logs to standard console
 - Supports different console methods based on level
 
 #### **MongoDBLogProcessor**
+
 - Stores logs in MongoDB database
 - Configurable (connection, database, collection)
 - Adds additional metadata for analysis
 
 #### **FileLogProcessor**
+
 - Writes logs to files
 - Configurable (file path)
 - Supports JSON or human-readable format
 
 #### **HybridLogProcessor**
+
 - Combines multiple processors
 - Allows sending logs to multiple destinations simultaneously
 - Robust error handling
@@ -61,79 +70,88 @@ Interchangeable implementations for log handling:
 ## 🚀 Basic Usage
 
 ```typescript
-import { Logger, LogLevel, ConsoleLogProcessor } from '../tools/log';
+import { Logger, ILogLevel, ConsoleLogProcessor } from "../tools/log";
 
 // Basic logger with console
 const logger = new Logger({
-  level: LogLevel.INFO,
-  category: 'APP',
-  type: 'object'
+  level: ILogLevel.INFO,
+  category: "APP",
+  type: "object",
 });
 
-logger.info('Application started');
-logger.error('Critical error', { code: 500, details: 'Something went wrong' });
+logger.info("Application started");
+logger.error("Critical error", { code: 500, details: "Something went wrong" });
 ```
 
 ## 🎯 Advanced Usage
 
 ```typescript
-import { 
-  Logger, 
-  LogLevel, 
+import {
+  Logger,
+  ILogLevel,
   MongoDBLogProcessor,
   HybridLogProcessor,
-  ConsoleLogProcessor 
-} from '../tools/log';
+  ConsoleLogProcessor,
+} from "../tools/log";
 
 // Logger with multiple destinations
 const hybridProcessor = new HybridLogProcessor([
   new ConsoleLogProcessor(),
-  new MongoDBLogProcessor('mongodb://localhost:27017', 'app', 'logs')
+  new MongoDBLogProcessor("mongodb://localhost:27017", "app", "logs"),
 ]);
 
 const logger = new Logger({
-  level: LogLevel.DEBUG,
-  category: 'PAYMENT',
-  type: 'json',
-  processor: hybridProcessor
+  level: ILogLevel.DEBUG,
+  category: "PAYMENT",
+  type: "json",
+  processor: hybridProcessor,
 });
 
 // This log goes to both console and MongoDB
-logger.error('Payment failed', { 
-  transactionId: 'tx-123',
+logger.error("Payment failed", {
+  transactionId: "tx-123",
   amount: 99.99,
-  userId: 'user456'
+  userId: "user456",
 });
 ```
 
 ## 🔄 Dynamic Configuration
 
 ```typescript
-const logger = new Logger({ level: LogLevel.ERROR });
+const logger = new Logger({ level: ILogLevel.ERROR });
 
 // Change configuration at runtime
 logger.setting({
-  level: LogLevel.DEBUG,
-  category: 'DYNAMIC',
-  type: 'json',
-  processor: new MongoDBLogProcessor()
+  level: ILogLevel.DEBUG,
+  category: "DYNAMIC",
+  type: "json",
+  processor: new MongoDBLogProcessor(),
 });
 ```
 
 ## 🏗️ Custom Processors
 
 ```typescript
-import { LogProcessor, LogEntry, LogLevel, LogOutputType } from '../tools/log';
+import {
+  LogProcessor,
+  ILogEntry,
+  ILogLevel,
+  ILogOutputType,
+} from "../tools/log";
 
 class EmailLogProcessor implements LogProcessor {
-  process(entry: LogEntry, level: LogLevel, outputType: LogOutputType): void {
-    if (level === LogLevel.ERROR) {
+  process(
+    entry: ILogEntry,
+    level: ILogLevel,
+    outputType: ILogOutputType
+  ): void {
+    if (level === ILogLevel.ERROR) {
       // Send email for critical errors
       this.sendEmail(entry);
     }
   }
 
-  private sendEmail(entry: LogEntry): void {
+  private sendEmail(entry: ILogEntry): void {
     // Email sending implementation
   }
 }
@@ -141,14 +159,14 @@ class EmailLogProcessor implements LogProcessor {
 
 ## 📝 Log Levels
 
-| Level | Value | Description |
-|-------|-------|-------------|
-| NONE  | 0     | No logs |
-| ERROR | 1     | Only critical errors |
-| WARN  | 2     | Errors and warnings |
+| Level | Value | Description                 |
+| ----- | ----- | --------------------------- |
+| NONE  | 0     | No logs                     |
+| ERROR | 1     | Only critical errors        |
+| WARN  | 2     | Errors and warnings         |
 | DEBUG | 3     | Errors, warnings, and debug |
-| INFO  | 4     | All normal logs (default) |
-| ALL   | -1    | All logs including verbose |
+| INFO  | 4     | All normal logs (default)   |
+| ALL   | -1    | All logs including verbose  |
 
 ## 🎪 Available Demos
 
@@ -163,4 +181,4 @@ class EmailLogProcessor implements LogProcessor {
 3. **Flexibility**: Dynamic behavior switching
 4. **Testability**: Easy testing with mock processors
 5. **Configuration**: Runtime changes
-6. **Organization**: Modular and maintainable code 
+6. **Organization**: Modular and maintainable code
