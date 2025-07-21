@@ -36,6 +36,7 @@ import * as fs from 'fs';
 import { IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
 import { IAction, IResult } from '../models/Types';
 import { PipelineManager } from '../services/PipelineManager';
+import { ILogInput, ILogLevel } from '../tools';
 
 /**
  * @class PipelineController
@@ -210,7 +211,7 @@ export class PipelineController {
       }
 
       // Log execution result
-      this.logExecutionResult(result);
+      await this.logExecutionResult(result);
 
       return result;
 
@@ -314,28 +315,47 @@ Examples:
    * @method logExecutionResult
    * @param {IResult} result - Execution result to log
    */
-  private logExecutionResult(result: IResult): void {
+  private logExecutionResult(result: IResult): Promise<void[]> {
+
+    const logs = [];
     if (result.success) {
-      this.pipeline.logger?.debug({
+
+      logs.push(this.pipeline.logger?.debug({
         src: 'Controller:Pipeline:CLI:ExecutionResult',
         message: `✅ ${result.action} operation completed successfully in ${result.duration}ms`
-      });
-      if (result.results && result.results.length > 0) {
-        this.pipeline.logger?.debug({
-          src: 'Controller:Pipeline:CLI:ExecutionResult',
-          message: `Processed ${result.results.length} component(s)`
-        });
-      }
+      }));
+
+      result?.results?.length && logs.push(this.pipeline.logger?.debug({
+        src: 'Controller:Pipeline:CLI:ExecutionResult',
+        message: `Processed ${result.results.length} component(s)`
+      }));
+
     } else {
-      this.pipeline.logger?.error({
+
+      logs.push(this.pipeline.logger?.error({
         src: 'Controller:Pipeline:CLI:ExecutionResult',
         message: `❌ ${result.action} operation failed after ${result.duration}ms`
-      });
-      if (result.errors && result.errors.length > 0) {
-        result.errors.forEach(error => {
-          this.pipeline.logger?.error(`Error: ${error}`);
-        });
-      }
+      }));
+
+      result?.errors?.length && logs.push(...result.errors.map(error => this.pipeline.logger?.error({
+        src: 'Controller:Pipeline:CLI:ExecutionResult',
+        message: `Error: ${error}`
+      })));
+
     }
+
+    return Promise.all(logs);
+  }
+
+  /**
+   * Logs a general message - alias for info() method for compatibility
+   * @param level - The log level to use
+   * @param input - The log input: string/number for simple message, or ILogEntry object for complex logging
+   * @example
+   * logger.log('General message');
+   * logger.log({ message: 'Process completed', data: { duration: '2.5s', items: 150 } });
+   */
+  log(input: ILogInput, level: ILogLevel = ILogLevel.INFO) {
+    return this.pipeline.logger?.log(input, level);
   }
 } 
