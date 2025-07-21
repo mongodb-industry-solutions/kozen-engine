@@ -37,7 +37,10 @@ export class SecretManagerAWS extends SecretManager {
 
             throw new Error(`Secret '${key}' was found but the SecretString is empty.`);
         } catch (error) {
-            console.error(`Failed to retrieve secret '${key}' from AWS Secrets Manager.`, (error as Error).message);
+            this.logger?.error({
+                src: 'Service:Secret:AWS:resolve',
+                message: `Failed to retrieve secret '${key}' from AWS Secrets Manager. ${(error as Error).message}`
+            });
             throw error;
         }
     }

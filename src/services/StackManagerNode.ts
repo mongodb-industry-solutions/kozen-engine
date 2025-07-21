@@ -28,6 +28,7 @@ export class StackManagerNode extends StackManager {
             config?.program instanceof Function && await config.program();
 
             this.logger?.debug({
+                src: 'Service:Stack:Node:deploy',
                 data: {
                     stackName: config.name,
                     projectName: config.project,
@@ -45,6 +46,7 @@ export class StackManagerNode extends StackManager {
         }
         catch (error) {
             this.logger?.error({
+                src: '',
                 data: {
                     stackName: config.name,
                     projectName: config.project,

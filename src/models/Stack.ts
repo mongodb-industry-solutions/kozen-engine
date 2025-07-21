@@ -116,7 +116,7 @@ export interface IStackOptions extends IComponent {
      * Additional configuration options
      * @type {Record<string, any>}
      */
-    config?: Record<string, any>;
+    config?: IStackConfig;
 
     /**
      * Array of infrastructure components
@@ -161,6 +161,12 @@ export interface IStackConfig<T = any, H = any> {
      * @type {string}
      */
     region?: string;
+
+    /**
+     * Additional configuration options
+     * @type {Record<string, any>}
+     */
+    [key: string]: any;
 }
 
 
@@ -182,6 +188,9 @@ export interface IStackManager {
      * @type {string}
      */
     readonly stackName: string;
+
+
+    readonly config?: IStackOptions;
 
     /**
      * Deploys infrastructure using Pulumi automation

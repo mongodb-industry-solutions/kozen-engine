@@ -424,7 +424,7 @@ const container = IoC.getInstance();
 
 #### Methods
 
-##### register(configs: ServiceConfig[]): Promise<void>
+##### register(configs: IDependency[]): Promise<void>
 
 Registers services with the container.
 
@@ -589,18 +589,18 @@ interface IStruct {
 
 ## Service Configuration Interfaces
 
-### ServiceConfig
+### IDependency
 
 IoC service configuration interface.
 
 ```typescript
-interface ServiceConfig {
+interface IDependency {
   key?: string; // Registration key
   target?: any; // Service implementation
   type?: "class" | "value" | "function" | "alias" | "ref" | "auto";
   lifetime?: "singleton" | "transient" | "scoped"; // Service lifetime
   args?: JsonValue[]; // Constructor arguments
-  dependencies?: ServiceConfig[]; // Nested dependencies
+  dependencies?: IDependency[]; // Nested dependencies
 }
 ```
 
