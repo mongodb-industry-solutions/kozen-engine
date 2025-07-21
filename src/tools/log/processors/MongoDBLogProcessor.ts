@@ -1,14 +1,16 @@
-import { LogEntry, LogLevel, LogOutputType, LogProcessor } from '../types';
+import { MongoClient } from 'mongodb';
+import { ILogEntry, ILogLevel, ILogOutputType, ILogProcessorOptMDB } from '../types';
+import { LogProcessor } from './LogProcessor';
 
 /**
  * MongoDB log processor - stores logs in a MongoDB database
  */
-export class MongoDBLogProcessor implements LogProcessor {
+export class MongoDBLogProcessor extends LogProcessor {
   /**
    * MongoDB connection string for database connectivity
    * @private
    */
-  private connectionString: string;
+  private uri: string;
 
   /**
    * Target database name for log storage
@@ -28,8 +30,10 @@ export class MongoDBLogProcessor implements LogProcessor {
    * @param database - Target database name, defaults to 'logs'
    * @param collection - Target collection name, defaults to 'application_logs'
    */
-  constructor(connectionString: string = 'mongodb://localhost:27017', database: string = 'logs', collection: string = 'application_logs') {
-    this.connectionString = connectionString;
+  constructor(options: ILogProcessorOptMDB) {
+    super(options);
+    const { uri = 'mongodb://localhost:27017', database = 'logs', collection = 'application_logs' } = options;
+    this.uri = uri;
     this.database = database;
     this.collection = collection;
   }
@@ -40,7 +44,9 @@ export class MongoDBLogProcessor implements LogProcessor {
    * @param level - The numeric log level
    * @param outputType - The output format (not used for MongoDB storage)
    */
-  process(entry: LogEntry, level: LogLevel, outputType: LogOutputType): void {
+  async process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): Promise<void> {
+
+    if (!this.shouldLog(level)) return;
     // In a real implementation, this would connect to MongoDB and insert the log
     // For this demo, we'll simulate the operation
     const mongoDocument = {
@@ -51,12 +57,15 @@ export class MongoDBLogProcessor implements LogProcessor {
       storedAt: new Date().toISOString()
     };
 
+    if (this.level > level) {
+      return;
+    }
     // Simulate MongoDB insertion
-    console.log(`[MongoDB] Storing log in ${this.database}.${this.collection}:`, mongoDocument);
+    // console.log(`[MongoDB] Storing log in ${this.database}.${this.collection}:`, mongoDocument);
 
     // Real implementation would be:
-    // const client = new MongoClient(this.connectionString);
-    // await client.db(this.database).collection(this.collection).insertOne(mongoDocument);
+    const client = new MongoClient(this.uri);
+    await client.db(this.database).collection(this.collection).insertOne(mongoDocument);
   }
 
   /**
@@ -65,7 +74,7 @@ export class MongoDBLogProcessor implements LogProcessor {
    */
   getConfig() {
     return {
-      connectionString: this.connectionString,
+      connectionString: this.uri,
       database: this.database,
       collection: this.collection
     };
@@ -76,7 +85,7 @@ export class MongoDBLogProcessor implements LogProcessor {
    * @param config - New configuration options
    */
   setConfig(config: { connectionString?: string; database?: string; collection?: string }) {
-    if (config.connectionString) this.connectionString = config.connectionString;
+    if (config.connectionString) this.uri = config.connectionString;
     if (config.database) this.database = config.database;
     if (config.collection) this.collection = config.collection;
   }
