@@ -1,20 +1,20 @@
-import { LogEntry, LogLevel, LogOutputType, LogProcessor } from '../types';
+import { ILogEntry, ILogLevel, ILogOutputType, ILogProcessor } from '../types';
 
 /**
  * Hybrid log processor - combines multiple processors to output logs to multiple destinations
  */
-export class HybridLogProcessor implements LogProcessor {
+export class HybridLogProcessor implements ILogProcessor {
   /**
    * Array of log processors for multi-destination output
    * @private
    */
-  private processors: LogProcessor[];
+  private processors: ILogProcessor[];
 
   /**
    * Creates new HybridLogProcessor instance combining multiple output processors
    * @param processors - Array of LogProcessor instances for simultaneous log handling
    */
-  constructor(processors: LogProcessor[]) {
+  constructor(processors: ILogProcessor[]) {
     this.processors = processors;
   }
 
@@ -24,7 +24,7 @@ export class HybridLogProcessor implements LogProcessor {
    * @param level - The numeric log level
    * @param outputType - The output format type
    */
-  process(entry: LogEntry, level: LogLevel, outputType: LogOutputType): void {
+  process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): void {
     // Process log entry with all configured processors
     this.processors.forEach(processor => {
       try {
@@ -40,7 +40,7 @@ export class HybridLogProcessor implements LogProcessor {
    * Adds a new processor to the hybrid processor
    * @param processor - The processor to add
    */
-  addProcessor(processor: LogProcessor): void {
+  addProcessor(processor: ILogProcessor): void {
     this.processors.push(processor);
   }
 
@@ -58,7 +58,7 @@ export class HybridLogProcessor implements LogProcessor {
    * Gets the list of all processors
    * @returns Array of processors
    */
-  getProcessors(): LogProcessor[] {
+  getProcessors(): ILogProcessor[] {
     return [...this.processors];
   }
 

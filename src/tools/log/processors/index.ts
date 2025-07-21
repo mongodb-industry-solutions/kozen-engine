@@ -1,10 +1,11 @@
 // Base processors
 export { ConsoleLogProcessor } from './ConsoleLogProcessor';
-export { MongoDBLogProcessor } from './MongoDBLogProcessor';
 export { FileLogProcessor } from './FileLogProcessor';
+export { MongoDBLogProcessor } from './MongoDBLogProcessor';
 
 // Specialized processors
 export { HybridLogProcessor } from './HybridLogProcessor';
 
 // Re-export types for convenience
-export type { LogProcessor, LogEntry, LogLevel, LogOutputType } from '../types'; 
+export type { ILogEntry, ILogLevel, ILogOutputType, ILogProcessor } from '../types';
+
