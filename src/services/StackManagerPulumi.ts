@@ -176,11 +176,6 @@ export class StackManagerPulumi extends StackManager {
 
             // Create or select the stack
             const stack = await LocalWorkspace.createOrSelectStack(args, opts);
-            // await stack.setAllConfig({
-            //     "aws:region": { value: process.env.AWS_REGION || "us-east-1" },
-            //     "aws:accessKey": { value: process.env.AWS_ACCESS_KEY_ID || "", secret: true },
-            //     "aws:secretKey": { value: process.env.AWS_SECRET_ACCESS_KEY || "", secret: true },
-            // });
 
             if (!stack || !stack.workspace) {
                 throw new Error(`Failed to create or select stack '${args.stackName}' in project '${args.projectName}'.`);
@@ -190,11 +185,19 @@ export class StackManagerPulumi extends StackManager {
             this.stack = stack;
 
             await this.setup(stack, config);
-            await stack.refresh({ onOutput: (output: string) => console.info(`Stack output: ${output}`) });
+            await stack.refresh({
+                onOutput: (output: string) => this.logger?.info({
+                    src: 'Service:Stack:Pulumi:load',
+                    message: `Stack output: ${output}`
+                })
+            })
             return stack;
 
         } catch (error) {
-            console.error('❌ Error configuring stack:', error);
+            this.logger?.error({
+                src: 'Service:Stack:Pulumi:load',
+                message: '❌ Error configuring stack: ' + (error as Error)?.message
+            })
             throw error;
         }
     }
@@ -209,7 +212,12 @@ export class StackManagerPulumi extends StackManager {
     public async deploy(config: IStackOptions): Promise<IResult> {
         try {
             const stack = await this.load(config);
-            const upRes = await stack.up({ onOutput: (output: string) => console.info(`Stack output: ${output}`) });
+            const upRes = await stack.up({
+                onOutput: (output: string) => this.logger?.info({
+                    src: 'Service:Stack:Pulumi:deploy',
+                    message: `Stack output: ${output}`
+                })
+            });
             return {
                 stackName: config.name,
                 projectName: config.project,
