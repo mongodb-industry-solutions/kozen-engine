@@ -13,7 +13,13 @@ export class DemoSecond extends BaseController {
    * @returns Promise resolving to deployment result with success status
    */
   async deploy(input?: IStruct): Promise<IResult> {
-    console.log(`Deploying DemoFirst with message: ${input?.message}`);
+    this.logger?.info({
+      src: 'component:DemoSecond:deploy',
+      message: `Deploying with message: ${input?.message}`,
+      data: {
+        templateName: this.config.name,
+      }
+    });
     return {
       templateName: this.config.name,
       action: 'deploy',
@@ -29,7 +35,13 @@ export class DemoSecond extends BaseController {
    * @returns Promise resolving to undeployment result with success status
    */
   async undeploy(input?: IStruct): Promise<IResult> {
-    console.log(`Undeploying DemoFirst`);
+    this.logger?.info({
+      src: 'component:DemoSecond:undeploy',
+      message: `Deploying with message: ${input?.message}`,
+      data: {
+        templateName: this.config.name,
+      }
+    });
     return {
       templateName: this.config.name,
       action: 'undeploy',

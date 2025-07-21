@@ -251,6 +251,13 @@
             "level": "all"
           }
         }
+      ],
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        }
       ]
     },
     {

@@ -1,9 +1,9 @@
-import { LogEntry, LogLevel, LogOutputType, LogProcessor } from '../types';
+import { ILogEntry, ILogLevel, ILogOutputType, ILogProcessor } from '../types';
 
 /**
  * File log processor - appends logs to a file
  */
-export class FileLogProcessor implements LogProcessor {
+export class FileLogProcessor implements ILogProcessor {
   /**
    * File system path where log entries are written
    * @private
@@ -24,7 +24,7 @@ export class FileLogProcessor implements LogProcessor {
    * @param level - The numeric log level
    * @param outputType - The output format
    */
-  process(entry: LogEntry, level: LogLevel, outputType: LogOutputType): void {
+  process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): void {
     const logLine = this.formatLogLine(entry, outputType);
 
     // Simulate file writing
@@ -57,7 +57,7 @@ export class FileLogProcessor implements LogProcessor {
    * @param outputType - The output format type
    * @returns Formatted log line
    */
-  private formatLogLine(entry: LogEntry, outputType: LogOutputType): string {
+  private formatLogLine(entry: ILogEntry, outputType: ILogOutputType): string {
     if (outputType === 'json') {
       return JSON.stringify(entry);
     }
