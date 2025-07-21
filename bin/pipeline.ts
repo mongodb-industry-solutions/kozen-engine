@@ -16,6 +16,7 @@
  * ts-node bin/pipeline.ts --template=k8s.standard --config=cfg/config.json --action=validate
  */
 import dotenv from "dotenv";
+import { ILogLevel } from "../src";
 import { PipelineController } from '../src/controllers/PipelineController';
 
 /**
@@ -47,15 +48,23 @@ import { PipelineController } from '../src/controllers/PipelineController';
 
     // Handle result
     if (result.success) {
-      console.log(`✅ ${result.action} operation completed successfully`);
+      controller.log({
+        src: 'bin:Pipeline:main',
+        message: `✅ ${result.action} operation completed successfully`
+      });
       process.exit(0);
     } else {
-      console.error(`❌ ${result.action} operation failed`);
-      if (result.errors && result.errors.length > 0) {
-        result.errors.forEach(error => {
-          console.error(`Error: ${error}`);
-        });
-      }
+
+      controller.log({
+        src: 'bin:Pipeline:main',
+        message: `❌ ${result.action} operation failed`
+      }, ILogLevel.ERROR);
+
+      result.errors?.length && result.errors.map(error => controller.log({
+        src: 'bin:Pipeline:main',
+        message: `Error: ${error}`
+      }, ILogLevel.ERROR))
+
       process.exit(1);
     }
 
