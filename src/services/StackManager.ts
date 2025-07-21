@@ -25,7 +25,11 @@ export class StackManager extends BaseService implements IStackManager {
      * @protected
      * @type {IStackOptions}
      */
-    protected config: IStackOptions;
+    protected _config: IStackOptions;
+
+    public get config() {
+        return this._config;
+    }
 
     /**
      * Creates a new StackManager instance
@@ -34,7 +38,7 @@ export class StackManager extends BaseService implements IStackManager {
      */
     constructor(config?: IStackOptions | null, dep?: { assistant: IIoC, logger: ILoggerService }) {
         super(dep);
-        this.config = config || {};
+        this._config = config || {};
     }
 
     /**
@@ -97,7 +101,7 @@ export class StackManager extends BaseService implements IStackManager {
         config = { ...this.config, ...config };
         config.project = this.projectName;
         config.name = this.stackName;
-        this.config = config;
+        this._config = config;
         return config;
     }
 

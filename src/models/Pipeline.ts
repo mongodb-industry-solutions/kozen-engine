@@ -1,5 +1,5 @@
 
-import { IIoC, ServiceConfig } from "../tools";
+import { IDependency, IIoC } from "../tools";
 import { IStackManager } from "./Stack";
 import { ITemplate } from "./Template";
 
@@ -79,9 +79,9 @@ export interface IPipelineConfig {
 
   /**
    * Service configuration array for IoC container
-   * @type {ServiceConfig[]}
+   * @type {IDependency[]}
    */
-  dependencies: ServiceConfig[];
+  dependencies: IDependency[];
 }
 
 
