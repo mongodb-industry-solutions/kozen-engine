@@ -107,6 +107,15 @@ export class LoggerService implements ILoggerService {
     }
 
     /**
+     * Logs informational message about normal application flow and operations
+     * @param input - Info message string or structured log options object
+     * @param level - The log level to use
+     */
+    public log(input: ILogInput, level: ILogLevel = ILogLevel.INFO): void {
+        this.logger.log(input, level);
+    }
+
+    /**
      * Updates logger configuration at runtime for dynamic behavior changes
      * @param config - New configuration options for level, category and MongoDB
      */

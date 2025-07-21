@@ -44,9 +44,9 @@ export { IPipelineArgs, IPipelineConfig } from './models/Pipeline';
 export { IResult } from './models/Types';
 
 // Infrastructure Components
-export { AtlasController } from './components/Atlas';
-export { KubernetesController } from './components/Kubernetes';
-export { OpsManagerController } from './components/OpsManager';
+// export { AtlasController } from './components/Atlas';
+// export { KubernetesController } from './components/Kubernetes';
+// export { OpsManagerController } from './components/OpsManager';
 
 // Base Controller
 export { BaseController } from './controllers/BaseController';
