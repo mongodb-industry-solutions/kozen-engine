@@ -21,27 +21,17 @@ export type ILogOutputType = 'json' | 'object';
 export interface ILogEntry {
   level?: string;           // Log level as string (ERROR, WARN, DEBUG, INFO, VERBOSE)
   message: string;         // The main log message
-  date: string;            // ISO timestamp when the log was created (renamed from timestamp for readability)
-  flow: string;            // Unique workflow/process identifier in format YYYYMMDDDHHMMSSXX
+  date?: string;            // ISO timestamp when the log was created (renamed from timestamp for readability)
+  flow?: string;            // Unique workflow/process identifier in format YYYYMMDDDHHMMSSXX
   category?: string;       // Optional category/module name to identify the source of the log
   data?: any;              // Additional data/context provided by the caller (objects, arrays, etc.)
   src?: string;            // Additional data/context provided by the caller
 }
 
 /**
- * Log input options - defines the structure for logging method calls
+ * Log input type - can be either a string (simple message) or ILogEntry object
  */
-export interface ILogOptions {
-  message: string;         // The main log message
-  data?: any;              // Additional data/context provided by the caller
-  src?: string;            // Additional data/context provided by the caller
-  flow?: string;           // Optional workflow/process identifier. If not provided, auto-generated
-}
-
-/**
- * Log input type - can be either a string (simple message) or ILogOptions object
- */
-export type ILogInput = string | number | ILogOptions | ILogEntry;
+export type ILogInput = string | number | ILogEntry;
 
 /**
  * Log processor interface - defines how logs should be processed/stored

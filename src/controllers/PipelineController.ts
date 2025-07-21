@@ -185,7 +185,8 @@ export class PipelineController {
       // Configure pipeline manager
       await this.pipeline.configure(config);
 
-      this.pipeline.logger?.info({
+      this.pipeline.logger?.debug({
+        src: 'Controller:Pipeline:CLI:execute',
         message: `Executing ${args.action} operation for template: ${args.template}`
       });
 
@@ -217,6 +218,7 @@ export class PipelineController {
       const errorMessage = error instanceof Error ? error.message : String(error);
 
       this.pipeline.logger?.error({
+        src: 'Controller:Pipeline:CLI:execute',
         message: `Pipeline execution failed: ${errorMessage}`
       });
 
@@ -314,12 +316,21 @@ Examples:
    */
   private logExecutionResult(result: IResult): void {
     if (result.success) {
-      this.pipeline.logger?.info(`✅ ${result.action} operation completed successfully in ${result.duration}ms`);
+      this.pipeline.logger?.debug({
+        src: 'Controller:Pipeline:CLI:ExecutionResult',
+        message: `✅ ${result.action} operation completed successfully in ${result.duration}ms`
+      });
       if (result.results && result.results.length > 0) {
-        this.pipeline.logger?.info(`Processed ${result.results.length} component(s)`);
+        this.pipeline.logger?.debug({
+          src: 'Controller:Pipeline:CLI:ExecutionResult',
+          message: `Processed ${result.results.length} component(s)`
+        });
       }
     } else {
-      this.pipeline.logger?.error(`❌ ${result.action} operation failed after ${result.duration}ms`);
+      this.pipeline.logger?.error({
+        src: 'Controller:Pipeline:CLI:ExecutionResult',
+        message: `❌ ${result.action} operation failed after ${result.duration}ms`
+      });
       if (result.errors && result.errors.length > 0) {
         result.errors.forEach(error => {
           this.pipeline.logger?.error(`Error: ${error}`);
