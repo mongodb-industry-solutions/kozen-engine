@@ -46,6 +46,13 @@ export interface ILoggerService {
     info(input: ILogInput): void;
 
     /**
+     * Logs an informational message about normal application flow and operations.
+     * @param input - The info message string or structured log options object.
+     * @param level - The info message string or structured log options object.
+     */
+    log(input: ILogInput, level: ILogLevel): void;
+
+    /**
      * Updates the logger configuration at runtime for dynamic behavior changes.
      * @param config - The new configuration options for level, category, and MongoDB settings.
      */
