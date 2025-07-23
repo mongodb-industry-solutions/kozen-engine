@@ -14,6 +14,7 @@ export class DemoFirst extends BaseController {
    * @returns Promise resolving to deployment result with success status and IP address output
    */
   async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
+
     this.logger?.info({
       src: 'component:DemoFirst:deploy',
       message: `Deploying with message: ${input?.message}`,
