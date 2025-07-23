@@ -9,12 +9,12 @@
     "scripts": {
         "build": "tsc",
         "start": "node dist/bin/pipeline.js",
-        "dev": "ts-node bin/pipeline.ts",
         "help": "ts-node bin/pipeline.ts --help",
-        "test:deploy": "ts-node bin/pipeline.ts --template=demo --config=cfg/config.json --action=deploy --stack=test",
-        "test:validate": "ts-node bin/pipeline.ts --template=demo --config=cfg/config.json --action=validate --stack=test",
-        "test:undeploy": "ts-node bin/pipeline.ts --template=demo --config=cfg/config.json --action=undeploy --stack=test",
-        "test:status": "ts-node bin/pipeline.ts --template=demo --config=cfg/config.json --action=status --stack=test",
+        "dev": "ts-node bin/pipeline.ts",
+        "test:deploy": "ts-node bin/pipeline.ts --action=deploy",
+        "test:validate": "ts-node bin/pipeline.ts --action=validate",
+        "test:undeploy": "ts-node bin/pipeline.ts --action=undeploy",
+        "test:status": "ts-node bin/pipeline.ts --action=status",
         "lint": "tslint -p tsconfig.json",
         "clean": "rm -rf dist"
     },
