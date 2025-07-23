@@ -1,326 +1,304 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as mongodbatlas from "@pulumi/mongodbatlas";
-import { InlineProgramArgs, LocalWorkspaceOptions, UpResult } from "@pulumi/pulumi/automation";
+
 import { BaseController } from '../controllers/BaseController';
-import { BaseConfig } from '../../../tmp/models/BaseConfig';
-import { AtlasConfig } from '../../../tmp/models/AtlasConfig';
-import { DeploymentResult } from '../../../tmp/models/Template';
-import { StackManager } from "../../../tmp/services/StackManager";
+import { IPipeline } from '../models/Pipeline';
+import { IResult, IStruct } from '../models/Types';
 
 /**
- * Controller class for managing MongoDB Atlas cluster deployments.
- * This controller handles the creation, configuration, and management of MongoDB Atlas clusters
- * using the Atlas API. It supports various cluster types, replication configurations,
- * and advanced features like backup and auto-scaling.
- * 
- * The controller integrates with Pulumi to manage Atlas resources as infrastructure as code,
- * providing declarative cluster management with state tracking and automated rollbacks.
- * 
- * @class AtlasController
- * @extends BaseController
- * @since 1.0.0
- * @example
- * ```typescript
- * const controller = new AtlasController();
- * controller.configure({
- *   name: "production-cluster",
- *   region: "us-east-1",
- *   providerName: "AWS",
- *   clusterType: "REPLICASET",
- *   mongoDbMajorVersion: "8.0",
- *   providerInstanceSizeName: "M10",
- *   cloudBackup: true
- * });
- * 
- * const result = await controller.deploy();
- * console.log('Atlas cluster deployed:', result.outputs?.atlasConnectionUrl);
- * ```
+ * Atlas component controller for MongoDB Atlas cluster deployments
+ * Manages the creation and removal of Atlas clusters using Pulumi
  */
-export class AtlasController extends BaseController {
-    private atlasConfig: AtlasConfig;
-    private stackManager: StackManager | null = null;
+export class Atlas extends BaseController {
+  private atlasProvider?: mongodbatlas.Provider;
 
-    /**
-     * Constructs a new AtlasController instance.
-     * Initializes the base controller and sets up Atlas-specific properties.
-     * The controller is ready to be configured with Atlas cluster specifications.
-     * 
-     * @constructor
-     * @memberof AtlasController
-     */
-    constructor() {
-        super();
-        this.atlasConfig = {} as AtlasConfig;
+  /**
+   * Deploys a MongoDB Atlas cluster using Pulumi resources
+   * @param input - Optional deployment input parameters 
+   * @param pipeline - Pipeline context containing stack and template information
+   * @returns Promise resolving to deployment result with cluster details
+   */
+  async deploy(input?: IAtlasConfig, pipeline?: IPipeline): Promise<IResult> {
+    if (!pipeline?.stack) {
+      return {
+        templateName: pipeline?.template?.name,
+        action: 'deploy',
+        success: false,
+        message: `Missing pipeline stack reference`,
+        timestamp: new Date(),
+      }
     }
-
-    /**
-     * Configures the Atlas controller with the provided configuration.
-     * Validates that the configuration contains all required Atlas-specific properties
-     * and prepares the controller for cluster deployment.
-     * 
-     * @param {BaseConfig} config - The configuration object containing Atlas cluster specifications
-     * @throws {Error} If the configuration is invalid or missing required Atlas properties
-     * @example
-     * ```typescript
-     * controller.configure({
-     *   name: "my-cluster",
-     *   region: "us-east-1",
-     *   providerName: "AWS",
-     *   clusterType: "REPLICASET",
-     *   replicationSpecs: [{
-     *     numShards: 1,
-     *     regionsConfigs: [{
-     *       regionName: "US_EAST_1",
-     *       electableNodes: 3,
-     *       priority: 7,
-     *       readOnlyNodes: 0
-     *     }]
-     *   }],
-     *   mongoDbMajorVersion: "8.0",
-     *   providerInstanceSizeName: "M10",
-     *   cloudBackup: true,
-     *   autoScalingDiskGbEnabled: true
-     * });
-     * ```
-     * @memberof AtlasController
-     */
-    configure(config: BaseConfig): void {
-        try {
-            if (!this.isAtlasConfig(config)) {
-                throw new Error("Invalid Atlas configuration provided. Missing required Atlas-specific properties.");
-            }
-            
-            this.atlasConfig = config as AtlasConfig;
-
-            // --- FIX STARTS HERE ---
-            // If the top-level region is missing, derive it from the replication specs.
-            // This satisfies the BaseController's validation requirement.
-            if (!this.atlasConfig.region && this.atlasConfig.replicationSpecs?.[0]?.regionsConfigs?.[0]?.regionName) {
-                this.atlasConfig.region = this.atlasConfig.replicationSpecs[0].regionsConfigs[0].regionName;
-                console.log(`Derived primary region '${this.atlasConfig.region}' from replication specs.`);
-            }
-            // --- FIX ENDS HERE ---
-
-            this.config = this.atlasConfig;
-            this.isConfigured = true;
-            console.log(`Atlas controller configured for cluster: ${this.atlasConfig.name}`);
-        } catch (error) {
-            console.error(`Error configuring Atlas controller:`, error);
-            throw error;
+    try {
+      this.logger?.info({
+        src: 'component:Atlas:deploy',
+        message: `Deploying with message: ${input?.message}`,
+        data: {
+          // Get the current component name
+          componentName: this.config.name,
+          // Get the current template name
+          templateName: pipeline?.template?.name,
+          // Get the current stack name (usually the execution environment like: dev, stg, prd, test, etc.)
+          stackName: pipeline?.stack?.config?.name,
+          // Get the current project name, which can be used in combination with the stackName as prefix for internal resource deployment (ex. K2025072112202952-dev)
+          projectName: pipeline?.stack?.config?.project,
+          // Get component (ex. K2025072112202952-dev)
+          prefix: this.getPrefix(pipeline)
         }
-    }
+      });
 
-    /**
-     * Creates a dynamic Pulumi program to deploy an Atlas cluster based on the current configuration.
-     * @returns A Pulumi program function (PulumiFn).
-     */
-    private _createPulumiProgram(): pulumi.automation.PulumiFn {
-        // Capture the controller's config to use inside the Pulumi program closure.
-        const clusterConfig = this.atlasConfig;
+      // Read Atlas credentials from configuration
+      const atlasPulumiConfig = new pulumi.Config("mongodb-atlas");
+      const publicKey = atlasPulumiConfig.requireSecret("publicKey");
+      const privateKey = atlasPulumiConfig.requireSecret("privateKey");
+      const projectId = atlasPulumiConfig.requireSecret("projectId");
 
-        return async () => {
-            // This code is executed by the Pulumi engine.
-            const atlasPulumiConfig = new pulumi.Config("mongodb-atlas");
+      // Create a unique resource name with the prefix
+      const resourcePrefix = this.getPrefix(pipeline);
+      
+      // Atlas provider
+      this.atlasProvider = new mongodbatlas.Provider(`${resourcePrefix}-atlas-provider`, {
+        publicKey: publicKey,
+        privateKey: privateKey,
+      });
 
-            // --- FIX STARTS HERE ---
-            // Explicitly read all required secrets from the config.
-            const publicKey = atlasPulumiConfig.requireSecret("publicKey");
-            const privateKey = atlasPulumiConfig.requireSecret("privateKey");
-            const projectId = atlasPulumiConfig.requireSecret("projectId");
+      // Cluster with component config
+      const cluster = new mongodbatlas.Cluster(`${resourcePrefix}-cluster`, {
+        ...input,
+        providerName: input?.providerName || "AWS",
+        providerInstanceSizeName: input?.providerInstanceSizeName || "M10",
+        projectId: projectId,
+      }, { 
+        provider: this.atlasProvider,
+      });
 
-            // Create an explicit Atlas provider instance. This removes any ambiguity
-            // about which credentials are being used.
-            const atlasProvider = new mongodbatlas.Provider("kozen-atlas-provider", {
-                publicKey: publicKey,
-                privateKey: privateKey,
-            });
 
-            // Create the cluster using the configuration and pass the explicit provider.
-            const cluster = new mongodbatlas.Cluster(clusterConfig.name, {
-                ...clusterConfig, // Spread the config from the JSON template
-                projectId: projectId, // Override projectId with the one from config
-            }, { provider: atlasProvider }); // Pass the explicit provider here.
-            // --- FIX ENDS HERE ---
-
-            // Define stack outputs
-            return {
-                atlasConnectionUrl: cluster.connectionStrings.apply(cs => cs[0]?.standardSrv || ""),
-                clusterId: cluster.id,
-            };
-        };
-    }
-
-    /**
-     * Initializes and returns the StackManager for the current configuration.
-     * This ensures the manager is created with the correct program and settings.
-     */
-    private _getStackManager(): StackManager {
-        if (!this.isConfigured) {
-            throw new Error("Controller is not configured.");
+      // await new Promise(resolve => setTimeout(resolve, input?. || 1000));
+      return {
+        templateName: pipeline?.template?.name,
+        action: 'deploy',
+        success: true,
+        message: `Atlas deployed successfully with message: ${input?.message}`,
+        timestamp: new Date(),
+        output: {
+          atlasConnectionUrl: cluster.connectionStrings.apply(cs => cs[0]?.standardSrv || ""),
+          clusterId: cluster.id,
         }
+      };
 
-        // Create a unique project name for each cluster to avoid conflicts.
-        const projectName = `kozen-atlas-${this.atlasConfig.name}`;
-        const stackName = process.env.ENVIRONMENT || "dev";
+    } catch (error) {
+      this.logger?.error({
+        src: 'component:Atlas:deploy',
+        message: `Error deploying Atlas cluster: ${error instanceof Error ? error.message : String(error)}`,
+        data: { error }
+      });
 
-        const args: InlineProgramArgs = {
-            stackName: stackName,
-            projectName: projectName,
-            program: this._createPulumiProgram(),
-        };
-
-        const workspaceOpts: LocalWorkspaceOptions = {
-            projectSettings: {
-                name: args.projectName,
-                runtime: "nodejs",
-                backend: { url: process.env.PULUMI_BACKEND_URL || "s3://kozen-pulumi-stacks" },
-            },
-        };
-
-        return new StackManager({ args, workspaceOpts });
+      return {
+        templateName: pipeline?.template?.name,
+        action: 'deploy',
+        success: false,
+        message: `Atlas deployment failed: ${error instanceof Error ? error.message : String(error)}`,
+        timestamp: new Date(),
+      };
     }
+  }
 
-    /**
-     * Deploys a MongoDB Atlas cluster using the current configuration.
-     * Creates the cluster with specified replication settings, enables features like
-     * backup and auto-scaling, and handles IP whitelisting if inputs are provided.
-     * 
-     * @returns {Promise<DeploymentResult>} Promise resolving to deployment result with cluster outputs
-     * @throws {Error} If the deployment fails or the controller is not properly configured
-     * @example
-     * ```typescript
-     * const result = await controller.deploy();
-     * if (result.success) {
-     *   console.log('Cluster connection URL:', result.outputs.atlasConnectionUrl);
-     *   console.log('Cluster public IP:', result.outputs.atlasPublicIp);
-     * } else {
-     *   console.error('Deployment failed:', result.error);
-     * }
-     * ```
-     * @memberof AtlasController
-     */
-    async deploy(input): Promise<DeploymentResult> {
-        if (!this.isReady()) {
-            throw new Error("Atlas controller is not properly configured. Call configure() first.");
-        }
+  /**
+   * Undeploys the Atlas component with cleanup confirmation
+   * @param input - Optional undeployment input parameters
+   * @returns Promise resolving to undeployment result with success status
+   */
+  async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
+    console.log(`Undeploying Atlas`);
+    return {
+      templateName: this.config.name,
+      action: 'undeploy',
+      success: true,
+      message: `Atlas undeployed successfully.`,
+      timestamp: new Date(),
+    };
+  }
 
-        // input.ipValue
+  /**
+   * Validates the Atlas component configuration for deployment readiness
+   * @param input - Optional validation input parameters
+   * @returns Promise resolving to validation result with success confirmation
+   */
+  async validate(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
+    return {
+      templateName: this.config.name,
+      action: 'validate',
+      success: true,
+      message: `Atlas configuration is valid.`,
+      timestamp: new Date(),
+    };
+  }
 
-        try {
-            console.log(`Deploying Atlas cluster: ${this.atlasConfig.name}`);
-            this.stackManager = this._getStackManager();
-            const result: UpResult = await this.stackManager.up();
+  /**
+   * Retrieves current operational status information for the Atlas component
+   * @param input - Optional status query input parameters
+   * @returns Promise resolving to status result with operational state
+   */
+  async status(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
+    return {
+      templateName: this.config.name,
+      action: 'status',
+      success: true,
+      message: `Atlas is running.`,
+      timestamp: new Date(),
+    };
+  }
 
-            console.log(`Atlas cluster ${this.atlasConfig.name} deployed successfully`);
-            return {
-                componentName: this.atlasConfig.name,
-                success: true,
-                outputs: this.extractOutputs(result.outputs),
-            };
-        } catch (error) {
-            console.error(`Error deploying Atlas cluster ${this.atlasConfig.name}:`, error);
-            return {
-                componentName: this.atlasConfig.name,
-                success: false,
-                error: error instanceof Error ? error.message : String(error),
-            };
-        }
-    }
-
-    /**
-     * Undeploys the MongoDB Atlas cluster and cleans up all associated resources.
-     * Removes the cluster, any IP access lists, and other Atlas resources that were
-     * created during deployment. This operation is irreversible and will delete all data.
-     * 
-     * @returns {Promise<void>} Promise that resolves when the cluster is fully removed
-     * @throws {Error} If the undeployment fails or encounters critical errors
-     * @example
-     * ```typescript
-     * await controller.undeploy();
-     * console.log('Atlas cluster has been completely removed');
-     * ```
-     * @memberof AtlasController
-     */
-    async undeploy(): Promise<void> {
-        if (!this.isReady()) {
-            throw new Error("Atlas controller is not properly configured.");
-        }
-
-        try {
-            console.log(`Undeploying Atlas cluster: ${this.atlasConfig.name}`);
-            // Ensure stack manager is initialized for undeploying, even if deploy wasn't called.
-            this.stackManager = this._getStackManager();
-            await this.stackManager.destroy();
-            console.log(`Atlas cluster ${this.atlasConfig.name} undeployed successfully`);
-        } catch (error) {
-            console.error(`Error undeploying Atlas cluster ${this.atlasConfig.name}:`, error);
-            throw error;
-        }
-    }
-
-    /**
-     * Type guard function to check if the provided configuration is a valid AtlasConfig.
-     * Validates that all required Atlas-specific properties are present in the configuration.
-     * 
-     * @private
-     * @param {BaseConfig} config - The configuration object to validate
-     * @returns {config is AtlasConfig} True if the config is a valid AtlasConfig
-     * @example
-     * ```typescript
-     * if (this.isAtlasConfig(config)) {
-     *   // config is now typed as AtlasConfig
-     *   console.log('Cluster type:', config.clusterType);
-     * }
-     * ```
-     * @memberof AtlasController
-     */
-    private isAtlasConfig(config: BaseConfig): config is AtlasConfig {
-        return 'clusterType' in config && 
-               'replicationSpecs' in config && 
-               'cloudBackup' in config &&
-               'mongoDbMajorVersion' in config &&
-               'providerInstanceSizeName' in config;
-    }
-
-    /**
-     * Extracts and maps outputs from Atlas deployment results to the expected output format.
-     * Maps Atlas-specific output values to the names defined in the component's output configuration.
-     * This method handles various output types including connection URLs and IP addresses.
-     * 
-     * @protected
-     * @param {any} result - The deployment result containing Atlas cluster information
-     * @returns {Object.<string, any>} Object containing mapped output values
-     * @example
-     * ```typescript
-     * const outputs = this.extractOutputs({
-     *   atlasConnectionUrl: "mongodb+srv://cluster.mongodb.net/test",
-     *   atlasPublicIp: "203.0.113.1"
-     * });
-     * // Returns: { atlasConnectionUrl: "mongodb+srv://...", ipAddress: "203.0.113.1" }
-     * ```
-     * @memberof AtlasController
-     */
-    protected extractOutputs(result: any): { [key: string]: any } {
-        const outputs: { [key: string]: any } = {};
-        
-        if (this.config.output) {
-            this.config.output.forEach(outputDef => {
-                switch (outputDef.name) {
-                    case 'atlasConnectionUrl':
-                        outputs[outputDef.name] = result.atlasConnectionUrl?.value;
-                        break;
-                    case 'atlasPublicIp':
-                    case 'ipAddress':
-                        // Note: Public IP is not a direct output of the Cluster resource.
-                        // This would require additional resources like Network Peering to expose.
-                        outputs[outputDef.name] = result.atlasPublicIp?.value || "N/A";
-                        break;
-                    default:
-                        outputs[outputDef.name] = result[outputDef.name]?.value || null;
-                }
-            });
-        }
-        
-        return outputs;
-    }
 }
+
+export default Atlas;
+
+
+
+export interface IAtlasConfig extends IStruct {
+
+    providerName?: string;
+    /**
+     * The type of MongoDB cluster to deploy.
+     * - REPLICASET: A standard replica set cluster (recommended for most use cases)
+     * - SHARDED: A sharded cluster for horizontal scaling (for large datasets)
+     * 
+     * @type {"REPLICASET" | "SHARDED"}
+     * @example "REPLICASET"
+     */
+    clusterType: "REPLICASET" | "SHARDED";
+
+    /**
+     * Array of replication specifications that define the cluster's topology.
+     * Each specification defines the number of shards and the configuration
+     * for each region where the cluster will be deployed.
+     * 
+     * @type {Array<{numShards: number, regionsConfigs: Array<{regionName: string, electableNodes: number, priority: number, readOnlyNodes: number}>}>}
+     * @example
+     * ```typescript
+     * replicationSpecs: [{
+     *   numShards: 1,
+     *   regionsConfigs: [{
+     *     regionName: "US_EAST_1",
+     *     electableNodes: 3,
+     *     priority: 7,
+     *     readOnlyNodes: 0
+     *   }]
+     * }]
+     * ```
+     */
+    replicationSpecs: Array<{
+        /**
+         * Number of shards for this replication specification.
+         * For REPLICASET clusters, this should be 1.
+         * For SHARDED clusters, this can be multiple shards.
+         * 
+         * @type {number}
+         * @minimum 1
+         * @example 1
+         */
+        numShards: number;
+
+        /**
+         * Array of region configurations for this replication specification.
+         * Defines how the cluster nodes are distributed across different regions.
+         * 
+         * @type {Array<{regionName: string, electableNodes: number, priority: number, readOnlyNodes: number}>}
+         */
+        regionsConfigs: Array<{
+            /**
+             * The Atlas region name where nodes will be deployed.
+             * Must be a valid MongoDB Atlas region identifier.
+             * 
+             * @type {string}
+             * @example "US_EAST_1" | "US_WEST_2" | "EU_WEST_1"
+             */
+            regionName: string;
+
+            /**
+             * Number of electable nodes (voting members) in this region.
+             * These nodes can become primary and participate in elections.
+             * 
+             * @type {number}
+             * @minimum 1
+             * @example 3
+             */
+            electableNodes: number;
+
+            /**
+             * Election priority for nodes in this region.
+             * Higher values have higher priority to become primary.
+             * 
+             * @type {number}
+             * @minimum 0
+             * @maximum 100
+             * @example 7
+             */
+            priority: number;
+
+            /**
+             * Number of read-only nodes in this region.
+             * These nodes cannot become primary but can serve read operations.
+             * 
+             * @type {number}
+             * @minimum 0
+             * @example 0
+             */
+            readOnlyNodes: number;
+        }>;
+    }>;
+
+    /**
+     * Whether to enable cloud backup for this cluster.
+     * When enabled, Atlas will automatically create backups of your data.
+     * 
+     * @type {boolean}
+     * @default true
+     * @example true
+     */
+    cloudBackup: boolean;
+
+    /**
+     * Whether to enable automatic disk scaling for this cluster.
+     * When enabled, Atlas will automatically increase storage capacity as needed.
+     * 
+     * @type {boolean}
+     * @default true
+     * @example true
+     */
+    autoScalingDiskGbEnabled: boolean;
+
+    /**
+     * The major version of MongoDB to deploy.
+     * Should be a valid MongoDB version number.
+     * 
+     * @type {string}
+     * @example "8.0" | "7.0" | "6.0"
+     */
+    mongoDbMajorVersion: string;
+
+    /**
+     * The instance size name for the cluster nodes.
+     * This determines the compute and memory resources allocated to each node.
+     * 
+     * @type {string}
+     * @example "M10" | "M20" | "M30" | "M40" | "M50" | "M60" | "M80"
+     */
+    providerInstanceSizeName: string;
+
+    /**
+     * Optional array of labels to apply to the cluster for organization and billing.
+     * Labels are key-value pairs that help categorize and manage resources.
+     * 
+     * @type {Array<{key: string, value: string}>}
+     * @optional
+     * @example
+     * ```typescript
+     * labels: [
+     *   { key: "environment", value: "production" },
+     *   { key: "team", value: "backend" },
+     *   { key: "cost-center", value: "engineering" }
+     * ]
+     * ```
+     */
+    labels?: Array<{ key: string; value: string }>;
+} 
