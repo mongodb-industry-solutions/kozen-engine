@@ -7,6 +7,20 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "🛠️ Develop",
+            "runtimeExecutable": "npm",
+            "console": "integratedTerminal",
+            "runtimeArgs": [
+                "run",
+                "dev"
+            ],
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "🚀 Test Deploy",
             "runtimeExecutable": "npm",
             "console": "integratedTerminal",
