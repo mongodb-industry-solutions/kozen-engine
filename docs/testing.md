@@ -472,10 +472,12 @@ Validates deployed infrastructure components and configurations.
   "name": "comprehensive-testing-pipeline",
   "description": "Complete testing suite for deployed applications",
   "version": "1.0.0",
-  "engine": "kozen",
-  "release": "stable",
-  "deploymentMode": "sync",
-  "components": [
+  "engine": "1.0.0",
+  "release": "20241201",
+  "requires": [],
+  "stack": {
+    "orchestrator": "Node",
+    "components": [
     {
       "name": "InfrastructureTestComponent",
       "description": "Validate infrastructure deployment",
@@ -565,6 +567,7 @@ Validates deployed infrastructure components and configurations.
       ]
     }
   ]
+  }
 }
 ```
 
@@ -575,10 +578,12 @@ Validates deployed infrastructure components and configurations.
   "name": "deploy-and-test-pipeline",
   "description": "Complete deployment with comprehensive testing",
   "version": "2.0.0",
-  "engine": "kozen",
-  "release": "stable",
-  "deploymentMode": "sync",
-  "components": [
+  "engine": "1.0.0",
+  "release": "20241201",
+  "requires": [],
+  "stack": {
+    "orchestrator": "Pulumi",
+    "components": [
     {
       "name": "AtlasController",
       "description": "Deploy MongoDB Atlas cluster",
@@ -680,6 +685,7 @@ Validates deployed infrastructure components and configurations.
       ]
     }
   ]
+  }
 }
 ```
 
