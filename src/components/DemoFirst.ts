@@ -26,6 +26,8 @@ export class DemoFirst extends BaseController {
         stackName: pipeline?.stack?.config?.name,
         // Get the current project name, which can be used in combination with the stackName as prefix for internal resource deployment (ex. K2025072112202952-dev)
         projectName: pipeline?.stack?.config?.project,
+        // Get component (ex. K2025072112202952-dev)
+        prefix: this.getPrefix(pipeline)
       }
     });
     // await new Promise(resolve => setTimeout(resolve, input?. || 1000));
