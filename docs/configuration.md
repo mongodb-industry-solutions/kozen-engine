@@ -6,44 +6,40 @@ Kozen Engine uses a flexible, JSON-based configuration system that enables dynam
 
 ## Main Configuration File (`cfg/config.json`)
 
-The main configuration file defines global settings, service dependencies, and execution parameters.
+The main configuration file defines global settings, service dependencies, and execution parameters using the IoC (Inversion of Control) container pattern.
 
-### Complete Configuration Example
+### Current Configuration Structure
 
 ```json
 {
-  "name": "kozen-pipeline",
-  "engine": "kozen",
-  "version": "4.0.0",
-  "description": "Dynamic Infrastructure and Testing Pipeline",
+  "name": "kozen-iac",
+  "version": "1.0.0",
+  "engine": ">=1.0.0",
+  "description": "Infrastructure as Code Pipeline with configurable templates",
   "dependencies": [
     {
-      "key": "StackManagerPulumi",
-      "target": "StackManagerPulumi",
+      "target": "StackManager",
       "type": "class",
-      "lifetime": "singleton"
-    },
-    {
-      "key": "TemplateManagerFile",
-      "target": "TemplateManagerFile",
-      "type": "class",
-      "lifetime": "singleton"
-    },
-    {
-      "key": "SecretManagerAWS",
-      "target": "SecretManagerAWS",
-      "type": "class",
-      "lifetime": "singleton"
-    },
-    {
-      "key": "Logger",
-      "target": "Logger",
-      "type": "class",
-      "lifetime": "singleton",
+      "lifetime": "transient",
+      "path": "../../services",
       "args": [
         {
-          "level": "info",
-          "category": "KozenEngine"
+          "workspace": {
+            "url": "s3://kozen-pulumi-stacks",
+            "runtime": "nodejs"
+          }
+        }
+      ],
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
         }
       ]
     }
@@ -56,103 +52,376 @@ The main configuration file defines global settings, service dependencies, and e
 | Property       | Type          | Required | Description                   |
 | -------------- | ------------- | -------- | ----------------------------- |
 | `name`         | string        | Yes      | Pipeline identifier           |
-| `engine`       | string        | Yes      | Engine type (usually "kozen") |
 | `version`      | string        | Yes      | Configuration version         |
+| `engine`       | string        | Yes      | Engine version compatibility  |
 | `description`  | string        | No       | Pipeline description          |
 | `dependencies` | IDependency[] | Yes      | IoC service registrations     |
 
 ## Service Dependencies Configuration
 
-The `dependencies` array configures the IoC container with service registrations.
+The `dependencies` array configures the IoC container with service registrations. All services follow a consistent dependency injection pattern.
 
 ### Service Configuration Schema
 
 ```typescript
 interface IDependency {
-  key?: string; // Registration key
-  target?: any; // Class, function, value, or string
-  type?: "class" | "value" | "function" | "alias" | "ref" | "auto";
-  lifetime?: "singleton" | "transient" | "scoped";
-  args?: JsonValue[]; // Constructor arguments
-  dependencies?: IDependency[]; // Nested dependencies
+  target: string;           // Service class name
+  type: "class" | "value" | "function" | "ref" | "auto";
+  lifetime: "singleton" | "transient" | "scoped";
+  path?: string;           // Module path for classes
+  args?: JsonValue[];      // Constructor arguments
+  dependencies?: Array<{   // Injected dependencies
+    key: string;
+    target: string;
+    type: "ref";
+  }>;
 }
 ```
 
-### Core Service Registrations
+## Core Service Registrations
 
-#### Stack Manager Services
+### Stack Manager Services
 
+#### Generic Stack Manager
 ```json
 {
-  "key": "StackManagerPulumi",
-  "target": "StackManagerPulumi",
+  "target": "StackManager",
   "type": "class",
-  "lifetime": "singleton"
-}
-```
-
-#### Template Manager Services
-
-```json
-{
-  "key": "TemplateManagerFile",
-  "target": "TemplateManagerFile",
-  "type": "class",
-  "lifetime": "singleton"
-}
-```
-
-#### Secret Manager Services
-
-```json
-{
-  "key": "SecretManagerAWS",
-  "target": "SecretManagerAWS",
-  "type": "class",
-  "lifetime": "singleton"
-}
-```
-
-### Advanced Service Configuration
-
-#### Service with Constructor Arguments
-
-```json
-{
-  "key": "Logger",
-  "target": "Logger",
-  "type": "class",
-  "lifetime": "singleton",
+  "lifetime": "transient",
+  "path": "../../services",
   "args": [
     {
-      "level": "debug",
-      "category": "CustomLogger",
-      "type": "json"
+      "workspace": {
+        "url": "s3://kozen-pulumi-stacks",
+        "runtime": "nodejs"
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
+    },
+    {
+      "key": "logger",
+      "target": "LoggerService",
+      "type": "ref"
     }
   ]
 }
 ```
 
-#### Service with Nested Dependencies
-
+#### Pulumi Stack Manager
 ```json
 {
-  "key": "PipelineManager",
+  "target": "StackManagerPulumi",
+  "type": "class",
+  "lifetime": "transient",
+  "path": "../../services",
+  "args": [null],
+  "dependencies": [
+    {
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
+    },
+    {
+      "key": "logger",
+      "target": "LoggerService",
+      "type": "ref"
+    }
+  ]
+}
+```
+
+#### Node Stack Manager
+```json
+{
+  "target": "StackManagerNode",
+  "type": "class",
+  "lifetime": "transient",
+  "path": "../../services",
+  "args": [null],
+  "dependencies": [
+    {
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
+    },
+    {
+      "key": "logger",
+      "target": "LoggerService",
+      "type": "ref"
+    }
+  ]
+}
+```
+
+### Template Manager Services
+
+#### File-based Template Manager
+```json
+{
+  "target": "TemplateManagerFile",
+  "type": "class",
+  "path": "../../services",
+  "args": [null],
+  "dependencies": [
+    {
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
+    },
+    {
+      "key": "logger",
+      "target": "LoggerService",
+      "type": "ref"
+    }
+  ]
+}
+```
+
+#### MongoDB Template Manager
+```json
+{
+  "target": "TemplateManagerMDB",
+  "type": "class",
+  "path": "../../services",
+  "args": [null],
+  "dependencies": [
+    {
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
+    },
+    {
+      "key": "logger",
+      "target": "LoggerService",
+      "type": "ref"
+    }
+  ]
+}
+```
+
+#### Generic Template Manager (with configuration)
+```json
+{
+  "target": "TemplateManager",
+  "type": "class",
+  "lifetime": "singleton",
+  "path": "../../services",
+  "args": [
+    {
+      "type": "File",
+      "file": {
+        "path": "./cfg/templates"
+      },
+      "mdb": {
+        "enabled": true,
+        "database": "kozen",
+        "collection": "templates",
+        "uri": "MDB_URI"
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
+    },
+    {
+      "key": "logger",
+      "target": "LoggerService",
+      "type": "ref"
+    }
+  ]
+}
+```
+
+### Secret Manager Services
+
+#### AWS Secret Manager
+```json
+{
+  "target": "SecretManagerAWS",
+  "type": "class",
+  "lifetime": "singleton",
+  "path": "../../services",
+  "args": [null],
+  "dependencies": [
+    {
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
+    },
+    {
+      "key": "logger",
+      "target": "LoggerService",
+      "type": "ref"
+    }
+  ]
+}
+```
+
+#### MongoDB Secret Manager
+```json
+{
+  "target": "SecretManagerMDB",
+  "type": "class",
+  "lifetime": "singleton",
+  "path": "../../services",
+  "args": [null],
+  "dependencies": [
+    {
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
+    },
+    {
+      "key": "logger",
+      "target": "LoggerService",
+      "type": "ref"
+    }
+  ]
+}
+```
+
+#### Generic Secret Manager (with configuration)
+```json
+{
+  "target": "SecretManager",
+  "type": "class",
+  "lifetime": "singleton",
+  "path": "../../services",
+  "args": [
+    {
+      "type": "AWS",
+      "cloud": {
+        "region": "us-east-1",
+        "accessKeyId": "AWS_ACCESS_KEY_ID",
+        "secretAccessKey": "AWS_SECRET_ACCESS_KEY"
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
+    },
+    {
+      "key": "logger",
+      "target": "LoggerService",
+      "type": "ref"
+    }
+  ]
+}
+```
+
+### Core Pipeline Services
+
+#### Pipeline Manager
+```json
+{
   "target": "PipelineManager",
   "type": "class",
   "lifetime": "singleton",
+  "path": "../../services",
   "dependencies": [
     {
-      "key": "templateManager",
-      "target": "TemplateManagerFile",
-      "type": "class",
-      "lifetime": "singleton"
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
     },
     {
-      "key": "stackManager",
-      "target": "StackManagerPulumi",
-      "type": "class",
-      "lifetime": "singleton"
+      "key": "logger",
+      "target": "LoggerService",
+      "type": "ref"
+    }
+  ]
+}
+```
+
+#### Logger Service
+```json
+{
+  "target": "LoggerService",
+  "type": "class",
+  "lifetime": "singleton",
+  "path": "../../services",
+  "args": [
+    {
+      "mdb": {
+        "enabled": true,
+        "database": "kozen",
+        "collection": "logs",
+        "uri": "MDB_URI",
+        "level": "DEBUG"
+      },
+      "console": {
+        "enabled": true,
+        "level": "all"
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
+    }
+  ]
+}
+```
+
+#### Variable Processor Service
+```json
+{
+  "target": "VarProcessorService",
+  "type": "class",
+  "lifetime": "singleton",
+  "path": "../../services",
+  "args": [{}],
+  "dependencies": [
+    {
+      "key": "srvSecret",
+      "target": "SecretManager",
+      "type": "ref"
+    },
+    {
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
+    },
+    {
+      "key": "logger",
+      "target": "LoggerService",
+      "type": "ref"
+    }
+  ]
+}
+```
+
+### Component Auto-Registration
+
+```json
+{
+  "path": "../../components",
+  "type": "auto",
+  "lifetime": "singleton",
+  "args": [{}],
+  "dependencies": [
+    {
+      "key": "assistant",
+      "target": "IoC",
+      "type": "ref"
+    },
+    {
+      "key": "logger",
+      "target": "LoggerService",
+      "type": "ref"
     }
   ]
 }
@@ -160,12 +429,21 @@ interface IDependency {
 
 ## Environment Variables
 
-Kozen Engine supports environment variable resolution for secure configuration.
+Kozen Engine supports environment variable resolution for secure configuration and runtime parameters.
 
 ### Required Environment Variables
 
-#### AWS Configuration
+#### Pipeline Configuration
+```bash
+# Template Selection
+KOZEN_TEMPLATE=demo
+KOZEN_CONFIG=cfg/config.json
+KOZEN_ACTION=deploy
+KOZEN_STACK=dev
+KOZEN_PROJECT=K2025072112202952
+```
 
+#### AWS Configuration
 ```bash
 # AWS Credentials for AWS services
 AWS_REGION=us-east-1
@@ -177,7 +455,6 @@ AWS_PROFILE=your-profile-name
 ```
 
 #### Pulumi Configuration
-
 ```bash
 # Pulumi Backend Configuration
 PULUMI_BACKEND_URL=s3://your-pulumi-state-bucket
@@ -188,463 +465,226 @@ PULUMI_ORG=your-organization
 ```
 
 #### MongoDB Configuration
-
 ```bash
-# MongoDB Connection
-MONGODB_URI=mongodb://localhost:27017/kozen-data
-MONGODB_DATABASE=kozen
-MONGODB_COLLECTION=pipeline-data
+# MongoDB Connection for templates and logs
+MDB_URI=mongodb://localhost:27017/kozen-data
 
 # MongoDB Atlas (alternative)
 MONGODB_ATLAS_URI=mongodb+srv://user:pass@cluster.mongodb.net/kozen
 ```
 
-#### Application Configuration
-
+#### Component-Specific Configuration
 ```bash
-# Application Environment
-NODE_ENV=production
-LOG_LEVEL=info
+# Atlas Component Configuration
+ATLAS_PUBLIC_KEY=your-atlas-public-key
+ATLAS_PRIVATE_KEY=your-atlas-private-key
+ATLAS_PROJECT_ID=your-atlas-project-id
 
-# Template Configuration
-TEMPLATE_PATH=./cfg/templates
-TEMPLATE_STORAGE=file
-
-# Secret Management
-SECRET_PROVIDER=aws
-SECRET_REGION=us-east-1
+# Demo Component Configuration
+DEMO_NAME=my-demo-project
+DEMO_DELAY=1000
 ```
 
-### Environment Variable Usage in Configuration
+#### Development Configuration
+```bash
+# Application Environment
+NODE_ENV=development
+LOG_LEVEL=debug
 
-Environment variables can be referenced in configuration files:
-
-```json
-{
-  "key": "SecretManagerAWS",
-  "target": "SecretManagerAWS",
-  "type": "class",
-  "lifetime": "singleton",
-  "args": [
-    {
-      "region": "${AWS_REGION}",
-      "accessKeyId": "${AWS_ACCESS_KEY_ID}",
-      "secretAccessKey": "${AWS_SECRET_ACCESS_KEY}"
-    }
-  ]
-}
+# Debug Configuration
+DEBUG=kozen:*
 ```
 
 ## Template Configuration
 
-Templates define the structure and behavior of pipelines.
+Templates are now stored in the `cfg/templates/` directory with enhanced structure and variable types.
 
-### Basic Template Structure
+**📚 For complete template documentation, see [docs/templates.md](./templates.md)**
+
+### Basic Template Example
 
 ```json
 {
-  "name": "basic-infrastructure",
-  "description": "Basic infrastructure deployment template",
+  "name": "demo",
+  "description": "Simple demonstration template for testing",
   "version": "1.0.0",
-  "engine": "kozen",
-  "release": "stable",
-  "deploymentMode": "sync",
+  "engine": "1.0.0",
+  "release": "20241201",
+  "requires": [],
   "stack": {
-    "orchestrator": "Pulumi",
-    "project": "kozen-basic",
-    "environment": {
-      "stackName": "ENVIRONMENT"
-    }
-  },
-  "components": [
+    "orchestrator": "Node",
+    "input": [
+      {
+        "type": "environment",
+        "name": "PULUMI_CONFIG_PASSPHRASE"
+      }
+    ],
+    "setup": [
+      {
+        "type": "environment",
+        "name": "aws:region",
+        "value": "AWS_REGION",
+        "default": "us-east-1"
+      }
+    ],
+    "components": [
+      {
+        "name": "DemoFirst",
+        "input": [
+          {
+            "type": "environment",
+            "name": "projectName",
+            "value": "DEMO_NAME"
+          },
+          {
+            "type": "value",
+            "name": "message",
+            "value": "Welcome to Kozen Engine! 🚀"
+          }
+        ],
+        "output": [
+          {
+            "type": "reference",
+            "name": "ipAddress",
+            "value": "ipAddress",
+            "description": "IP address of the component"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+## Debugging and Development Configuration
+
+### VSCode Debug Configuration
+
+The project includes pre-configured VSCode debug configurations in `.vscode/launch.json`:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
     {
-      "name": "AtlasController",
-      "description": "MongoDB Atlas cluster deployment",
-      "region": "us-east-1",
-      "clusterType": "REPLICASET",
-      "input": [
-        {
-          "name": "projectId",
-          "type": "secret",
-          "value": "mongodb-atlas/project-id"
-        }
-      ],
-      "output": [
-        {
-          "name": "connectionString",
-          "description": "Database connection string"
-        }
-      ]
-    }
-  ]
-}
-```
-
-### Template Schema
-
-| Property         | Type   | Required | Description                             |
-| ---------------- | ------ | -------- | --------------------------------------- |
-| `name`           | string | Yes      | Template identifier                     |
-| `description`    | string | No       | Template description                    |
-| `version`        | string | Yes      | Template version                        |
-| `engine`         | string | Yes      | Engine compatibility                    |
-| `release`        | string | No       | Release stability (stable, beta, alpha) |
-| `deploymentMode` | string | No       | Execution mode (sync, async)            |
-| `stack`          | object | No       | Stack configuration                     |
-| `components`     | array  | Yes      | Component definitions                   |
-
-## Component Configuration
-
-Components are configured within templates with inputs, outputs, and setup parameters.
-
-### Component Schema
-
-```json
-{
-  "name": "ComponentName",
-  "description": "Component description",
-  "version": "1.0.0",
-  "engine": "kozen",
-  "input": [
-    {
-      "name": "inputName",
-      "type": "environment|secret|reference|static",
-      "value": "inputValue",
-      "default": "defaultValue",
-      "description": "Input description"
-    }
-  ],
-  "setup": [
-    {
-      "name": "setupParameter",
-      "type": "static",
-      "value": "setupValue"
-    }
-  ],
-  "output": [
-    {
-      "name": "outputName",
-      "description": "Output description"
-    }
-  ]
-}
-```
-
-### Variable Types in Components
-
-#### Environment Variables
-
-```json
-{
-  "name": "environment",
-  "type": "environment",
-  "value": "NODE_ENV",
-  "default": "development"
-}
-```
-
-#### Secret Variables
-
-```json
-{
-  "name": "apiKey",
-  "type": "secret",
-  "value": "production/api-key"
-}
-```
-
-#### Reference Variables (from previous components)
-
-```json
-{
-  "name": "databaseUrl",
-  "type": "reference",
-  "value": "connectionString"
-}
-```
-
-#### Static Variables
-
-```json
-{
-  "name": "region",
-  "type": "static",
-  "value": "us-east-1"
-}
-```
-
-## Advanced Configuration Patterns
-
-### Multi-Environment Configuration
-
-Create environment-specific configurations:
-
-#### Development Configuration (`cfg/config.dev.json`)
-
-```json
-{
-  "name": "kozen-dev",
-  "engine": "kozen",
-  "version": "4.0.0",
-  "dependencies": [
-    {
-      "key": "TemplateManagerFile",
-      "target": "TemplateManagerFile",
-      "type": "class",
-      "lifetime": "singleton"
+      "type": "node",
+      "request": "launch",
+      "name": "🛠️ Develop",
+      "runtimeExecutable": "npm",
+      "console": "integratedTerminal",
+      "runtimeArgs": ["run", "dev"],
+      "skipFiles": ["<node_internals>/**"]
     },
     {
-      "key": "Logger",
-      "target": "Logger",
-      "type": "class",
-      "lifetime": "singleton",
-      "args": [
-        {
-          "level": "debug",
-          "category": "Development"
-        }
-      ]
+      "type": "node",
+      "request": "launch",
+      "name": "🚀 Test Deploy",
+      "runtimeExecutable": "npm",
+      "console": "integratedTerminal",
+      "runtimeArgs": ["run", "test:deploy"],
+      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }
 ```
 
-#### Production Configuration (`cfg/config.prod.json`)
+### Environment-Specific Configuration
 
-```json
-{
-  "name": "kozen-prod",
-  "engine": "kozen",
-  "version": "4.0.0",
-  "dependencies": [
-    {
-      "key": "TemplateManagerMDB",
-      "target": "TemplateManagerMDB",
-      "type": "class",
-      "lifetime": "singleton"
-    },
-    {
-      "key": "Logger",
-      "target": "Logger",
-      "type": "class",
-      "lifetime": "singleton",
-      "args": [
-        {
-          "level": "warn",
-          "category": "Production"
-        }
-      ]
-    }
-  ]
-}
-```
+Create `.env` files for different environments:
 
-### Complex Pipeline Template
-
-```json
-{
-  "name": "full-pipeline",
-  "description": "Complete infrastructure deployment and testing pipeline",
-  "version": "2.0.0",
-  "engine": "kozen",
-  "release": "stable",
-  "deploymentMode": "sync",
-  "stack": {
-    "orchestrator": "Pulumi",
-    "project": "kozen-full-pipeline"
-  },
-  "components": [
-    {
-      "name": "AtlasController",
-      "description": "Deploy MongoDB Atlas cluster",
-      "input": [
-        {
-          "name": "projectId",
-          "type": "secret",
-          "value": "mongodb-atlas/project-id"
-        },
-        {
-          "name": "environment",
-          "type": "environment",
-          "value": "NODE_ENV",
-          "default": "development"
-        }
-      ],
-      "output": [
-        {
-          "name": "connectionString",
-          "description": "Database connection string"
-        },
-        {
-          "name": "clusterId",
-          "description": "Atlas cluster identifier"
-        }
-      ]
-    },
-    {
-      "name": "KubernetesController",
-      "description": "Deploy application to Kubernetes",
-      "input": [
-        {
-          "name": "databaseUrl",
-          "type": "reference",
-          "value": "connectionString"
-        },
-        {
-          "name": "appImage",
-          "type": "static",
-          "value": "myapp:latest"
-        }
-      ],
-      "output": [
-        {
-          "name": "serviceUrl",
-          "description": "Application service URL"
-        }
-      ]
-    },
-    {
-      "name": "E2ETestComponent",
-      "description": "Execute end-to-end tests",
-      "input": [
-        {
-          "name": "targetUrl",
-          "type": "reference",
-          "value": "serviceUrl"
-        },
-        {
-          "name": "testSuite",
-          "type": "static",
-          "value": "production"
-        }
-      ],
-      "output": [
-        {
-          "name": "testResults",
-          "description": "Test execution results"
-        }
-      ]
-    }
-  ]
-}
-```
-
-## Configuration Validation
-
-### CLI Validation
-
-Validate configuration before execution:
-
+#### Development (`.env.development`)
 ```bash
-# Validate configuration file
-npm run dev -- --config=cfg/config.json --action=validate
-
-# Validate specific template
-npm run dev -- --template=basic-infrastructure --config=cfg/config.json --action=validate
+NODE_ENV=development
+KOZEN_TEMPLATE=demo
+KOZEN_STACK=dev
+KOZEN_PROJECT=DEV001
+LOG_LEVEL=debug
 ```
 
-### Programmatic Validation
+#### Testing (`.env.test`)
+```bash
+NODE_ENV=test
+KOZEN_TEMPLATE=demo
+KOZEN_STACK=test
+KOZEN_PROJECT=TEST001
+LOG_LEVEL=info
+```
 
-```typescript
-import { PipelineManager } from "kozen-engine";
-
-const pipeline = new PipelineManager();
-await pipeline.configure(config);
-
-// Validate configuration
-const validation = await pipeline.validate("template-name");
-
-if (!validation.success) {
-  console.error("Configuration validation failed:", validation.errors);
-}
+#### Production (`.env.production`)
+```bash
+NODE_ENV=production
+KOZEN_TEMPLATE=atlas.basic
+KOZEN_STACK=prod
+KOZEN_PROJECT=PROD001
+LOG_LEVEL=warn
 ```
 
 ## Configuration Best Practices
 
 ### 1. Security
 
-- **Never commit secrets**: Use environment variables or secret management
-- **Principle of least privilege**: Grant minimal required permissions
-- **Separate environments**: Use different configurations for dev/staging/prod
+- **Environment Variables**: Use environment variables for sensitive data
+- **Secret Management**: Leverage SecretManager services for credentials
+- **Principle of Least Privilege**: Configure minimal required permissions
 
-### 2. Maintainability
+### 2. Service Configuration
 
-- **Modular templates**: Break complex pipelines into smaller templates
-- **Consistent naming**: Use descriptive, consistent naming conventions
-- **Documentation**: Include descriptions for all components and variables
+- **Singleton Services**: Use singleton lifetime for stateless services
+- **Dependency Injection**: Properly configure service dependencies
+- **Service Isolation**: Keep services loosely coupled
 
-### 3. Performance
+### 3. Template Management
 
-- **Singleton services**: Use singleton lifetime for stateless services
-- **Lazy loading**: Configure auto-registration for large component sets
-- **Resource limits**: Set appropriate resource limits in configurations
+- **Version Control**: Version templates properly
+- **Environment Separation**: Use different templates for different environments
+- **Input Validation**: Validate template inputs early
 
-### 4. Error Handling
+### 4. Development Workflow
 
-- **Default values**: Provide sensible defaults for optional parameters
-- **Validation**: Validate inputs early and provide clear error messages
-- **Graceful degradation**: Design for partial failure scenarios
+- **Local Development**: Use file-based template manager for development
+- **Production**: Use MongoDB template manager for production
+- **Testing**: Create test-specific configurations
 
-## Configuration Examples by Use Case
+## Multi-Environment Setup
 
-### Infrastructure Only
-
-```json
-{
-  "name": "infrastructure-only",
-  "components": [
-    {
-      "name": "AtlasController",
-      "input": [
-        {
-          "name": "projectId",
-          "type": "secret",
-          "value": "atlas/project-id"
-        }
-      ]
-    },
-    {
-      "name": "KubernetesController",
-      "input": [
-        {
-          "name": "databaseUrl",
-          "type": "reference",
-          "value": "connectionString"
-        }
-      ]
-    }
-  ]
-}
-```
-
-### Testing Only
+### Development Configuration (`cfg/config.dev.json`)
 
 ```json
 {
-  "name": "testing-pipeline",
-  "components": [
+  "name": "kozen-dev",
+  "version": "1.0.0",
+  "engine": ">=1.0.0",
+  "description": "Development configuration",
+  "dependencies": [
     {
-      "name": "E2ETestComponent",
-      "input": [
+      "target": "TemplateManagerFile",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../services",
+      "dependencies": [
         {
-          "name": "targetUrl",
-          "type": "environment",
-          "value": "TEST_TARGET_URL"
-        }
-      ]
-    },
-    {
-      "name": "PerformanceTestComponent",
-      "input": [
-        {
-          "name": "targetUrl",
-          "type": "environment",
-          "value": "TEST_TARGET_URL"
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
         },
         {
-          "name": "concurrentUsers",
-          "type": "static",
-          "value": 100
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "LoggerService",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../services",
+      "args": [
+        {
+          "console": {
+            "enabled": true,
+            "level": "debug"
+          }
         }
       ]
     }
@@ -652,24 +692,47 @@ if (!validation.success) {
 }
 ```
 
-### Development Environment
+### Production Configuration (`cfg/config.prod.json`)
 
 ```json
 {
-  "name": "development-setup",
-  "components": [
+  "name": "kozen-prod",
+  "version": "1.0.0",
+  "engine": ">=1.0.0",
+  "description": "Production configuration",
+  "dependencies": [
     {
-      "name": "AtlasController",
-      "clusterType": "REPLICASET",
-      "providerInstanceSizeName": "M0"
+      "target": "TemplateManagerMDB",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../services",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
     },
     {
-      "name": "DemoFirst",
-      "input": [
+      "target": "LoggerService",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../services",
+      "args": [
         {
-          "name": "message",
-          "type": "static",
-          "value": "Development environment ready"
+          "mdb": {
+            "enabled": true,
+            "database": "kozen",
+            "collection": "logs",
+            "uri": "MDB_URI",
+            "level": "WARN"
+          }
         }
       ]
     }
@@ -677,4 +740,30 @@ if (!validation.success) {
 }
 ```
 
-This comprehensive configuration system provides the flexibility to create powerful, maintainable pipelines while ensuring security and performance best practices.
+## Troubleshooting
+
+### Common Configuration Issues
+
+1. **Service Registration Errors**
+   - Verify service paths are correct
+   - Check dependency injection configuration
+   - Ensure all required dependencies are registered
+
+2. **Environment Variable Issues**
+   - Verify environment variables are set
+   - Check variable names match configuration
+   - Use default values where appropriate
+
+3. **Template Loading Issues**
+   - Verify template file paths
+   - Check template JSON syntax
+   - Ensure template structure matches schema
+
+4. **MongoDB Connection Issues**
+   - Verify MDB_URI environment variable
+   - Check MongoDB connectivity
+   - Ensure database and collection names are correct
+
+**📚 For deployment and production configuration, see [docs/deployment.md](./deployment.md)**
+
+This comprehensive configuration system provides the flexibility to create powerful, maintainable pipelines while ensuring security and performance best practices across different environments and deployment scenarios.
