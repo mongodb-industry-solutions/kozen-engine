@@ -45,6 +45,8 @@ export abstract class BaseController implements IController {
 
     public logger?: ILoggerService | null;
 
+    protected pipeline?: IPipeline;
+
     /**
      * @description Component configuration object
      * Stores the component-specific configuration including name, version,
@@ -170,4 +172,11 @@ export abstract class BaseController implements IController {
      * 
      */
     public async status(input?: IStruct, pipeline?: IPipeline): Promise<IResult | void> { }
+
+
+    protected getPrefix(pipeline?: IPipeline) {
+        pipeline = pipeline ?? this.pipeline;
+        // Get the current project name, which can be used in combination with the stackName as prefix for internal resource deployment (ex. K2025072112202952-dev)
+        return `${pipeline?.stack?.config?.project}-${pipeline?.stack?.config?.name}`;
+    }
 }
