@@ -110,9 +110,11 @@ export class PipelineController {
     }
 
     return {
-      template: parsed.template || process.env.TEMPLATE || '',
-      config: parsed.config || process.env.CONFIG || 'config.json',
-      action: parsed.action || (process.env.ACTION as IAction) || 'deploy'
+      stack: parsed.stack || process.env.KOZEN_STACK || 'dev',
+      project: parsed.project || process.env.KOZEN_PROJECT || '',
+      template: parsed.template || process.env.KOZEN_TEMPLATE || '',
+      config: parsed.config || process.env.KOZEN_CONFIG || 'cfg/config.json',
+      action: parsed.action || (process.env.KOZEN_ACTION as IAction) || 'deploy'
     };
   }
 
@@ -137,7 +139,7 @@ export class PipelineController {
       throw new Error('Template is required. Use --template=<template-name> or set TEMPLATE environment variable.');
     }
 
-    const validActions = ['deploy', 'undeploy', 'validate'];
+    const validActions = ['deploy', 'undeploy', 'validate', 'destroy', 'status', 'run'];
     if (!validActions.includes(args.action)) {
       throw new Error(`Invalid action: ${args.action}. Must be one of: ${validActions.join(', ')}`);
     }
