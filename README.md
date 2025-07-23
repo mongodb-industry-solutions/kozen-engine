@@ -79,6 +79,7 @@ Each component autonomously decides its execution behavior and can:
 | **Testing**       | Testing capabilities and execution patterns       | [docs/testing.md](docs/testing.md)             |
 | **API Reference** | Complete API documentation                        | [docs/api-reference.md](docs/api-reference.md) |
 | **Deployment**    | Production deployment and NPM integration         | [docs/deployment.md](docs/deployment.md)       |
+| **Contributing**  | Development, extension, and contribution guide    | [docs/contributing.md](docs/contributing.md)   |
 
 ### Template System Architecture
 
@@ -192,11 +193,51 @@ kozen-engine/
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Kozen Engine is designed for extensibility and welcomes contributions! Whether you're adding new components, extending services, or improving documentation, we have comprehensive guides to help you.
+
+### Quick Start for Contributors
+
+1. **Fork and Clone**
+   ```bash
+   git clone https://github.com/your-username/kozen-engine.git
+   cd kozen-engine
+   npm install
+   ```
+
+2. **Set Up Development Environment**
+   ```bash
+   # Create debug environment
+   export KOZEN_TEMPLATE=demo
+   export KOZEN_STACK=dev
+   export NODE_ENV=development
+   ```
+
+3. **Use VSCode Debugging**
+   - Open in VSCode
+   - Use F5 → "🛠️ Develop" for debugging
+   - Set breakpoints in components/services
+   - Test with different templates via environment variables
+
+4. **Create Your Enhancement**
+   - **New Components**: Add to `src/components/`
+   - **New Services**: Extend `StackManager`, `SecretManager`, or `TemplateManager`
+   - **New Templates**: Add to `cfg/templates/`
+
+5. **Submit Pull Request**
+   ```bash
+   git checkout -b feature/amazing-feature
+   git commit -m 'feat: add amazing feature'
+   git push origin feature/amazing-feature
+   ```
+
+### Extension Points
+
+- **📦 Components**: Create infrastructure, testing, or processing components
+- **🔧 Stack Managers**: Add support for new orchestration platforms (Terraform, Ansible, etc.)
+- **🔐 Secret Managers**: Integrate with additional secret providers (HashiCorp Vault, Azure Key Vault)
+- **📄 Template Managers**: Add new template storage backends (Git, S3, HTTP APIs)
+
+**📚 Complete Guide**: See [docs/contributing.md](docs/contributing.md) for detailed development instructions, VSCode debugging setup, and extension patterns.
 
 ## 📄 License
 
