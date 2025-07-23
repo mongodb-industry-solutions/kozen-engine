@@ -528,7 +528,7 @@ interface ITemplate {
   version: string; // Template version
   engine: string; // Engine compatibility
   release?: string; // Release stability
-  deploymentMode?: string; // Execution mode
+  requires?: string[]; // Template dependencies
   stack?: IStackOptions; // Stack configuration
   components: IComponent[]; // Component definitions
 }
