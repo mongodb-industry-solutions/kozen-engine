@@ -42,6 +42,8 @@
     "dependencies": {
         "@aws-sdk/client-secrets-manager": "^3.840.0",
         "@pulumi/aws": "^6.83.0",
+        "@pulumi/awsx": "^3.0.0",
+        "@pulumi/eks": "^4.0.0",
         "@pulumi/mongodbatlas": "^3.34.0",
         "@pulumi/pulumi": "^3.113.0",
         "awilix": "^8.0.1",
