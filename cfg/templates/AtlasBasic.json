@@ -1,6 +1,6 @@
 {
-    "name": "demo",
-    "description": "Simple demonstration template for testing the IaC pipeline functionality with HelloWorld and SimpleLogger components. Perfect for development and system verification.",
+    "name": "AtlasBasic",
+    "description": "Basic template for MongoDB Atlas component",
     "version": "1.0.0",
     "engine": "1.0.0",
     "release": "20241201",
@@ -120,38 +120,6 @@
                         "type": "secret",
                         "name": "mongodb-atlas:projectId",
                         "value": "ATLAS_PROJECT_ID"
-                    }
-                ]
-            },
-            {
-                "name": "DemoSecond",
-                "input": [
-                    {
-                        "type": "reference",
-                        "name": "adddress",
-                        "value": "ipAddress",
-                        "default": "127.0.0.1"
-                    },
-                    {
-                        "type": "value",
-                        "name": "message",
-                        "value": "Hello from DemoSecond! 🌍"
-                    },
-                    {
-                        "name": "delay",
-                        "value": 500
-                    },
-                    {
-                        "type": "secret",
-                        "name": "delay",
-                        "value": "MYSECRET",
-                        "default": [
-                            "Pipeline initialization started",
-                            "Loading component configurations",
-                            "Validating template structure",
-                            "Executing deployment sequence",
-                            "Demo pipeline completed successfully"
-                        ]
                     }
                 ]
             }
