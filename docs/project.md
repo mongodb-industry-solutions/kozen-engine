@@ -14,417 +14,270 @@ This project aims to create an automated testing execution platform that leverag
 
 -----
 
-### 2\. Template Structure and Properties
+### 2\. Template System
 
-The templates are JSON files that serve as the primary input for the platform. Let's break down their structure and the purpose of each property:
+The template system is the core of Kozen Engine's configuration-driven approach. Templates define the structure, components, and data flow for infrastructure deployment and testing operations.
 
-```json
-{
-  "name": "Atlas Standard",
-  "description": "Creates an Atlas cluster with a single ReplicaSet and additionally creates two Kubernetes instances to deploy a demo application that will interact with the created Atlas server.",
-  "version": "1.0.0",
-  "release": "20250407",
-  "requires": [
-    { "key": "MyClusterSecret", "provider": "aws", "type": "secret" }
-  ],
-  "deploymentMode": "synchronous",
-  "components": [
-    {
-      "name": "Kubernetes",
-      "region": "west-us",
-      "instances": 2,
-      "gitHubUrl": "https://github.com/mongodb-industry-solutions/kozen",
-      "dockerFilePath": "./iac/",
-      "output": [{ "name": "k8IpAddress", "description": "container public ip" }]
-    },
-    {
-      "name": "Atlas",
-      "region": "west-us",
-      "clusterType": "REPLICASET",
-      "replicationSpecs": [
-        {
-          "numShards": 1,
-          "regionsConfigs": [
-            {
-              "regionName": "US_EAST_1",
-              "electableNodes": 3,
-              "priority": 7,
-              "readOnlyNodes": 0
-            }
-          ]
-        }
-      ],
-      "cloudBackup": true,
-      "autoScalingDiskGbEnabled": true,
-      "mongoDbMajorVersion": "8.0",
-      "providerName": "AWS",
-      "providerInstanceSizeName": "M10",
-      "input": [{ "name": "ipAddress", "description": "ip address to include in the white list" }],
-      "output": [{ "name": "ipAddress", "description": "container public ip" }]
-    }
-  ]
-}
-```
+**📚 For complete template documentation, see [docs/templates.md](./templates.md)**
 
-#### Template Properties:
+Templates support:
+- **Dynamic variable resolution** through multiple input types (environment, secret, reference, value, protected)
+- **Component orchestration** with both sequential and parallel execution strategies  
+- **Cross-component dependencies** through input/output relationships
+- **Flexible storage backends** (file system and MongoDB)
 
-  * **`name` (String):** A unique, human-readable name for the template. This helps in identifying its purpose.
-      * *Example:* `"Atlas Standard"`
-  * **`description` (String):** A detailed explanation of what the template deploys and its intended use. This is crucial for users to understand if a template is suitable for their needs.
-      * *Example:* `"Creates an Atlas cluster with a single ReplicaSet and additionally creates two Kubernetes instances to deploy a demo application that will interact with the created Atlas server."`
-  * **`version` (String):** The semantic version of the template. Useful for tracking changes and compatibility.
-      * *Example:* `"1.0.0"`
-  * **`release` (String):** The release date or identifier of the template.
-      * *Example:* `"20250407"`
-  * **`requires` (Array of Objects):** Defines the indispensable prerequisites for the template to function correctly. This is vital for validation. Each object in the array specifies a requirement.
-      * **`key` (String):** The name of the required secret, credential, or resource.
-      * **`provider` (String):** The cloud provider where the requirement is expected (e.g., "aws", "azure", "gcp").
-      * **`type` (String):** The type of requirement (e.g., "secret", "permission", "resource").
-      * *Example:* `[{ "key": "MyClusterSecret", "provider": "aws", "type": "secret" }]` - This indicates that a secret named "MyClusterSecret" must exist in AWS.
-  * **`deploymentMode` (String):** Determines how the components within the template are deployed.
-      * **`synchronous`:** Components are deployed in the order they are declared in the `components` array. This is necessary when there are explicit dependencies between components (e.g., a Kubernetes application needs an Atlas database to be created first). This mode is slower due to sequential execution.
-      * **`asynchronous`:** (Implicit, if not specified or another value is used) Components are deployed in parallel, where possible, to speed up the deployment process. This mode is suitable when components have no direct deployment dependencies.
-      * *Example:* `"synchronous"`
-  * **`components` (Array of Objects):** This is the most crucial part of the template, defining each individual infrastructure component to be deployed. Each object within this array represents a single component.
-
-#### Component Properties (within `components` array):
-
-  * **`name` (String):** The logical name of the component, which maps directly to a **Controller class** responsible for deploying that specific resource (e.g., "Atlas" maps to `AtlasController`, "Kubernetes" maps to `KubernetesController`).
-      * *Example:* `"Atlas"`, `"Kubernetes"`
-  * **`region` (String):** The geographical region where the component should be deployed. This can be generalized across components.
-      * *Example:* `"west-us"`, `"US_EAST_1"`
-  * **`providerName` (String):** The cloud provider associated with the component (e.g., "AWS", "Azure", "GCP"). This can also be generalized.
-      * *Example:* `"AWS"`
-  * **Other Component-Specific Properties:** The remaining properties within a component object are highly specific to the type of resource being deployed and will be interpreted by its corresponding Controller.
-      * *Example (Atlas component):* `clusterType`, `replicationSpecs`, `cloudBackup`, `mongoDbMajorVersion`, `providerInstanceSizeName`.
-      * *Example (Kubernetes component):* `instances`, `gitHubUrl`, `dockerFilePath`.
-  * **`input` (Array of Objects - Optional):** Defines inputs that this component might require from other components or external sources. Each object describes an input.
-      * **`name` (String):** The name of the input parameter.
-      * **`description` (String):** A brief description of the input.
-      * *Example:* `[{ "name": "ipAddress", "description": "ip address to include in the white list" }]` (for Atlas, to whitelist the Kubernetes IP).
-  * **`output` (Array of Objects - Optional):** Defines outputs that this component will produce upon successful deployment, which can then be consumed by other components or the testing framework. Each object describes an output.
-      * **`name` (String):** The name of the output parameter.
-      * **`description` (String):** A brief description of the output.
-      * *Example:* `[{ "name": "ipAddress", "description": "container public ip" }]` (for Kubernetes, to provide its IP to Atlas).
+The core concepts of **input**, **output**, and **setup** maintain consistent behavior across both component-level and stack-level configurations, with the stack defining the initial configuration for the entire deployment process within a pipeline.
 
 -----
 
-### 3\. System Architecture and Logic
+### 3\. Component Architecture and Configuration Evolution
 
-The platform will follow a clear architectural pattern, separating concerns into distinct logical units.
+The component system has evolved from the original `BaseConfig` approach to a more flexible and dynamic configuration system.
 
-#### 3.1. High-Level Architecture Diagram
+#### 3.1. Modern Component Interface
+
+Components now implement a standardized interface using generic input structures:
+
+```typescript
+async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>
+async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>
+async validate(input?: IStruct, pipeline?: IPipeline): Promise<IResult>
+async status(input?: IStruct, pipeline?: IPipeline): Promise<IResult>
+```
+
+#### 3.2. Dynamic Configuration Casting
+
+Instead of the previous `BaseConfig` inheritance model, components now receive generic `IStruct` inputs and perform dynamic casting to specific configuration types within their implementation:
+
+```typescript
+export interface AtlasConfig {
+  projectId: string;
+  clusterType: "REPLICASET" | "SHARDED";
+  mongoDbMajorVersion: string;
+  providerInstanceSizeName: string;
+  cloudBackup: boolean;
+  region: string;
+  // ... other Atlas-specific properties
+}
+
+export class AtlasController extends BaseController {
+  async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
+    // Dynamic casting to specific configuration type
+    const atlasConfig = this.castToAtlasConfig(input);
+    
+    // Validate configuration
+    this.validateAtlasConfig(atlasConfig);
+    
+    // Use typed configuration for deployment
+    const cluster = await this.deployAtlasCluster(atlasConfig);
+    
+    return {
+      success: true,
+      output: {
+        connectionString: cluster.connectionString,
+        clusterId: cluster.id
+      },
+      timestamp: new Date()
+    };
+  }
+
+  private castToAtlasConfig(input?: IStruct): AtlasConfig {
+    if (!input?.projectId) {
+      throw new Error("Atlas configuration requires projectId");
+    }
+    
+    return {
+      projectId: input.projectId as string,
+      clusterType: (input.clusterType as string) || "REPLICASET",
+      mongoDbMajorVersion: (input.mongoDbMajorVersion as string) || "8.0",
+      providerInstanceSizeName: (input.providerInstanceSizeName as string) || "M10",
+      cloudBackup: input.cloudBackup !== undefined ? Boolean(input.cloudBackup) : true,
+      region: (input.region as string) || "us-east-1"
+    };
+  }
+
+  private validateAtlasConfig(config: AtlasConfig): void {
+    if (!["REPLICASET", "SHARDED"].includes(config.clusterType)) {
+      throw new Error(`Invalid cluster type: ${config.clusterType}`);
+    }
+    // Additional validation logic
+  }
+}
+```
+
+#### 3.3. Type-Safe Configuration Examples
+
+**Kubernetes Component Example:**
+
+```typescript
+export interface KubernetesConfig {
+  namespace: string;
+  replicas: number;
+  image: string;
+  containerPort: number;
+  serviceType: "ClusterIP" | "NodePort" | "LoadBalancer";
+  databaseUrl?: string;
+}
+
+export class KubernetesController extends BaseController {
+  async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
+    const k8sConfig = this.castToKubernetesConfig(input);
+    
+    this.logger?.info({
+      src: 'component:Kubernetes:deploy',
+      message: `Deploying to namespace: ${k8sConfig.namespace}`,
+      data: {
+        replicas: k8sConfig.replicas,
+        image: k8sConfig.image,
+        prefix: this.getPrefix(pipeline)
+      }
+    });
+
+    const deployment = await this.deployKubernetesResources(k8sConfig);
+    
+    return {
+      success: true,
+      output: {
+        serviceUrl: deployment.serviceUrl,
+        namespace: deployment.namespace
+      },
+      timestamp: new Date()
+    };
+  }
+
+  private castToKubernetesConfig(input?: IStruct): KubernetesConfig {
+    return {
+      namespace: (input?.namespace as string) || "default",
+      replicas: Number(input?.replicas) || 1,
+      image: (input?.image as string) || "nginx:latest",
+      containerPort: Number(input?.containerPort) || 80,
+      serviceType: (input?.serviceType as "ClusterIP" | "NodePort" | "LoadBalancer") || "ClusterIP",
+      databaseUrl: input?.databaseUrl as string
+    };
+  }
+}
+```
+
+**📚 For detailed component implementation examples, see [docs/components.md](./components.md)**
+
+#### 3.4. Benefits of the New Approach
+
+- **Flexibility**: Components can handle dynamic configurations without rigid inheritance
+- **Type Safety**: Internal casting provides compile-time type checking within components
+- **Extensibility**: Easy to add new configuration properties without breaking existing templates
+- **Validation**: Components can implement custom validation logic for their specific requirements
+- **Pipeline Context**: Components have access to full pipeline context for advanced scenarios
+
+-----
+
+### 4\. System Architecture and Logic
+
+The platform follows a clear architectural pattern, separating concerns into distinct logical units with enhanced flexibility for component execution strategies.
+
+#### 4.1. High-Level Architecture Diagram
 
 ![](./images/kozen-architecture-Layers.jpg)
 
+#### 4.2. Enhanced Component Execution
 
-#### 3.2. Detailed Component Breakdown
+The system now supports multiple execution strategies through composition components:
 
-##### 3.2.1. Template Store
+- **Sequential Execution**: Components execute in order, enabling output dependencies
+- **Parallel Execution**: Composition components group related components for concurrent execution
+- **Hybrid Strategies**: Mix of sequential and parallel execution based on component dependencies
 
-  * **Description:** A repository (e.g., a file system, S3 bucket, Git repository) where all the defined JSON templates are stored.
-  * **Logic:** Provides a centralized location for managing and versioning templates. The `PipelineController` will interact with this store to load templates.
+The previous `deploymentMode` property has been replaced with intelligent orchestration through composition components that handle parallelization automatically.
 
-##### 3.2.2. Validation Engine
+#### 4.3. Detailed Component Breakdown
 
-  * **Description:** Responsible for pre-deployment validation of templates.
+##### 4.3.1. Template Store
+
+  * **Description:** A repository (e.g., file system, MongoDB) where all the defined JSON templates are stored.
+  * **Logic:** Provides a centralized location for managing and versioning templates. The `PipelineController` interacts with this store to load templates.
+
+##### 4.3.2. Validation Engine
+
+  * **Description:** Responsible for pre-deployment validation of templates and component configurations.
   * **Logic:**
-    1.  When a template is selected for deployment, the `PipelineController` will invoke the Validation Engine.
-    2.  It iterates through the `requires` array of the template.
-    3.  For each requirement, it performs checks against the specified `provider` and `type`.
-          * *Example:* If `type` is "secret" and `provider` is "aws", it attempts to verify the existence of the secret in AWS Secrets Manager.
-    4.  If any required element is missing or invalid, it generates a descriptive error message, preventing unnecessary and failed deployments.
-    5.  Returns a list of validation errors (if any) or a success status.
-  * **Benefit:** Reduces deployment errors, improves user experience by providing early feedback, and ensures prerequisites are met.
+    1.  When a template is selected for deployment, the `PipelineController` invokes the Validation Engine.
+    2.  It validates template structure, required variables, and component configurations.
+    3.  For each component, it verifies that required inputs are available and properly typed.
+    4.  Returns validation errors or success status with detailed feedback.
 
-##### 3.2.3. Deployment Orchestrator (PipelineController)
+##### 4.3.3. Deployment Orchestrator (PipelineController)
 
-  * **Description:** The central brain of the platform, responsible for loading templates, orchestrating validations, and triggering deployments/undeployments of components.
-  * **Properties:**
-      * `template`: The loaded template object (JSON).
-      * `validationErrors`: A list of errors generated by the Validation Engine.
-  * **Methods:**
-      * **`loadTemplate(templateName: string)`:**
-        1.  Loads the specified template JSON file from the Template Store into memory.
-        2.  Parses the JSON into a template object.
-      * **`validateTemplate(): boolean`:**
-        1.  Calls the Validation Engine, passing the loaded template.
-        2.  Stores any returned errors in `this.validationErrors`.
-        3.  Returns `true` if valid, `false` otherwise.
-      * **`deploy()`:**
-        1.  First, call `validateTemplate()`. If validation fails, abort and report errors.
-        2.  Determine the deployment order based on `deploymentMode`:
-              * **`synchronous`:** Iterate through `components` sequentially.
-              * **`asynchronous`:** (If not synchronous) Identify components without dependencies or manage dependencies for parallel execution (more advanced logic required for true asynchronous deployment with dependencies). For simplicity in the initial phase, consider a basic sequential loop even for "asynchronous" if dependencies aren't explicitly managed. For a more robust asynchronous approach, a dependency graph might be needed.
-        3.  For each `component` in the determined order:
-              * Dynamically create an instance of the corresponding Controller class based on `component.name` (e.g., if `name` is "Atlas", instantiate `AtlasController`).
-              * Create an instance of the specific `BaseConfig` specialization (e.g., `AtlasConfig`, `KubernetesConfig`) and populate it with all the properties defined for that component in the template.
-              * Pass the populated configuration object to the Controller.
-              * Call the Controller's `configure()` method.
-              * Call the Controller's `deploy()` method.
-              * Handle any outputs from the deployed component and make them available as inputs for subsequent components if needed (e.g., Kubernetes IP for Atlas whitelist).
-      * **`undeploy()`:**
-        1.  Similar to `deploy()`, but iterates components in reverse order (for `synchronous` mode) to handle dependencies correctly during teardown.
-        2.  For each `component`:
-              * Dynamically create an instance of the corresponding Controller.
-              * Populate its configuration.
-              * Call the Controller's `undeploy()` method.
+  * **Description:** The central orchestrator responsible for loading templates, coordinating validations, and managing component execution.
+  * **Enhanced Methods:**
+      * **`execute(args: IPipelineArgs): Promise<IResult>`:**
+        1.  Loads and validates the specified template.
+        2.  Configures the pipeline with IoC dependencies.
+        3.  Determines execution strategy based on component dependencies.
+        4.  Coordinates component execution with proper input/output flow.
+        5.  Collects and aggregates results from all components.
 
-##### 3.2.4. Pulumi Controllers
+##### 4.3.4. Enhanced Component Controllers
 
-  * **Description:** These are the specialized classes responsible for interacting with Pulumi to provision and manage specific types of cloud resources. Each `name` property in a template's `components` array maps to a specific Controller class.
-  * **Inheritance:**
-      * All controllers should inherit from a `BaseController` abstract class.
-      * All configuration objects should inherit from a `BaseConfig` abstract class.
-
-###### `BaseConfig` (Abstract Class)
-
-  * **Properties:**
-      * `name: string` (e.g., "Atlas", "Kubernetes")
-      * `region: string`
-      * `providerName: string`
-      * `input: Array<{ name: string; description: string; value?: any }>` (Optional, to pass values into the component)
-      * `output: Array<{ name: string; description: string }>` (Optional, to define what outputs this component will expose)
-  * **Purpose:** Provides a common structure for all component-specific configurations.
-
-###### Example: `AtlasConfig` (inherits from `BaseConfig`)
+Components now follow a more flexible architecture:
 
 ```typescript
-interface AtlasConfig extends BaseConfig {
-  clusterType: "REPLICASET" | "SHARDED";
-  replicationSpecs: Array<{
-    numShards: number;
-    regionsConfigs: Array<{
-      regionName: string;
-      electableNodes: number;
-      priority: number;
-      readOnlyNodes: number;
-    }>;
-  }>;
-  cloudBackup: boolean;
-  autoScalingDiskGbEnabled: boolean;
-  mongoDbMajorVersion: string;
-  providerInstanceSizeName: string;
-  // ... other Atlas-specific properties
-}
-```
+export abstract class BaseController {
+  protected assistant!: IIoC;
+  protected config: IComponent;
+  protected logger?: ILogger;
 
-###### Example: `KubernetesConfig` (inherits from `BaseConfig`)
+  abstract deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
+  abstract undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
+  abstract validate(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
+  abstract status(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
 
-```typescript
-interface KubernetesConfig extends BaseConfig {
-  instances: number;
-  gitHubUrl: string;
-  dockerFilePath: string;
-  // ... other Kubernetes-specific properties
-}
-```
-
-###### `BaseController` (Abstract Class)
-
-  * **Properties:**
-      * `config: BaseConfig` (Holds the specific configuration for the component)
-  * **Methods (Abstract):**
-      * **`configure(config: BaseConfig): void`:** This method is responsible for taking the generic `BaseConfig` and casting/validating it to the specific configuration type (e.g., `AtlasConfig`), and then preparing the controller with these settings.
-      * **`deploy(): Promise<any>`:** Contains the Pulumi code to provision the specific resource(s). Returns a promise that resolves with any relevant outputs.
-      * **`undeploy(): Promise<any>`:** Contains the Pulumi code to de-provision the specific resource(s).
-
-###### Example: `AtlasController` (inherits from `BaseController`)
-
-```typescript
-import * as pulumi from "@pulumi/pulumi";
-import * as mongodbatlas from "@pulumi/mongodbatlas";
-
-class AtlasController extends BaseController {
-  private atlasConfig: AtlasConfig;
-
-  configure(config: BaseConfig): void {
-    // Type assertion/validation
-    if (!("clusterType" in config)) {
-      throw new Error("Invalid Atlas configuration provided.");
-    }
-    this.atlasConfig = config as AtlasConfig;
-  }
-
-  async deploy(): Promise<any> {
-    console.log(`Deploying Atlas cluster: ${this.atlasConfig.name}`);
-
-    // Pulumi code to create an Atlas cluster based on this.atlasConfig
-    const cluster = new mongodbatlas.Cluster(this.atlasConfig.name, {
-      projectId: pulumi.output(process.env.MONGODB_ATLAS_PROJECT_ID), // From secrets or config
-      name: this.atlasConfig.name,
-      clusterType: this.atlasConfig.clusterType,
-      replicationSpecs: this.atlasConfig.replicationSpecs.map((spec) => ({
-        numShards: spec.numShards,
-        regionsConfigs: spec.regionsConfigs.map((rc) => ({
-          regionName: rc.regionName,
-          electableNodes: rc.electableNodes,
-          priority: rc.priority,
-          readOnlyNodes: rc.readOnlyNodes,
-        })),
-      })),
-      cloudBackup: this.atlasConfig.cloudBackup,
-      autoScalingDiskGbEnabled: this.atlasConfig.autoScalingDiskGbEnabled,
-      mongoDbMajorVersion: this.atlasConfig.mongoDbMajorVersion,
-      providerName: this.atlasConfig.providerName,
-      providerInstanceSizeName: this.atlasConfig.providerInstanceSizeName,
-      // ... other properties from atlasConfig
-    });
-
-    // Handle inputs, e.g., IP whitelist
-    if (this.atlasConfig.input) {
-        const ipInput = this.atlasConfig.input.find(i => i.name === "ipAddress");
-        if (ipInput && ipInput.value) {
-            new mongodbatlas.ProjectIpAccessList(`${this.atlasConfig.name}-whitelist`, {
-                projectId: pulumi.output(process.env.MONGODB_ATLAS_PROJECT_ID),
-                ipAddress: ipInput.value,
-                comment: "IP address from Kubernetes component"
-            });
-        }
-    }
-
-    // Output relevant information
-    const ipAddress = "dynamic-ip-address"; // Placeholder, get actual IP from cluster output
-    console.log(`Atlas cluster ${this.atlasConfig.name} deployed.`);
-    return { ipAddress }; // Return outputs for other components to consume
-  }
-
-  async undeploy(): Promise<void> {
-    console.log(`Undeploying Atlas cluster: ${this.atlasConfig.name}`);
-    // Pulumi code to delete the Atlas cluster
-    // Pulumi handles resource deletion automatically when a stack is destroyed,
-    // but explicit resource deletion logic might be needed for specific cases
-    // or if you're managing resources outside of a full stack destroy.
-    console.log(`Atlas cluster ${this.atlasConfig.name} undeployed.`);
+  // Utility method for prefix generation
+  protected getPrefix(pipeline?: IPipeline): string {
+    const project = pipeline?.stack?.config?.project || 'K' + Date.now();
+    const stack = pipeline?.stack?.config?.name || 'dev';
+    return `${project}-${stack}`;
   }
 }
 ```
 
-###### Example: `KubernetesController` (inherits from `BaseController`)
+#### 4.4. Flow Diagrams
 
-```typescript
-import * as pulumi from "@pulumi/pulumi";
-import * as k8s from "@pulumi/kubernetes";
-import * as docker from "@pulumi/docker"; // Assuming Docker build for demo app
-
-class KubernetesController extends BaseController {
-  private k8sConfig: KubernetesConfig;
-
-  configure(config: BaseConfig): void {
-    if (!("instances" in config)) {
-      throw new Error("Invalid Kubernetes configuration provided.");
-    }
-    this.k8sConfig = config as KubernetesConfig;
-  }
-
-  async deploy(): Promise<any> {
-    console.log(`Deploying Kubernetes instances: ${this.k8sConfig.name}`);
-
-    // Example: Deploy a simple Nginx deployment for demonstration
-    const appLabels = { app: "nginx" };
-    const deployment = new k8s.apps.v1.Deployment(this.k8sConfig.name, {
-      spec: {
-        selector: { matchLabels: appLabels },
-        replicas: this.k8sConfig.instances,
-        template: {
-          metadata: { labels: appLabels },
-          spec: {
-            containers: [
-              {
-                name: "nginx",
-                image: "nginx:1.14.2",
-                ports: [{ containerPort: 80 }],
-              },
-            ],
-          },
-        },
-      },
-    });
-
-    const service = new k8s.core.v1.Service(this.k8sConfig.name, {
-      spec: {
-        selector: appLabels,
-        ports: [{ port: 80, targetPort: 80 }],
-        type: "LoadBalancer", // Expose via Load Balancer for public IP
-      },
-    });
-
-    // Get the public IP address of the LoadBalancer
-    const k8IpAddress = service.status.apply(status => status.loadBalancer.ingress[0].ip);
-    console.log(`Kubernetes deployment ${this.k8sConfig.name} deployed.`);
-    return { k8IpAddress }; // Return outputs
-  }
-
-  async undeploy(): Promise<void> {
-    console.log(`Undeploying Kubernetes instances: ${this.k8sConfig.name}`);
-    // Pulumi handles resource deletion automatically on stack destroy
-    console.log(`Kubernetes instances ${this.k8sConfig.name} undeployed.`);
-  }
-}
-```
-
-#### 3.3. Flow Diagrams
-
-##### 3.3.1. Deployment Flow
+##### 4.4.1. Enhanced Deployment Flow
 
 ```mermaid
 graph TD
     A[Start Deployment] --> B{Load Template JSON}
-    B --> C{Parse Template}
-    C --> D{Validate Template (requires)}
-    D -- NO --> E[Report Validation Errors & Exit]
-    D -- YES --> F{Determine Deployment Order (deploymentMode)}
-    F --> G{Loop through Components}
-    G --> H{Dynamically Instantiate Controller (e.g., AtlasController)}
-    H --> I{Populate Controller's Config (e.g., AtlasConfig)}
-    I --> J{Call Controller.configure()}
-    J --> K{Call Controller.deploy()}
-    K --> L{Capture Component Outputs}
-    L --> M{Handle Dependencies / Pass Outputs as Inputs to Next Components}
-    M -- More Components? --> G
-    M -- No More Components --> N[Deployment Complete]
-    K -- Deployment Error --> P[Rollback / Report Error]
-```
-
-##### 3.3.2. Undeployment Flow
-
-```mermaid
-graph TD
-    A[Start Undeployment] --> B{Load Template JSON}
-    B --> C{Parse Template}
-    C --> D{Determine Undeployment Order (Reverse for synchronous)}
-    D --> E{Loop through Components (in reverse)}
-    E --> F{Dynamically Instantiate Controller}
-    F --> G{Populate Controller's Config}
-    G --> H{Call Controller.configure()}
-    H --> I{Call Controller.undeploy()}
-    I -- More Components? --> E
-    I -- No More Components --> J[Undeployment Complete]
-    I -- Undeployment Error --> K[Report Error]
+    B --> C{Parse and Validate Template}
+    C --> D{Initialize IoC Container}
+    D --> E{Configure Pipeline Services}
+    E --> F{Process Component Inputs}
+    F --> G{Determine Execution Strategy}
+    G --> H{Execute Components}
+    H --> I{Collect Outputs}
+    I --> J{Store Analytics Data}
+    J --> K[Deployment Complete]
+    H -- Error --> L[Handle Error & Cleanup]
 ```
 
 -----
 
-### 4\. Key Design Considerations and Benefits
+### 5\. Key Design Improvements and Benefits
 
-  * **Extensibility:** The component-based design with Controllers makes the platform highly extensible. To support a new cloud resource, a developer simply needs to create a new Controller class and its corresponding configuration interface, adhering to the `BaseController` and `BaseConfig` contracts. This isolates Pulumi-specific logic within these controllers.
-  * **Maintainability:** By separating configuration (templates) from implementation (controllers), the system is easier to maintain. Changes to how a specific resource is deployed (e.g., updating a Pulumi provider version) only require modifying the relevant Controller, not every template.
-  * **Usability:** Testers or users without deep IaC knowledge can provision complex environments simply by selecting and running a template. The `description` and `requires` properties provide clear guidance.
-  * **Robustness:** The Validation Engine significantly reduces deployment failures by catching missing prerequisites early.
-  * **Reusability:** Templates are reusable blueprints for common testing scenarios, ensuring consistency across environments.
-  * **Version Control:** Both templates and Controller code can be managed under version control, allowing for traceability and rollbacks.
-  * **Dependency Management:** The `deploymentMode` and the mechanism for passing outputs as inputs between components handle inter-component dependencies during deployment.
-  * **Dynamic Instantiation:** Using the `name` property to dynamically load and instantiate Controller classes is a powerful pattern for creating a flexible and pluggable architecture. In TypeScript/JavaScript, this can be achieved using a mapping object or a simple factory function.
+  * **Enhanced Extensibility:** The generic `IStruct` approach makes it easier to add new component types without modifying the core framework.
+  * **Better Type Safety:** Components can implement strong typing internally while maintaining interface flexibility.
+  * **Improved Maintainability:** Clear separation between framework concerns and component-specific logic.
+  * **Pipeline Context Awareness:** Components have access to full pipeline context for advanced scenarios.
+  * **Flexible Orchestration:** Composition components enable sophisticated execution strategies without hardcoded deployment modes.
+  * **Rich Analytics:** Enhanced data collection provides better insights into pipeline execution patterns.
 
 -----
 
-### 5\. Future Enhancements
+### 6\. Future Enhancements
 
-  * **Asynchronous Deployment with Dependency Graph:** For truly complex templates with many inter-dependent components, implement a sophisticated dependency graph solver to optimize parallel deployments.
-  * **Output Management:** A more robust mechanism for components to expose and consume outputs, potentially with a centralized state store or a Pub/Sub model.
-  * **UI/API Layer:** Develop a user interface or an API to allow users to browse, select, and trigger template deployments, as well as view deployment status and logs.
-  * **Logging and Monitoring:** Integrate comprehensive logging and monitoring for deployments, including Pulumi's rich output.
-  * **Cost Estimation:** Integrate with cloud provider APIs to provide cost estimates for a template deployment before execution.
-  * **Resource Tagging:** Automatically apply tags to all deployed resources for better cost tracking and management.
-  * **Template Versioning and Rollbacks:** Implement more advanced template versioning and a mechanism for rolling back to previous successful deployments.
+  * **AI-Driven Component Recommendations:** Machine learning models to suggest optimal component configurations.
+  * **Advanced Dependency Resolution:** Sophisticated dependency graph analysis for optimal parallel execution.
+  * **Multi-Cloud Orchestration:** Enhanced support for cross-cloud deployments and hybrid scenarios.
+  * **Real-Time Monitoring:** Live dashboard for pipeline execution monitoring and intervention capabilities.
+  * **Template Marketplace:** Community-driven template sharing and contribution platform.
+
+**📚 For development and contribution guidelines, see [docs/contributing.md](./contributing.md)**
 
