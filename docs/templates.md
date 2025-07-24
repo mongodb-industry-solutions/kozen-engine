@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Kozen Engine template system enables the creation of reusable, configurable pipeline definitions. Templates define the structure, components, and data flow for infrastructure deployment and testing operations. The system supports dynamic variable resolution, component chaining, and flexible storage backends.
+The Kozen Engine template system enables the creation of reusable, configurable pipeline definitions. Templates define the structure, components, and data flow for infrastructure deployment and testing operations. The system supports dynamic variable resolution, component chaining, and flexible storage backends. Component execution parallelization is handled through composition components that group and orchestrate the execution of their internal components.
 
 ![Template System Architecture](./images/kozen-architecture-Template.drawio.svg)
 
@@ -15,12 +15,13 @@ The Kozen Engine template system enables the creation of reusable, configurable 
 - **Variables**: Dynamic inputs resolved at runtime
 - **Outputs**: Data produced by components for subsequent use
 - **Stack Configuration**: Infrastructure orchestration settings
+- **Composition Components**: Components that group and parallelize execution of other components
 
 ### Template Lifecycle
 
 1. **Template Loading**: Template retrieved from storage (file system or MongoDB)
 2. **Variable Resolution**: Input variables processed through VarProcessorService
-3. **Component Execution**: Components executed in sequence
+3. **Component Execution**: Components executed according to orchestration strategy
 4. **Output Collection**: Results gathered and stored
 5. **Data Analytics**: Execution data stored in MongoDB for visualization
 
@@ -33,38 +34,113 @@ The Kozen Engine template system enables the creation of reusable, configurable 
   "name": "string",
   "description": "string",
   "version": "string",
-  "engine": "kozen",
-  "release": "stable|beta|alpha",
-  "deploymentMode": "sync|async",
+  "engine": "string",
+  "release": "string",
+  "requires": [],
   "stack": {
-    "orchestrator": "Pulumi|Node",
-    "project": "string",
-    "environment": {}
-  },
-  "components": [
-    {
-      "name": "string",
-      "description": "string",
-      "input": [],
-      "setup": [],
-      "output": []
-    }
-  ]
+    "orchestrator": "Node|Pulumi",
+    "input": [],
+    "setup": [],
+    "components": [
+      {
+        "name": "string",
+        "input": [],
+        "setup": [],
+        "output": []
+      }
+    ]
+  }
 }
 ```
 
 ### Template Properties
 
-| Property         | Type   | Required | Description                      |
-| ---------------- | ------ | -------- | -------------------------------- |
-| `name`           | string | Yes      | Unique template identifier       |
-| `description`    | string | No       | Human-readable description       |
-| `version`        | string | Yes      | Semantic version (e.g., "1.0.0") |
-| `engine`         | string | Yes      | Engine compatibility ("kozen")   |
-| `release`        | string | No       | Release stability level          |
-| `deploymentMode` | string | No       | Execution mode (default: "sync") |
-| `stack`          | object | No       | Stack configuration              |
-| `components`     | array  | Yes      | Component definitions            |
+| Property      | Type   | Required | Description                          |
+| ------------- | ------ | -------- | ------------------------------------ |
+| `name`        | string | Yes      | Unique template identifier           |
+| `description` | string | No       | Human-readable description           |
+| `version`     | string | Yes      | Semantic version (e.g., "1.0.0")     |
+| `engine`      | string | Yes      | Engine version compatibility         |
+| `release`     | string | No       | Release identifier (e.g., "20241201") |
+| `requires`    | array  | No       | Template dependencies (default: [])  |
+| `stack`       | object | Yes      | Stack configuration and components   |
+
+### Stack Configuration
+
+The stack object contains orchestration settings and component definitions:
+
+| Property       | Type   | Required | Description                        |
+| -------------- | ------ | -------- | ---------------------------------- |
+| `orchestrator` | string | Yes      | Orchestration engine ("Node", "Pulumi") |
+| `input`        | array  | No       | Stack-level input variables        |
+| `setup`        | array  | No       | Stack-level setup configuration    |
+| `components`   | array  | Yes      | Component definitions              |
+
+## Variable Types
+
+### Environment Variables
+
+References environment variables from the execution context:
+
+```json
+{
+  "type": "environment",
+  "name": "projectName",
+  "value": "PROJECT_NAME",
+  "default": "default-project"
+}
+```
+
+### Value Variables
+
+Static configuration values:
+
+```json
+{
+  "type": "value",
+  "name": "message",
+  "value": "Welcome to Kozen Engine! 🚀"
+}
+```
+
+### Reference Variables
+
+References outputs from previous components or other variables:
+
+```json
+{
+  "type": "reference",
+  "name": "delay",
+  "value": "DEMO_DELAY",
+  "default": 1000
+}
+```
+
+### Secret Variables
+
+Retrieves secure values through the SecretManager:
+
+```json
+{
+  "type": "secret",
+  "name": "apiKey",
+  "value": "ATLAS_PRIVATE_KEY",
+  "default": "default-secret-value"
+}
+```
+
+### Protected Variables
+
+Secure configuration values for sensitive setup parameters:
+
+```json
+{
+  "type": "protected",
+  "name": "aws:secretKey",
+  "value": "AWS_SECRET_ACCESS_KEY",
+  "default": ""
+}
+```
 
 ## Component Definition
 
@@ -73,391 +149,406 @@ The Kozen Engine template system enables the creation of reusable, configurable 
 ```json
 {
   "name": "ComponentName",
-  "description": "Component description",
-  "version": "1.0.0",
-  "engine": "kozen",
-  "region": "us-east-1",
   "input": [
     {
-      "name": "inputName",
-      "type": "environment|secret|reference|static",
-      "value": "inputValue",
-      "default": "defaultValue",
-      "description": "Input description"
+      "type": "environment|value|reference|secret|protected",
+      "name": "variableName",
+      "value": "variableValue",
+      "default": "defaultValue"
     }
   ],
   "setup": [
     {
+      "type": "environment|value|reference|secret|protected",
       "name": "setupParameter",
-      "type": "static|environment|secret",
-      "value": "setupValue"
+      "value": "setupValue",
+      "default": "defaultValue"
     }
   ],
   "output": [
     {
+      "type": "reference|value",
       "name": "outputName",
+      "value": "outputValue",
       "description": "Output description"
     }
   ]
 }
 ```
 
-### Variable Types
+### Component Variable Processing
 
-#### Environment Variables
+Variables in components follow the same type system as stack-level variables, with additional support for:
 
-References environment variables from the execution context:
-
-```json
-{
-  "name": "nodeEnv",
-  "type": "environment",
-  "value": "NODE_ENV",
-  "default": "development",
-  "description": "Deployment environment"
-}
-```
-
-#### Secret Variables
-
-Retrieves secure values through the SecretManager:
-
-```json
-{
-  "name": "apiKey",
-  "type": "secret",
-  "value": "production/api-key",
-  "description": "API authentication key"
-}
-```
-
-#### Reference Variables
-
-References outputs from previous components:
-
-```json
-{
-  "name": "databaseConnection",
-  "type": "reference",
-  "value": "connectionString",
-  "description": "Database connection from Atlas component"
-}
-```
-
-#### Static Variables
-
-Fixed configuration values:
-
-```json
-{
-  "name": "region",
-  "type": "static",
-  "value": "us-east-1",
-  "description": "AWS deployment region"
-}
-```
+- **Cross-component references**: Output from one component can be referenced in another
+- **Variable interpolation**: String values support `${variable}` syntax
+- **Default value fallbacks**: Automatic fallback to default values when resolution fails
 
 ## Template Examples
+
+### Simple Demo Template
+
+```json
+{
+  "name": "demo",
+  "description": "Simple demonstration template for testing the IaC pipeline functionality with HelloWorld and SimpleLogger components. Perfect for development and system verification.",
+  "version": "1.0.0",
+  "engine": "1.0.0",
+  "release": "20241201",
+  "requires": [],
+  "stack": {
+    "orchestrator": "Node",
+    "input": [
+      {
+        "type": "environment",
+        "name": "PULUMI_CONFIG_PASSPHRASE"
+      },
+      {
+        "type": "environment",
+        "name": "PULUMI_BACKEND_URL"
+      }
+    ],
+    "setup": [
+      {
+        "type": "environment",
+        "name": "aws:region",
+        "value": "AWS_REGION",
+        "default": "us-east-1"
+      },
+      {
+        "type": "protected",
+        "name": "aws:accessKey",
+        "value": "AWS_ACCESS_KEY_ID",
+        "default": ""
+      },
+      {
+        "type": "protected",
+        "name": "aws:secretKey",
+        "value": "AWS_SECRET_ACCESS_KEY",
+        "default": ""
+      }
+    ],
+    "components": [
+      {
+        "name": "DemoFirst",
+        "input": [
+          {
+            "type": "environment",
+            "name": "projectName",
+            "value": "DEMO_NAME"
+          },
+          {
+            "type": "value",
+            "name": "message",
+            "value": "Welcome to the IaC Pipeline Demo! 🚀"
+          },
+          {
+            "type": "reference",
+            "name": "delay",
+            "value": "DEMO_DELAY",
+            "default": 1000
+          }
+        ],
+        "output": [
+          {
+            "type": "reference",
+            "name": "ipAddress",
+            "value": "ipAddress",
+            "description": "IP address of the HelloWorld component"
+          },
+          {
+            "type": "value",
+            "name": "format",
+            "value": "${message} - ${reference}",
+            "description": "Formatted message from HelloWorld"
+          }
+        ],
+        "setup": [
+          {
+            "type": "secret",
+            "name": "mongodb-atlas:publicKey",
+            "value": "ATLAS_PUBLIC_KEY"
+          },
+          {
+            "type": "secret",
+            "name": "mongodb-atlas:privateKey",
+            "value": "ATLAS_PRIVATE_KEY"
+          }
+        ]
+      },
+      {
+        "name": "DemoSecond",
+        "input": [
+          {
+            "type": "reference",
+            "name": "address",
+            "value": "ipAddress",
+            "default": "127.0.0.1"
+          },
+          {
+            "type": "value",
+            "name": "message",
+            "value": "Hello from DemoSecond! 🌍"
+          },
+          {
+            "name": "delay",
+            "value": 500
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
 ### Infrastructure Deployment Template
 
 ```json
 {
   "name": "atlas-infrastructure",
-  "description": "MongoDB Atlas cluster deployment",
+  "description": "MongoDB Atlas cluster deployment with enhanced security and configuration management",
   "version": "1.0.0",
-  "engine": "kozen",
-  "release": "stable",
-  "deploymentMode": "sync",
+  "engine": "1.0.0",
+  "release": "20241201",
+  "requires": [],
   "stack": {
     "orchestrator": "Pulumi",
-    "project": "atlas-infrastructure",
-    "environment": {
-      "stackName": "ENVIRONMENT"
-    }
-  },
-  "components": [
-    {
-      "name": "AtlasController",
-      "description": "Deploy MongoDB Atlas cluster",
-      "region": "us-east-1",
-      "clusterType": "REPLICASET",
-      "mongoDbMajorVersion": "8.0",
-      "providerInstanceSizeName": "M10",
-      "cloudBackup": true,
-      "input": [
-        {
-          "name": "projectId",
-          "type": "secret",
-          "value": "mongodb-atlas/project-id",
-          "description": "Atlas project identifier"
-        },
-        {
-          "name": "environment",
-          "type": "environment",
-          "value": "NODE_ENV",
-          "default": "development",
-          "description": "Deployment environment"
-        }
-      ],
-      "setup": [
-        {
-          "name": "clusterName",
-          "type": "static",
-          "value": "kozen-cluster"
-        }
-      ],
-      "output": [
-        {
-          "name": "connectionString",
-          "description": "MongoDB connection string"
-        },
-        {
-          "name": "clusterId",
-          "description": "Atlas cluster identifier"
-        }
-      ]
-    }
-  ]
+    "input": [
+      {
+        "type": "environment",
+        "name": "PULUMI_CONFIG_PASSPHRASE"
+      },
+      {
+        "type": "environment",
+        "name": "NODE_ENV",
+        "default": "development"
+      }
+    ],
+    "setup": [
+      {
+        "type": "protected",
+        "name": "mongodb-atlas:publicKey",
+        "value": "ATLAS_PUBLIC_KEY"
+      },
+      {
+        "type": "protected",
+        "name": "mongodb-atlas:privateKey",
+        "value": "ATLAS_PRIVATE_KEY"
+      },
+      {
+        "type": "protected",
+        "name": "mongodb-atlas:projectId",
+        "value": "ATLAS_PROJECT_ID"
+      }
+    ],
+    "components": [
+      {
+        "name": "AtlasController",
+        "input": [
+          {
+            "type": "secret",
+            "name": "projectId",
+            "value": "ATLAS_PROJECT_ID"
+          },
+          {
+            "type": "environment",
+            "name": "environment",
+            "value": "NODE_ENV",
+            "default": "development"
+          },
+          {
+            "type": "value",
+            "name": "clusterType",
+            "value": "REPLICASET"
+          },
+          {
+            "type": "value",
+            "name": "mongoDbMajorVersion",
+            "value": "8.0"
+          },
+          {
+            "type": "value",
+            "name": "providerInstanceSizeName",
+            "value": "M10"
+          },
+          {
+            "type": "value",
+            "name": "cloudBackup",
+            "value": true
+          }
+        ],
+        "setup": [
+          {
+            "type": "value",
+            "name": "clusterName",
+            "value": "kozen-cluster"
+          },
+          {
+            "type": "environment",
+            "name": "region",
+            "value": "AWS_REGION",
+            "default": "us-east-1"
+          }
+        ],
+        "output": [
+          {
+            "type": "reference",
+            "name": "connectionString",
+            "value": "connectionString",
+            "description": "MongoDB connection string"
+          },
+          {
+            "type": "reference",
+            "name": "clusterId",
+            "value": "clusterId",
+            "description": "Atlas cluster identifier"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
-### Full Pipeline Template
+### Multi-Component Pipeline Template
 
 ```json
 {
   "name": "full-deployment-pipeline",
-  "description": "Complete infrastructure deployment with testing",
+  "description": "Complete infrastructure deployment with testing and monitoring",
   "version": "2.0.0",
-  "engine": "kozen",
-  "release": "stable",
-  "deploymentMode": "sync",
+  "engine": "1.0.0",
+  "release": "20241201",
+  "requires": [],
   "stack": {
     "orchestrator": "Pulumi",
-    "project": "full-pipeline"
-  },
-  "components": [
-    {
-      "name": "AtlasController",
-      "description": "Deploy database infrastructure",
-      "input": [
-        {
-          "name": "projectId",
-          "type": "secret",
-          "value": "mongodb-atlas/project-id"
-        }
-      ],
-      "output": [
-        {
-          "name": "connectionString",
-          "description": "Database connection string"
-        }
-      ]
-    },
-    {
-      "name": "KubernetesController",
-      "description": "Deploy application services",
-      "input": [
-        {
-          "name": "databaseUrl",
-          "type": "reference",
-          "value": "connectionString"
-        },
-        {
-          "name": "appImage",
-          "type": "environment",
-          "value": "APP_IMAGE",
-          "default": "myapp:latest"
-        }
-      ],
-      "setup": [
-        {
-          "name": "namespace",
-          "type": "static",
-          "value": "production"
-        },
-        {
-          "name": "replicas",
-          "type": "static",
-          "value": 3
-        }
-      ],
-      "output": [
-        {
-          "name": "serviceUrl",
-          "description": "Application service URL"
-        },
-        {
-          "name": "namespace",
-          "description": "Kubernetes namespace"
-        }
-      ]
-    },
-    {
-      "name": "E2ETestComponent",
-      "description": "Execute end-to-end tests",
-      "input": [
-        {
-          "name": "targetUrl",
-          "type": "reference",
-          "value": "serviceUrl"
-        },
-        {
-          "name": "testSuite",
-          "type": "static",
-          "value": "production"
-        }
-      ],
-      "setup": [
-        {
-          "name": "browser",
-          "type": "static",
-          "value": "chromium"
-        },
-        {
-          "name": "headless",
-          "type": "static",
-          "value": true
-        }
-      ],
-      "output": [
-        {
-          "name": "testResults",
-          "description": "Test execution results"
-        },
-        {
-          "name": "coverage",
-          "description": "Test coverage metrics"
-        }
-      ]
-    },
-    {
-      "name": "PerformanceTestComponent",
-      "description": "Execute performance testing",
-      "input": [
-        {
-          "name": "targetUrl",
-          "type": "reference",
-          "value": "serviceUrl"
-        },
-        {
-          "name": "concurrentUsers",
-          "type": "environment",
-          "value": "LOAD_TEST_USERS",
-          "default": "10"
-        },
-        {
-          "name": "testDuration",
-          "type": "static",
-          "value": "60"
-        }
-      ],
-      "output": [
-        {
-          "name": "performanceMetrics",
-          "description": "Performance test results"
-        }
-      ]
-    }
-  ]
-}
-```
-
-### Testing-Only Template
-
-```json
-{
-  "name": "comprehensive-testing",
-  "description": "Complete testing suite without infrastructure deployment",
-  "version": "1.0.0",
-  "engine": "kozen",
-  "release": "stable",
-  "deploymentMode": "sync",
-  "components": [
-    {
-      "name": "DemoFirst",
-      "description": "Initialize testing environment",
-      "input": [
-        {
-          "name": "message",
-          "type": "static",
-          "value": "Testing environment initialized"
-        }
-      ],
-      "output": [
-        {
-          "name": "environmentReady",
-          "description": "Environment initialization status"
-        }
-      ]
-    },
-    {
-      "name": "E2ETestComponent",
-      "description": "Run end-to-end tests",
-      "input": [
-        {
-          "name": "targetUrl",
-          "type": "environment",
-          "value": "TEST_TARGET_URL"
-        },
-        {
-          "name": "environmentStatus",
-          "type": "reference",
-          "value": "environmentReady"
-        }
-      ],
-      "output": [
-        {
-          "name": "e2eResults",
-          "description": "E2E test results"
-        }
-      ]
-    },
-    {
-      "name": "APITestComponent",
-      "description": "Run API integration tests",
-      "input": [
-        {
-          "name": "apiEndpoint",
-          "type": "environment",
-          "value": "API_ENDPOINT"
-        },
-        {
-          "name": "apiKey",
-          "type": "secret",
-          "value": "api-testing/key"
-        }
-      ],
-      "output": [
-        {
-          "name": "apiTestResults",
-          "description": "API test results"
-        }
-      ]
-    },
-    {
-      "name": "PerformanceTestComponent",
-      "description": "Run performance tests",
-      "input": [
-        {
-          "name": "targetUrl",
-          "type": "environment",
-          "value": "TEST_TARGET_URL"
-        },
-        {
-          "name": "loadProfile",
-          "type": "static",
-          "value": "standard"
-        }
-      ],
-      "output": [
-        {
-          "name": "performanceResults",
-          "description": "Performance test results"
-        }
-      ]
-    }
-  ]
+    "input": [
+      {
+        "type": "environment",
+        "name": "PULUMI_CONFIG_PASSPHRASE"
+      },
+      {
+        "type": "environment",
+        "name": "NODE_ENV",
+        "default": "development"
+      }
+    ],
+    "setup": [
+      {
+        "type": "protected",
+        "name": "aws:region",
+        "value": "AWS_REGION",
+        "default": "us-east-1"
+      },
+      {
+        "type": "protected",
+        "name": "aws:accessKey",
+        "value": "AWS_ACCESS_KEY_ID"
+      },
+      {
+        "type": "protected",
+        "name": "aws:secretKey",
+        "value": "AWS_SECRET_ACCESS_KEY"
+      }
+    ],
+    "components": [
+      {
+        "name": "AtlasController",
+        "input": [
+          {
+            "type": "secret",
+            "name": "projectId",
+            "value": "ATLAS_PROJECT_ID"
+          }
+        ],
+        "output": [
+          {
+            "type": "reference",
+            "name": "connectionString",
+            "value": "connectionString",
+            "description": "Database connection string"
+          }
+        ]
+      },
+      {
+        "name": "KubernetesController",
+        "input": [
+          {
+            "type": "reference",
+            "name": "databaseUrl",
+            "value": "connectionString"
+          },
+          {
+            "type": "environment",
+            "name": "appImage",
+            "value": "APP_IMAGE",
+            "default": "myapp:latest"
+          }
+        ],
+        "setup": [
+          {
+            "type": "value",
+            "name": "namespace",
+            "value": "production"
+          },
+          {
+            "type": "value",
+            "name": "replicas",
+            "value": 3
+          }
+        ],
+        "output": [
+          {
+            "type": "reference",
+            "name": "serviceUrl",
+            "value": "serviceUrl",
+            "description": "Application service URL"
+          },
+          {
+            "type": "reference",
+            "name": "namespace",
+            "value": "namespace",
+            "description": "Kubernetes namespace"
+          }
+        ]
+      },
+      {
+        "name": "TestingComponent",
+        "input": [
+          {
+            "type": "reference",
+            "name": "targetUrl",
+            "value": "serviceUrl"
+          },
+          {
+            "type": "value",
+            "name": "testSuite",
+            "value": "production"
+          }
+        ],
+        "setup": [
+          {
+            "type": "value",
+            "name": "browser",
+            "value": "chromium"
+          },
+          {
+            "type": "value",
+            "name": "headless",
+            "value": true
+          }
+        ],
+        "output": [
+          {
+            "type": "reference",
+            "name": "testResults",
+            "value": "testResults",
+            "description": "Test execution results"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
@@ -469,6 +560,7 @@ Templates stored in the file system under `cfg/templates/`:
 
 ```
 cfg/templates/
+├── demo.json
 ├── atlas.basic.json
 ├── kubernetes.standard.json
 ├── full.pipeline.json
@@ -477,8 +569,8 @@ cfg/templates/
 
 #### File Naming Convention
 
-- Format: `{name}.{variant}.json`
-- Examples: `atlas.basic.json`, `k8s.production.json`
+- Format: `{name}.{variant}.json` or `{name}.json`
+- Examples: `demo.json`, `atlas.basic.json`, `k8s.production.json`
 
 ### MongoDB Storage (TemplateManagerMDB)
 
@@ -488,16 +580,16 @@ Templates stored in MongoDB collections:
 // MongoDB Document Structure
 {
     _id: ObjectId("..."),
-    name: "atlas-basic",
+    name: "demo",
     version: "1.0.0",
-    engine: "kozen",
+    engine: "1.0.0",
     template: {
         // Complete template definition
     },
     metadata: {
         createdAt: ISODate("..."),
         updatedAt: ISODate("..."),
-        tags: ["infrastructure", "mongodb", "atlas"]
+        tags: ["demo", "testing", "development"]
     }
 }
 ```
@@ -512,10 +604,11 @@ Templates stored in MongoDB collections:
 
 ### Variable Resolution Order
 
-1. **Static Values**: Processed first (no resolution needed)
+1. **Value Variables**: Processed first (static values)
 2. **Environment Variables**: Resolved from process environment
 3. **Secret Variables**: Retrieved through SecretManager
-4. **Reference Variables**: Resolved from previous component outputs
+4. **Protected Variables**: Secure values for stack configuration
+5. **Reference Variables**: Resolved from previous component outputs
 
 ### VarProcessorService
 
@@ -545,19 +638,66 @@ Variables support string interpolation:
 
 ```json
 {
+  "type": "value",
   "name": "connectionString",
-  "type": "static",
   "value": "mongodb://${username}:${password}@${host}:${port}/${database}"
 }
 ```
 
 Where `${username}`, `${password}`, etc., are resolved from environment variables or secrets.
 
+## Component Execution and Orchestration
+
+### Orchestration Strategies
+
+The system supports different orchestration approaches through composition components:
+
+#### Sequential Execution
+Components execute one after another, allowing for output dependencies:
+
+```json
+{
+  "stack": {
+    "orchestrator": "Node",
+    "components": [
+      {"name": "DatabaseComponent"},
+      {"name": "ApplicationComponent"},
+      {"name": "TestingComponent"}
+    ]
+  }
+}
+```
+
+#### Parallel Execution
+Composition components can group related components and execute them in parallel:
+
+```json
+{
+  "stack": {
+    "orchestrator": "Pulumi",
+    "components": [
+      {"name": "InfrastructureComposer"},
+      {"name": "ApplicationComposer"},
+      {"name": "TestingComposer"}
+    ]
+  }
+}
+```
+
+### Composition Components
+
+Composition components act as orchestrators for groups of related components, enabling:
+
+- **Parallel execution** of independent components
+- **Resource optimization** through batched operations
+- **Error isolation** between component groups
+- **Dependency management** across component boundaries
+
 ## Template Validation
 
 ### Schema Validation
 
-Templates are validated against JSON schema:
+Templates are validated against the new JSON schema:
 
 ```typescript
 // Validate template structure
@@ -602,11 +742,11 @@ Each template should have a clear, focused purpose:
 {
   "name": "atlas-deployment",
   "description": "MongoDB Atlas cluster deployment only",
-  "components": [
-    {
-      "name": "AtlasController"
-    }
-  ]
+  "stack": {
+    "components": [
+      {"name": "AtlasController"}
+    ]
+  }
 }
 ```
 
@@ -618,37 +758,29 @@ Break complex workflows into smaller, reusable templates:
 {
   "name": "infrastructure-base",
   "description": "Base infrastructure components",
-  "components": ["AtlasController", "NetworkController"]
+  "stack": {
+    "components": [
+      {"name": "AtlasController"},
+      {"name": "NetworkController"}
+    ]
+  }
 }
 ```
 
-```json
-{
-  "name": "application-deployment",
-  "description": "Application deployment on existing infrastructure",
-  "components": ["KubernetesController", "ServiceController"]
-}
-```
+#### Orchestration Strategy
 
-#### Idempotent Operations
-
-Ensure templates can be run multiple times safely:
+Design templates to leverage composition components for optimal execution:
 
 ```json
 {
-  "name": "idempotent-deployment",
-  "components": [
-    {
-      "name": "AtlasController",
-      "setup": [
-        {
-          "name": "createOnlyIfNotExists",
-          "type": "static",
-          "value": true
-        }
-      ]
-    }
-  ]
+  "name": "parallel-deployment",
+  "description": "Optimized deployment using parallel execution",
+  "stack": {
+    "components": [
+      {"name": "InfrastructureComposer"},
+      {"name": "ApplicationComposer"}
+    ]
+  }
 }
 ```
 
@@ -660,10 +792,9 @@ Use descriptive variable names:
 
 ```json
 {
-  "name": "mongodbProjectId",
   "type": "secret",
-  "value": "mongodb-atlas/project-id",
-  "description": "MongoDB Atlas project identifier"
+  "name": "mongodbProjectId",
+  "value": "ATLAS_PROJECT_ID"
 }
 ```
 
@@ -673,94 +804,55 @@ Provide sensible defaults:
 
 ```json
 {
-  "name": "environment",
   "type": "environment",
+  "name": "environment",
   "value": "NODE_ENV",
-  "default": "development",
-  "description": "Deployment environment"
+  "default": "development"
 }
 ```
 
-#### Documentation
+#### Variable Types
 
-Document all variables and outputs:
+Choose appropriate variable types:
 
-```json
-{
-  "name": "connectionString",
-  "description": "MongoDB connection string for application use"
-}
-```
+- **value**: For static configuration
+- **environment**: For runtime environment variables
+- **secret**: For sensitive data
+- **protected**: For secure stack configuration
+- **reference**: For inter-component communication
 
-### 3. Error Handling
-
-#### Graceful Degradation
-
-Design for partial failure scenarios:
-
-```json
-{
-  "name": "RobustDeployment",
-  "components": [
-    {
-      "name": "PrimaryService",
-      "input": [
-        {
-          "name": "fallbackEnabled",
-          "type": "static",
-          "value": true
-        }
-      ]
-    }
-  ]
-}
-```
-
-#### Clear Error Messages
-
-Provide actionable error information:
-
-```json
-{
-  "name": "database",
-  "type": "secret",
-  "value": "production/database-url",
-  "description": "Database URL - ensure secret exists in production/database-url"
-}
-```
-
-### 4. Security
+### 3. Security
 
 #### Secret Management
 
-Never include secrets in templates:
+Never include secrets directly in templates:
 
 ```json
 // ❌ Bad
 {
-    "name": "apiKey",
-    "type": "static",
-    "value": "sk-1234567890abcdef"
+  "type": "value",
+  "name": "apiKey",
+  "value": "sk-1234567890abcdef"
 }
 
 // ✅ Good
 {
-    "name": "apiKey",
-    "type": "secret",
-    "value": "production/api-key"
+  "type": "secret",
+  "name": "apiKey",
+  "value": "ATLAS_PRIVATE_KEY"
 }
 ```
 
-#### Environment Separation
+#### Protected Configuration
 
-Use environment-specific variables:
+Use protected variables for sensitive setup parameters:
 
 ```json
 {
-  "name": "databaseUrl",
-  "type": "environment",
-  "value": "DATABASE_URL_${NODE_ENV}",
-  "description": "Environment-specific database URL"
+  "type": "protected",
+  "name": "aws:secretKey",
+  "value": "AWS_SECRET_ACCESS_KEY",
+  "default": ""
 }
 ```
 
@@ -794,16 +886,9 @@ npm run dev -- --template=my-new-template --action=undeploy
 ```json
 {
   "name": "my-template",
-  "version": "1.0.0", // Initial release
-  "description": "Updated for new component support"
-}
-```
-
-```json
-{
-  "name": "my-template",
-  "version": "1.1.0", // Feature addition
-  "description": "Added performance testing component"
+  "version": "1.0.0",
+  "engine": "1.0.0",
+  "release": "20241201"
 }
 ```
 
@@ -814,7 +899,7 @@ Create template-specific documentation:
 ```json
 {
   "name": "documented-template",
-  "description": "Well-documented template example",
+  "description": "Well-documented template example with comprehensive configuration",
   "metadata": {
     "documentation": "docs/templates/documented-template.md",
     "examples": "examples/documented-template/",
@@ -825,45 +910,29 @@ Create template-specific documentation:
 
 ## Advanced Template Features
 
-### Conditional Components
-
-```json
-{
-  "name": "conditional-deployment",
-  "components": [
-    {
-      "name": "AtlasController",
-      "condition": "${DEPLOY_DATABASE} === 'true'"
-    },
-    {
-      "name": "KubernetesController",
-      "condition": "${DEPLOY_APP} === 'true'"
-    }
-  ]
-}
-```
-
 ### Component Dependencies
 
 ```json
 {
-  "name": "dependency-aware",
-  "components": [
-    {
-      "name": "DatabaseComponent",
-      "order": 1
-    },
-    {
-      "name": "ApplicationComponent",
-      "order": 2,
-      "dependsOn": ["DatabaseComponent"]
-    },
-    {
-      "name": "TestComponent",
-      "order": 3,
-      "dependsOn": ["ApplicationComponent"]
-    }
-  ]
+  "stack": {
+    "components": [
+      {
+        "name": "DatabaseComponent",
+        "order": 1
+      },
+      {
+        "name": "ApplicationComponent",
+        "order": 2,
+        "input": [
+          {
+            "type": "reference",
+            "name": "databaseUrl",
+            "value": "connectionString"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
@@ -871,27 +940,47 @@ Create template-specific documentation:
 
 ```json
 {
-  "name": "dynamic-config",
-  "components": [
-    {
-      "name": "AtlasController",
-      "clusterType": "${CLUSTER_TYPE}",
-      "providerInstanceSizeName": "${INSTANCE_SIZE}",
-      "replicationSpecs": [
-        {
-          "numShards": "${NUM_SHARDS}",
-          "regionsConfig": {
-            "${REGION}": {
-              "electableNodes": "${ELECTABLE_NODES}",
-              "priority": 7,
-              "readOnlyNodes": 0
-            }
+  "stack": {
+    "components": [
+      {
+        "name": "AtlasController",
+        "input": [
+          {
+            "type": "environment",
+            "name": "clusterType",
+            "value": "CLUSTER_TYPE",
+            "default": "REPLICASET"
+          },
+          {
+            "type": "environment",
+            "name": "instanceSize",
+            "value": "INSTANCE_SIZE",
+            "default": "M10"
           }
-        }
-      ]
-    }
-  ]
+        ]
+      }
+    ]
+  }
 }
 ```
 
-This comprehensive template system enables the creation of powerful, flexible, and maintainable pipeline definitions that can be easily shared, versioned, and reused across different environments and use cases.
+### Template Requirements
+
+Use the `requires` field to specify dependencies:
+
+```json
+{
+  "name": "advanced-template",
+  "requires": [
+    "infrastructure-base",
+    "security-baseline"
+  ],
+  "stack": {
+    "components": [
+      {"name": "AdvancedComponent"}
+    ]
+  }
+}
+```
+
+This comprehensive template system enables the creation of powerful, flexible, and maintainable pipeline definitions that can be easily shared, versioned, and reused across different environments and use cases. The composition component approach ensures optimal execution performance through intelligent parallelization while maintaining clear dependencies between components.
