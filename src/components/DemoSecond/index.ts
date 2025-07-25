@@ -1,6 +1,6 @@
 import { BaseController } from '../../controllers/BaseController';
 import { IPipeline } from '../../models/Pipeline';
-import { constCategory, IResult, IStruct } from '../../models/Types';
+import { IResult, IStruct, VCategory } from '../../models/Types';
 
 /**
  * Simple HelloWorld component controller for testing pipeline functionality
@@ -15,7 +15,7 @@ export class DemoSecond extends BaseController {
    */
   async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
     this.logger?.info({
-      category: constCategory.cmp.iac,
+      category: VCategory.cmp.iac,
       src: 'component:DemoSecond:deploy',
       message: `Deploying with message: ${input?.message}`,
       data: {
