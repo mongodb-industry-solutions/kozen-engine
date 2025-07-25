@@ -15,7 +15,7 @@ import {
 } from "@pulumi/pulumi/automation";
 import { IComponent } from "../models/Component";
 import { IStackConfig, IStackOptions } from "../models/Stack";
-import { IMetadata, IResult, IStruct } from "../models/Types";
+import { IMetadata, IResult, IStruct, VCategory } from "../models/Types";
 import StackManager from "./StackManager";
 
 /**
@@ -186,15 +186,17 @@ export class StackManagerPulumi extends StackManager {
 
             await this.setup(stack, config);
             await stack.refresh({
-                onOutput: (output: string) => this.logger?.info({
+                onOutput: (message: string) => this.logger?.info({
+                    category: VCategory.core.stack,
                     src: 'Service:Stack:Pulumi:load',
-                    message: `Stack output: ${output}`
+                    message
                 })
             })
             return stack;
 
         } catch (error) {
             this.logger?.error({
+                category: VCategory.core.stack,
                 src: 'Service:Stack:Pulumi:load',
                 message: '❌ Error configuring stack: ' + (error as Error)?.message
             })
@@ -228,7 +230,15 @@ export class StackManagerPulumi extends StackManager {
             };
         }
         catch (error) {
-            console.log(error)
+            this.logger?.error({
+                category: VCategory.core.stack,
+                src: 'Service:Stack:Pulumi:deploy',
+                data: {
+                    stackName: config.name,
+                    projectName: config.project,
+                },
+                message: `Stack ${config.name} deployed failed.`,
+            });
             return {
                 stackName: config.name,
                 projectName: config.project,

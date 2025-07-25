@@ -7,6 +7,7 @@
  */
 
 import { IStackOptions } from "../models/Stack";
+import { VCategory } from "../models/Types";
 import StackManager from "./StackManager";
 
 /**
@@ -28,6 +29,7 @@ export class StackManagerNode extends StackManager {
             config?.program instanceof Function && await config.program();
 
             this.logger?.debug({
+                category: VCategory.core.stack,
                 src: 'Service:Stack:Node:deploy',
                 data: {
                     stackName: config.name,
@@ -46,7 +48,8 @@ export class StackManagerNode extends StackManager {
         }
         catch (error) {
             this.logger?.error({
-                src: '',
+                category: VCategory.core.stack,
+                src: 'Service:Stack:Node:deploy',
                 data: {
                     stackName: config.name,
                     projectName: config.project,

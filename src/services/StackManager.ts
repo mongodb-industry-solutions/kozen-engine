@@ -9,7 +9,7 @@
 import { IComponent } from "../models/Component";
 import { ILoggerService } from "../models/Logger";
 import { IStackManager, IStackOptions } from "../models/Stack";
-import { IResult, IStruct } from "../models/Types";
+import { IResult, IStruct, VCategory } from "../models/Types";
 import { getID, IIoC } from "../tools";
 import { BaseService } from "./BaseService";
 
@@ -118,7 +118,15 @@ export class StackManager extends BaseService implements IStackManager {
             return await this.execute(config, "deploy", [config]);
         }
         catch (error) {
-            console.log(error)
+            this.logger?.error({
+                category: VCategory.core.stack,
+                src: 'service:StackManager:deploy',
+                message: (error as Error).message,
+                data: {
+                    stackName: this.stackName,
+                    projectName: this.projectName,
+                }
+            });
             return {
                 stackName: this.stackName,
                 projectName: this.projectName,
@@ -142,7 +150,15 @@ export class StackManager extends BaseService implements IStackManager {
             return await this.execute(config, "undeploy", [config]);
         }
         catch (error) {
-            console.log(error)
+            this.logger?.error({
+                category: VCategory.core.stack,
+                src: 'service:StackManager:undeploy',
+                message: (error as Error).message,
+                data: {
+                    stackName: this.stackName,
+                    projectName: this.projectName,
+                }
+            });
             return {
                 stackName: this.stackName,
                 projectName: this.projectName,
@@ -166,7 +182,15 @@ export class StackManager extends BaseService implements IStackManager {
             return await this.execute(config, "validate", [config]);
         }
         catch (error) {
-            console.log(error)
+            this.logger?.error({
+                category: VCategory.core.stack,
+                src: 'service:StackManager:validate',
+                message: (error as Error).message,
+                data: {
+                    stackName: this.stackName,
+                    projectName: this.projectName,
+                }
+            });
             return {
                 stackName: this.stackName,
                 projectName: this.projectName,
@@ -190,7 +214,15 @@ export class StackManager extends BaseService implements IStackManager {
             return await this.execute(config, "status", [config]);
         }
         catch (error) {
-            console.log(error)
+            this.logger?.error({
+                category: VCategory.core.stack,
+                src: 'service:StackManager:status',
+                message: (error as Error).message,
+                data: {
+                    stackName: this.stackName,
+                    projectName: this.projectName,
+                }
+            });
             return {
                 stackName: this.stackName,
                 projectName: this.projectName,

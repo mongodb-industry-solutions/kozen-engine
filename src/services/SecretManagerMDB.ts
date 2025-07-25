@@ -7,6 +7,7 @@
  */
 import { ClientEncryption, MongoClient } from "mongodb";
 import { ISecretManagerOptions } from "../models/Secret";
+import { VCategory } from "../models/Types";
 import SecretManager from "./SecretManager";
 
 /**
@@ -59,7 +60,11 @@ export class SecretManagerMDB extends SecretManager {
             // Query the secret document by key
             const secretDocument = await collection.findOne({ key });
             if (!secretDocument) {
-                console.warn(`Secret '${key}' not found in MongoDB collection: '${mdb.collection}'.`);
+                this.logger?.warn({
+                    category: VCategory.core.secret,
+                    src: 'Service:Secret:MDB:resolve',
+                    message: `Secret '${key}' not found in MongoDB collection: '${mdb.collection}'.`
+                });
                 return null;
             }
 
@@ -71,7 +76,11 @@ export class SecretManagerMDB extends SecretManager {
 
             return resolvedValue;
         } catch (error) {
-            console.error(`Failed to resolve secret '${key}' from MongoDB.`, error);
+            this.logger?.error({
+                category: VCategory.core.secret,
+                src: 'Service:Secret:MDB:resolve',
+                message: `Failed to retrieve secret '${key}' from MongoDB Secrets Manager. ${(error as Error).message}`
+            });
             throw error;
         }
     }
