@@ -84,7 +84,7 @@ export class SecretManager extends BaseService implements ISecretManager {
         catch (error) {
             this.logger?.error({
                 category: VCategory.core.secret,
-                src: 'service:SecretManager:getValue',
+                src: 'Service:SecretManager:getValue',
                 message: (error as Error).message
             });
             return null;

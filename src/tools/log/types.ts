@@ -19,13 +19,13 @@ export type ILogOutputType = 'json' | 'object';
  * Log entry structure - represents a single log message with all its information
  */
 export interface ILogEntry {
-  level?: string;           // Log level as string (ERROR, WARN, DEBUG, INFO, VERBOSE)
-  message: string;         // The main log message
+  level?: string | ILogLevel;  // Log level as string (ERROR, WARN, DEBUG, INFO, VERBOSE)
+  message: string;          // The main log message
   date?: string;            // ISO timestamp when the log was created (renamed from timestamp for readability)
   flow?: string;            // Unique workflow/process identifier in format YYYYMMDDDHHMMSSXX
-  category?: string;       // Optional category/module name to identify the source of the log
-  data?: any;              // Additional data/context provided by the caller (objects, arrays, etc.)
-  src?: string;            // Additional data/context provided by the caller
+  category?: string;        // Optional category/module name to identify the source of the log
+  data?: any;               // Additional data/context provided by the caller (objects, arrays, etc.)
+  src?: string;             // Additional data/context provided by the caller
 }
 
 /**
@@ -55,13 +55,15 @@ export interface ILogProcessor {
  * Logger configuration interface - defines how the logger should behave
  */
 export interface ILoggerConfig {
+  enabled?: boolean;
+  skip?: string;             // Regular expression to skip
   level?: ILogLevel;         // Minimum log level to display (NONE=0, ERROR=1, WARN=2, DEBUG=3, INFO=4, ALL=-1)
-  category?: string;        // Category/module name that will be added to all logs from this logger instance
+  category?: string;         // Category/module name that will be added to all logs from this logger instance
   type?: ILogOutputType;     // Output format: 'json' = JSON string, 'object' = JavaScript object (default)
   processor?: ILogProcessor; // Custom log processor (defaults to ConsoleLogProcessor)
 }
 
-export interface ILogProcessorOptMDB extends ILoggerConfig {
+export interface ILoggerConfigMDB extends ILoggerConfig {
   uri: string;
   database: string;
   collection: string;
