@@ -43,6 +43,8 @@ export class LoggerService implements ILoggerService {
     /** Hybrid processor combining console and MongoDB output destinations */
     private readonly hybridProcessor: HybridLogProcessor;
 
+    public stack: Promise<void>[];
+
     /**
      * Creates new LoggerService instance with console and MongoDB processors
      * @param config - Optional configuration for log level, category and MongoDB settings
@@ -50,6 +52,7 @@ export class LoggerService implements ILoggerService {
     constructor(config: ILoggerConfigService = {}, dep?: { assistant: IIoC }) {
         const level = config.level ?? ILogLevel.ALL;
         const skip = config.skip;
+        this.stack = [];
 
         // Create processors for dual output destination
         const processors = [];
@@ -83,7 +86,7 @@ export class LoggerService implements ILoggerService {
      * @param input - Error message string or structured log options object
      */
     public error(input: ILogInput): void {
-        this.logger.error(input);
+        this.stack.push(this.logger.error(input));
     }
 
     /**
@@ -91,7 +94,7 @@ export class LoggerService implements ILoggerService {
      * @param input - Warning message string or structured log options object
      */
     public warn(input: ILogInput): void {
-        this.logger.warn(input);
+        this.stack.push(this.logger.warn(input));
     }
 
     /**
@@ -99,7 +102,7 @@ export class LoggerService implements ILoggerService {
      * @param input - Debug message string or structured log options object
      */
     public debug(input: ILogInput): void {
-        this.logger.debug(input);
+        this.stack.push(this.logger.debug(input));
     }
 
     /**
@@ -107,7 +110,7 @@ export class LoggerService implements ILoggerService {
      * @param input - Info message string or structured log options object
      */
     public info(input: ILogInput): void {
-        this.logger.info(input);
+        this.stack.push(this.logger.info(input));
     }
 
     /**
@@ -116,7 +119,7 @@ export class LoggerService implements ILoggerService {
      * @param level - The log level to use
      */
     public log(input: ILogInput, level: ILogLevel = ILogLevel.INFO): void {
-        this.logger.log(input, level);
+        this.stack.push(this.logger.log(input, level));
     }
 
     /**

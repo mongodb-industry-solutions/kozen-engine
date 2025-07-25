@@ -57,9 +57,18 @@ export class MongoDBLogProcessor extends LogProcessor {
       storedAt: new Date().toISOString()
     };
 
-    // Real implementation would be:
-    const client = new MongoClient(this.uri);
-    await client.db(this.database).collection(this.collection).insertOne(mongoDocument);
+    try {
+      // Real implementation would be:
+      const client = new MongoClient(this.uri);
+      const collection = client.db(this.database).collection(this.collection);
+      await collection.insertOne(mongoDocument);
+    }
+    catch (error) {
+      console.log({
+        src: 'Tool:Log:Processor:MDB',
+        message: (error as Error).message
+      })
+    }
   }
 
   /**
