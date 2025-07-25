@@ -220,10 +220,10 @@ export class PipelineController {
           src: 'Controller:Pipeline:CLI:execute:end',
           message: `✅ ${result.action} operation completed successfully in ${duration} ms`,
           data: {
-            action: result.action,
+            action: args.action,
+            stack: args.stack,
+            project: args.project,
             template: result.templateName,
-            project: result.projectName,
-            stack: result.stackName,
             components: result.results?.length || 0,
             duration
           }
@@ -235,10 +235,10 @@ export class PipelineController {
           src: 'Controller:Pipeline:CLI:execute:end',
           message: `❌ ${result.action} operation failed after ${duration} ms`,
           data: {
-            action: result.action,
+            action: args.action,
+            stack: args.stack,
+            project: args.project,
             template: result.templateName,
-            project: result.projectName,
-            stack: result.stackName,
             components: result.results?.length || 0,
             duration,
             error: result.error
