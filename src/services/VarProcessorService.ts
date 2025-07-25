@@ -2,7 +2,7 @@
 import { ILoggerService } from "../models/Logger";
 import { IVarProcessorService } from "../models/Processor";
 import { ISecretManager } from "../models/Secret";
-import { IMetadata, IStruct } from "../models/Types";
+import { IMetadata, IStruct, VCategory } from "../models/Types";
 import { IIoC } from "../tools";
 
 /**
@@ -234,7 +234,11 @@ export class VarProcessorService implements IVarProcessorService {
             const resolvedSecret = await this.srvSecret?.resolve(secretKey);
             return resolvedSecret ?? defaultValue;
         } catch (error) {
-            console.error(`Failed to resolve secret for key "${secretKey}":`, error);
+            this.logger?.error({
+                category: VCategory.core.template,
+                src: 'Service:VarProcessor:resolveSecret',
+                message: `Failed to resolve secret for key "${secretKey}": ${(error as Error).message}`
+            })
             return defaultValue;
         }
     }
