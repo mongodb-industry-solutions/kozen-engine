@@ -39,7 +39,7 @@ export class LogProcessor implements ILogProcessor {
         return level <= this.level;
     }
 
-    public process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): void {
+    public async process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): Promise<void> {
         // Example implementation: Save log entry to a database (stubbed)
         if (!this.shouldLog({ ...entry, level })) return;
 
