@@ -1,4 +1,3 @@
-import { Lifetime } from 'awilix';
 
 /**
  * JSON-serializable value types for dependency injection configurations.
@@ -68,6 +67,11 @@ export interface IDependency {
    * Instance lifecycle management strategy.
    */
   lifetime?: IDependencyLifetime;
+
+  /**
+   * Template definition for route resolution
+   */
+  template?: string;
 
   /**
    * Directory path for dynamic module imports.
