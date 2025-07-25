@@ -31,6 +31,7 @@ export class Atlas extends BaseController {
     }
     try {
       this.logger?.info({
+        flow: pipeline?.id,
         category: VCategory.cmp.iac,
         src: 'component:Atlas:deploy',
         message: `Deploying with message: ${input?.message}`,
@@ -89,7 +90,8 @@ export class Atlas extends BaseController {
 
     } catch (error) {
       this.logger?.error({
-        category: 'iac',
+        flow: pipeline?.id,
+        category: VCategory.cmp.iac,
         src: 'component:Atlas:deploy',
         message: `Error deploying Atlas cluster: ${error instanceof Error ? error.message : String(error)}`,
         data: { error }
