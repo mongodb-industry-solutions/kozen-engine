@@ -1,5 +1,6 @@
 import { ILoggerService } from "../models/Logger";
 import { ITemplateConfig, ITemplateManager } from "../models/Template";
+import { VCategory } from "../models/Types";
 import { IIoC } from "../tools";
 import { BaseService } from "./BaseService";
 
@@ -180,7 +181,12 @@ export class TemplateManager extends BaseService implements TemplateManager {
         options = options || this.options;
         const controllerName = "TemplateManager" + options.type;
         const controller = await this.assistant.resolve<ITemplateManager>(controllerName);
-        this.logger?.info({ src: 'TemplateManager:load', message: 'Loading template', data: { controllerName, templateName } });
+        this.logger?.info({
+            category: VCategory.core.template,
+            src: 'Service:TemplateManager:load',
+            message: 'Loading template',
+            data: { controllerName, templateName }
+        });
         const data = await controller.load<T>(templateName, options);
         return data;
     }
