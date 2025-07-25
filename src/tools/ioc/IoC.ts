@@ -1,5 +1,5 @@
-import { IDependency, IIoC, IClassConstructor, IDependencyMap } from './types';
-import { createContainer, asClass, asValue, asFunction, aliasTo, AwilixContainer } from 'awilix';
+import { aliasTo, asClass, asFunction, asValue, AwilixContainer, createContainer } from 'awilix';
+import { IClassConstructor, IDependency, IDependencyMap, IIoC } from './types';
 
 /**
  * IoC container with auto-registration and recursive dependency resolution.
@@ -280,14 +280,11 @@ export class IoC implements IIoC {
     }
 
     const autoRegisteredDependency: IDependency = {
+      ...pattern,
       key,
       target: key,
       type: pattern.as || 'class',
-      lifetime: pattern.lifetime ?? 'transient',
-      path: pattern.path,
-      file: pattern.file,
-      args: pattern.args,
-      dependencies: pattern.dependencies
+      lifetime: pattern.lifetime ?? 'transient'
     };
 
     await this.enroll(autoRegisteredDependency);
