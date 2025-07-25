@@ -93,11 +93,11 @@ export class StackManager extends BaseService implements IStackManager {
                 }
             });
             return {
-                stackName: this.config.name,
-                projectName: this.config.project,
                 success: false,
                 timestamp: new Date(),
-                message: `Stack ${this.config.name} deployed failed.`,
+                stackName: this.config?.name,
+                projectName: this.config?.project,
+                message: `Stack ${this.config?.name} deployed failed.`,
             };
         }
     }
@@ -126,11 +126,11 @@ export class StackManager extends BaseService implements IStackManager {
                 }
             });
             return {
-                stackName: this.config.name,
-                projectName: this.config.project,
                 success: false,
                 timestamp: new Date(),
-                message: `Stack ${this.config.name} undeploy failed.`,
+                stackName: this.config?.name,
+                projectName: this.config?.project,
+                message: `Stack ${this.config?.name} undeploy failed.`,
             };
         }
     }
@@ -159,10 +159,10 @@ export class StackManager extends BaseService implements IStackManager {
                 }
             });
             return {
-                stackName: this.config.name,
-                projectName: this.config.project,
                 success: false,
                 timestamp: new Date(),
+                stackName: this.config?.name,
+                projectName: this.config?.project,
                 message: `Stack ${this.config.name} validate failed.`,
             };
         }
@@ -192,10 +192,10 @@ export class StackManager extends BaseService implements IStackManager {
                 }
             });
             return {
-                stackName: this.config.name,
-                projectName: this.config.project,
                 success: false,
                 timestamp: new Date(),
+                stackName: this.config?.name,
+                projectName: this.config?.project,
                 message: `Stack ${this.config.name} status failed.`,
             };
         }
