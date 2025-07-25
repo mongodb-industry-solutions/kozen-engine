@@ -7,17 +7,13 @@
 
 // Main IoC container class
 export { IoC } from './IoC';
+export { ITplResolver, ITplVars, Tpl } from './tpl';
 
 // Core interfaces and types
 export { IDependency, IIoC } from './types';
 
 // Type utilities for advanced usage
-export { 
-  IClassConstructor, 
-  IFunction, 
-  IJSON,
-  IDependencyMap,
-  IDependencyList,
-  IDependencyType,
-  IDependencyLifetime
-} from './types'; 
+export {
+  IClassConstructor, IDependencyLifetime, IDependencyList, IDependencyMap, IDependencyType, IFunction,
+  IJSON
+} from './types';
