@@ -6,11 +6,11 @@
  * @version 1.0.5
  */
 
-import { IComponent } from "../models/Component";
+import { ITransformOption } from "../models/Component";
 import { ILoggerService } from "../models/Logger";
 import { IStackManager, IStackOptions } from "../models/Stack";
 import { IResult, IStruct, VCategory } from "../models/Types";
-import { getID, IIoC } from "../tools";
+import { IIoC } from "../tools";
 import { BaseService } from "./BaseService";
 
 /**
@@ -42,36 +42,6 @@ export class StackManager extends BaseService implements IStackManager {
     }
 
     /**
-     * Gets or generates the project name for the stack
-     * @public
-     * @readonly
-     * @type {string}
-     * @returns {string} The project name for stack identification
-     * @throws {Error} When project name generation fails
-     */
-    public get projectName(): string {
-        if (!this.config.project) {
-            this.config.project = getID();
-        }
-        return this.config.project;
-    }
-
-    /**
-     * Gets or generates the stack name for deployment identification
-     * @public
-     * @readonly
-     * @type {string}
-     * @returns {string} The stack name for environment identification
-     */
-    public get stackName(): string {
-        if (!this.config.name) {
-            const envKey = this.config?.environment?.stackName || "NODE_ENV";
-            this.config.name = process.env[envKey] || "dev";
-        }
-        return this.config.name;
-    }
-
-    /**
      * Executes stack operations through orchestrator-specific implementations
      * @protected
      * @param config - Stack configuration options for orchestrator selection
@@ -99,8 +69,6 @@ export class StackManager extends BaseService implements IStackManager {
     public configure(config: IStackOptions) {
         // Create a unique project name for each cluster to avoid conflicts.
         config = { ...this.config, ...config };
-        config.project = this.projectName;
-        config.name = this.stackName;
         this._config = config;
         return config;
     }
@@ -119,20 +87,21 @@ export class StackManager extends BaseService implements IStackManager {
         }
         catch (error) {
             this.logger?.error({
+                flow: this.config.id,
                 category: VCategory.core.stack,
                 src: 'Service:StackManager:deploy',
                 message: (error as Error).message,
                 data: {
-                    stackName: this.stackName,
-                    projectName: this.projectName,
+                    stackName: this.config.name,
+                    projectName: this.config.project,
                 }
             });
             return {
-                stackName: this.stackName,
-                projectName: this.projectName,
+                stackName: this.config.name,
+                projectName: this.config.project,
                 success: false,
                 timestamp: new Date(),
-                message: `Stack ${this.stackName} deployed failed.`,
+                message: `Stack ${this.config.name} deployed failed.`,
             };
         }
     }
@@ -151,20 +120,21 @@ export class StackManager extends BaseService implements IStackManager {
         }
         catch (error) {
             this.logger?.error({
+                flow: this.config.id,
                 category: VCategory.core.stack,
                 src: 'Service:StackManager:undeploy',
                 message: (error as Error).message,
                 data: {
-                    stackName: this.stackName,
-                    projectName: this.projectName,
+                    stackName: this.config.name,
+                    projectName: this.config.project,
                 }
             });
             return {
-                stackName: this.stackName,
-                projectName: this.projectName,
+                stackName: this.config.name,
+                projectName: this.config.project,
                 success: false,
                 timestamp: new Date(),
-                message: `Stack ${this.stackName} undeploy failed.`,
+                message: `Stack ${this.config.name} undeploy failed.`,
             };
         }
     }
@@ -183,20 +153,21 @@ export class StackManager extends BaseService implements IStackManager {
         }
         catch (error) {
             this.logger?.error({
+                flow: this.config.id,
                 category: VCategory.core.stack,
                 src: 'Service:StackManager:validate',
                 message: (error as Error).message,
                 data: {
-                    stackName: this.stackName,
-                    projectName: this.projectName,
+                    stackName: this.config.name,
+                    projectName: this.config.project,
                 }
             });
             return {
-                stackName: this.stackName,
-                projectName: this.projectName,
+                stackName: this.config.name,
+                projectName: this.config.project,
                 success: false,
                 timestamp: new Date(),
-                message: `Stack ${this.stackName} validate failed.`,
+                message: `Stack ${this.config.name} validate failed.`,
             };
         }
     }
@@ -215,20 +186,21 @@ export class StackManager extends BaseService implements IStackManager {
         }
         catch (error) {
             this.logger?.error({
+                flow: this.config.id,
                 category: VCategory.core.stack,
                 src: 'Service:StackManager:status',
                 message: (error as Error).message,
                 data: {
-                    stackName: this.stackName,
-                    projectName: this.projectName,
+                    stackName: this.config.name,
+                    projectName: this.config.project,
                 }
             });
             return {
-                stackName: this.stackName,
-                projectName: this.projectName,
+                stackName: this.config.name,
+                projectName: this.config.project,
                 success: false,
                 timestamp: new Date(),
-                message: `Stack ${this.stackName} status failed.`,
+                message: `Stack ${this.config.name} status failed.`,
             };
         }
     }
@@ -241,8 +213,9 @@ export class StackManager extends BaseService implements IStackManager {
      * @param key - Property key to process for setup configuration
      * @returns Promise resolving to transformed setup configuration object
      */
-    public async transformSetup(component: IComponent, output: IStruct = {}, key: string = "input"): Promise<IStruct> {
-        return await this.execute(this.config, "transformSetup", [component, output, key]);
+    public async transformSetup(options: ITransformOption): Promise<IStruct> {
+        const { component, output = {}, key = "input", flow } = options;
+        return await this.execute(this.config, "transformSetup", [{ component, output, key, flow }]);
     }
 }
 

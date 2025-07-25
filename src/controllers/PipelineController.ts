@@ -36,7 +36,7 @@ import * as fs from 'fs';
 import { IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
 import { IAction, IResult, VCategory } from '../models/Types';
 import { PipelineManager } from '../services/PipelineManager';
-import { ILogInput, ILogLevel } from '../tools';
+import { getID, ILogInput, ILogLevel } from '../tools';
 
 /**
  * @class PipelineController
@@ -118,8 +118,8 @@ export class PipelineController {
     }
 
     return {
-      stack: parsed.stack || process.env.KOZEN_STACK || 'dev',
-      project: parsed.project || process.env.KOZEN_PROJECT || '',
+      stack: (parsed.stack || process.env.KOZEN_STACK || process.env["NODE_ENV"] || 'dev').toUpperCase(),
+      project: parsed.project || process.env.KOZEN_PROJECT || getID(),
       template: parsed.template || process.env.KOZEN_TEMPLATE || '',
       config: parsed.config || process.env.KOZEN_CONFIG || 'cfg/config.json',
       action: parsed.action || (process.env.KOZEN_ACTION as IAction) || 'deploy'
@@ -185,6 +185,7 @@ export class PipelineController {
       // Validate arguments
       this.validateArguments(args);
       this.pipeline.logger?.info({
+        flow: this.getId(args),
         category: VCategory.core.pipeline,
         src: 'Controller:Pipeline:CLI:execute:start',
         message: `Executing ${args.action} operation for template: ${args.template}`
@@ -194,7 +195,7 @@ export class PipelineController {
       const config = await this.pipeline.load(args.config);
 
       // Apply default values if not specified
-      this.applyConfigDefaults(config);
+      this.applyConfigDefaults(config, args);
 
       // Validate configuration structure
       this.validateConfiguration(config);
@@ -214,6 +215,7 @@ export class PipelineController {
       // Log execution result
       if (result.success) {
         this.pipeline.logger?.debug({
+          flow: config.id,
           category: VCategory.core.pipeline,
           src: 'Controller:Pipeline:CLI:execute:end',
           message: `✅ ${result.action} operation completed successfully in ${duration} ms`,
@@ -228,6 +230,7 @@ export class PipelineController {
         })
       } else {
         this.pipeline.logger?.error({
+          flow: this.getId(args),
           category: VCategory.core.pipeline,
           src: 'Controller:Pipeline:CLI:execute:end',
           message: `❌ ${result.action} operation failed after ${duration} ms`,
@@ -251,6 +254,7 @@ export class PipelineController {
       const duration = (exeEnd - exeStart).toFixed(3);
 
       this.pipeline.logger?.error({
+        flow: this.getId(args),
         category: VCategory.core.pipeline,
         src: 'Controller:Pipeline:CLI:execute',
         message: `Pipeline execution failed: ${errorMessage} in ${duration} ms`,
@@ -319,8 +323,9 @@ Examples:
    * @method applyConfigDefaults
    * @param {PipelineConfig} config - Configuration object to apply defaults to
    */
-  private applyConfigDefaults(config: IPipelineConfig): void {
+  private applyConfigDefaults(config: IPipelineConfig, arg?: IPipelineArgs): void {
     // Apply stack defaults
+    config.id = this.getId(arg);
     config.name = config.name || 'DefaultPipeline';
     config.engine = config.engine || 'default';
     config.version = config.version || '1.0.0';
@@ -358,5 +363,9 @@ Examples:
       input.category = VCategory.core.pipeline;
     }
     return this.pipeline.logger?.log(input, level);
+  }
+
+  getId(opt?: IPipelineConfig) {
+    return this.pipeline.getId(opt);
   }
 } 

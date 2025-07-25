@@ -170,10 +170,10 @@ export class VarProcessorService implements IVarProcessorService {
      * // }
      * ```
      */
-    public async process(inputs: IMetadata[], scope?: IStruct): Promise<IStruct> {
+    public async process(inputs: IMetadata[], scope?: IStruct, flow?: string): Promise<IStruct> {
         const result: IStruct = {};
         scope = scope || this.scope;
-        await Promise.all(inputs.map(definition => this.transform(definition, scope, result)));
+        await Promise.all(inputs.map(definition => this.transform(definition, scope, result, flow)));
         return result;
     }
 
@@ -185,7 +185,7 @@ export class VarProcessorService implements IVarProcessorService {
      * @param {IStruct} [result={}] - Result object to accumulate resolved variables
      * @returns {Promise<IStruct>} Promise resolving to the result object with the resolved variable added
      */
-    public async transform(definition: IMetadata, scope: IStruct = {}, result: IStruct = {}): Promise<IStruct> {
+    public async transform(definition: IMetadata, scope: IStruct = {}, result: IStruct = {}, flow: string = ''): Promise<IStruct> {
         const { type, value, default: defaultValue, name: key } = definition;
         switch (type) {
             case "protected":
@@ -198,7 +198,7 @@ export class VarProcessorService implements IVarProcessorService {
                 break;
 
             case "secret":
-                result[key] = await this.resolveSecret(value || key, defaultValue);
+                result[key] = await this.resolveSecret(value || key, defaultValue, flow);
                 break;
 
             default:
@@ -226,15 +226,16 @@ export class VarProcessorService implements IVarProcessorService {
      * const secretValue = await this.resolveSecret('production/database/password', 'fallback-value');
      * ```
      */
-    private async resolveSecret(secretKey: string, defaultValue?: any): Promise<any> {
+    private async resolveSecret(secretKey: string, defaultValue?: any, flow?: string): Promise<any> {
         try {
             if (!this.srvSecret && this.assistant) {
                 this.srvSecret = await this.assistant.resolve<ISecretManager>('SecretManager');
             }
-            const resolvedSecret = await this.srvSecret?.resolve(secretKey);
+            const resolvedSecret = await this.srvSecret?.resolve(secretKey, { flow });
             return resolvedSecret ?? defaultValue;
         } catch (error) {
             this.logger?.error({
+                flow,
                 category: VCategory.core.template,
                 src: 'Service:VarProcessor:resolveSecret',
                 message: `Failed to resolve secret for key "${secretKey}": ${(error as Error).message}`

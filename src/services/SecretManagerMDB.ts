@@ -61,6 +61,7 @@ export class SecretManagerMDB extends SecretManager {
             const secretDocument = await collection.findOne({ key });
             if (!secretDocument) {
                 this.logger?.warn({
+                    flow: options?.flow,
                     category: VCategory.core.secret,
                     src: 'Service:Secret:MDB:resolve',
                     message: `Secret '${key}' not found in MongoDB collection: '${mdb.collection}'.`
@@ -77,6 +78,7 @@ export class SecretManagerMDB extends SecretManager {
             return resolvedValue;
         } catch (error) {
             this.logger?.error({
+                flow: options?.flow,
                 category: VCategory.core.secret,
                 src: 'Service:Secret:MDB:resolve',
                 message: `Failed to retrieve secret '${key}' from MongoDB Secrets Manager. ${(error as Error).message}`
