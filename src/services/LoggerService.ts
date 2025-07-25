@@ -49,17 +49,20 @@ export class LoggerService implements ILoggerService {
      */
     constructor(config: ILoggerConfigService = {}, dep?: { assistant: IIoC }) {
         const level = config.level ?? ILogLevel.ALL;
+        const skip = config.skip;
 
         // Create processors for dual output destination
         const processors = [];
         config.console?.enabled && processors.push(new ConsoleLogProcessor({
-            level: ILogLevel[config.console?.level as keyof typeof ILogLevel] ?? level,
+            level: ILogLevel[(config.console?.level as unknown) as keyof typeof ILogLevel] ?? level,
+            skip: config.console?.skip ?? skip
         }));
         config.mdb?.enabled && processors.push(new MongoDBLogProcessor({
-            level: ILogLevel[config.mdb?.level as keyof typeof ILogLevel] ?? level,
+            level: ILogLevel[(config.mdb?.level as unknown) as keyof typeof ILogLevel] ?? level,
             uri: process.env[config.mdb.uri] || config.mdb.uri,
             database: config.mdb.database || 'kozen',
-            collection: config.mdb.collection || 'logs'
+            collection: config.mdb.collection || 'logs',
+            skip: config.mdb?.skip ?? skip
         }));
 
         // Combine processors for simultaneous console and database logging
@@ -68,6 +71,7 @@ export class LoggerService implements ILoggerService {
         // Initialize logger with hybrid processor and configuration
         this.logger = new Logger({
             level,
+            skip,
             category: config.category || 'KOZEN',
             type: config?.type || 'object',
             processor: this.hybridProcessor

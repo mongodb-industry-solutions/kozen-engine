@@ -106,7 +106,7 @@ export class PipelineManager extends BaseService {
             }
             this.config = config;
             this.assistant = ioc || this.assistant;
-            await this.assistant.register(this.config.dependencies);
+            this.config.dependencies && await this.assistant.register(this.config.dependencies);
             // TODO: move this to the config
             this.logger = await this.assistant.resolve<ILoggerService>('LoggerService');
             return this;
@@ -141,11 +141,13 @@ export class PipelineManager extends BaseService {
         const srvTemplate = await this.assistant.resolve<ITemplateManager>("TemplateManager");
         const stackAdm = await this.assistant.resolve<IStackManager>("StackManager");
 
+        let id = this.getId(args);
         let result = {};
-        let template = await srvTemplate.load<ITemplate>(templateName);
-        let pipeline = { args, assistant: this.assistant, template, stack: stackAdm };
+        let template = await srvTemplate.load<ITemplate>(templateName, { flow: id });
+        let pipeline = { args, assistant: this.assistant, template, id };
 
         await stackAdm.deploy({
+            id,
             name,
             project,
             ...template?.stack,
@@ -155,7 +157,7 @@ export class PipelineManager extends BaseService {
                         pipeline,
                         action: 'deploy',
                         components: template.stack.components,
-                        transform: (cmp, out) => stackAdm.transformInput(cmp, out, "input")
+                        transform: (component, output) => stackAdm.transformInput({ component, output, key: "input", flow: id })
                     });
                 }
             },
@@ -166,7 +168,7 @@ export class PipelineManager extends BaseService {
                         pipeline,
                         action: 'setup',
                         components: template.stack?.components,
-                        transform: (cmp, out) => stackAdm.transformInput(cmp, out, "setup")
+                        transform: (component, output) => stackAdm.transformInput({ component, output, key: "setup", flow: id })
                     });
                 }
                 return configs?.output || {};
@@ -330,6 +332,16 @@ export class PipelineManager extends BaseService {
         } catch (error) {
             throw new Error(`Failed to load configuration: ${error instanceof Error ? error.message : String(error)}`);
         }
+    }
+
+    /**
+     * Get Pipeline ID
+     * @param {IPipelineConfig} opt 
+     * @returns {string}
+     */
+    getId(opt?: IPipelineConfig) {
+        let opts = opt ?? this.config;
+        return opts?.id || `${opts?.project ?? ''}-${opts?.stack ?? ''}`;
     }
 }
 

@@ -16,6 +16,7 @@ export class DemoFirst extends BaseController {
   async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
 
     this.logger?.info({
+      flow: pipeline?.id,
       category: VCategory.cmp.iac,
       src: 'component:DemoFirst:deploy',
       message: `Deploying with message: ${input?.message}`,
@@ -51,7 +52,6 @@ export class DemoFirst extends BaseController {
    * @returns Promise resolving to undeployment result with success status
    */
   async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
-    console.log(`Undeploying DemoFirst`);
     return {
       templateName: this.config.name,
       action: 'undeploy',
