@@ -59,10 +59,10 @@ export class StackManagerNode extends StackManager {
                 message: `Stack ${config.name} deployed failed.`,
             });
             return {
-                stackName: config.name,
-                projectName: config.project,
                 success: false,
                 timestamp: new Date(),
+                stackName: config?.name,
+                projectName: config?.project,
                 message: `Stack ${config.name} deployed failed.`,
             };
         }
@@ -79,10 +79,10 @@ export class StackManagerNode extends StackManager {
         // Configure the stack with the provided options
         config?.program instanceof Function && await config.program();
         return {
-            stackName: config.name,
-            projectName: config.project,
-            success: true,
+            success: false,
             timestamp: new Date(),
+            stackName: config?.name,
+            projectName: config?.project,
             message: `Stack ${config.name} undeployed successfully.`
         };
     }
@@ -100,10 +100,10 @@ export class StackManagerNode extends StackManager {
         // without performing actual deployment
 
         return {
-            stackName: config.name,
-            projectName: config.project,
-            success: true,
+            success: false,
             timestamp: new Date(),
+            stackName: config?.name,
+            projectName: config?.project,
             message: `Stack ${config.name} configuration validation completed.`,
             results: []
         };
@@ -120,10 +120,10 @@ export class StackManagerNode extends StackManager {
         // Configure the stack with the provided options
         config?.program instanceof Function && await config.program();
         return {
-            stackName: config.name,
-            projectName: config.project,
-            success: true,
+            success: false,
             timestamp: new Date(),
+            stackName: config?.name,
+            projectName: config?.project,
             message: `Stack ${config.name} configuration status completed.`,
         };
     }
