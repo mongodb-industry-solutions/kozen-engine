@@ -239,7 +239,7 @@ export class PipelineController {
             stack: args.stack,
             project: args.project,
             template: result.templateName,
-            components: result.results?.length || 0,
+            components: (result.results?.length || 1) - 1,
             duration,
             error: result.error
           }
