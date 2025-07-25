@@ -120,7 +120,7 @@ export class StackManager extends BaseService implements IStackManager {
         catch (error) {
             this.logger?.error({
                 category: VCategory.core.stack,
-                src: 'service:StackManager:deploy',
+                src: 'Service:StackManager:deploy',
                 message: (error as Error).message,
                 data: {
                     stackName: this.stackName,
@@ -152,7 +152,7 @@ export class StackManager extends BaseService implements IStackManager {
         catch (error) {
             this.logger?.error({
                 category: VCategory.core.stack,
-                src: 'service:StackManager:undeploy',
+                src: 'Service:StackManager:undeploy',
                 message: (error as Error).message,
                 data: {
                     stackName: this.stackName,
@@ -184,7 +184,7 @@ export class StackManager extends BaseService implements IStackManager {
         catch (error) {
             this.logger?.error({
                 category: VCategory.core.stack,
-                src: 'service:StackManager:validate',
+                src: 'Service:StackManager:validate',
                 message: (error as Error).message,
                 data: {
                     stackName: this.stackName,
@@ -216,7 +216,7 @@ export class StackManager extends BaseService implements IStackManager {
         catch (error) {
             this.logger?.error({
                 category: VCategory.core.stack,
-                src: 'service:StackManager:status',
+                src: 'Service:StackManager:status',
                 message: (error as Error).message,
                 data: {
                     stackName: this.stackName,
