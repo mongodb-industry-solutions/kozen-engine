@@ -7,6 +7,12 @@
  */
 
 /**
+ * List of categories for logs management
+ */
+import categoriesData from "../../cfg/const.categories.json";
+export const VCategory = categoriesData;
+
+/**
  * Generic structured data type
  * @typedef {Record<string, any>} IStruct
  */

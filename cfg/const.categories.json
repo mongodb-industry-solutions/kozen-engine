@@ -1,0 +1,17 @@
+{
+    "cmp": {
+        "iac": "cmp:iac",
+        "exe": "cmp:exe"
+    },
+    "test": {
+        "e2e": "test:e2e",
+        "integration": "test:integration",
+        "performance": "test:performance"
+    },
+    "core": {
+        "pipeline": "core:pipeline",
+        "template": "core:template",
+        "secret": "core:secret",
+        "iac": "core:iac"
+    }
+}
