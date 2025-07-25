@@ -52,6 +52,8 @@ export class BaseService {
      */
     protected assistant?: IIoC | null;
 
+    protected prefix?: string;
+
 
     public logger?: ILoggerService | null;
 
@@ -77,5 +79,20 @@ export class BaseService {
         const srvVar = await this.assistant.resolve<IVarProcessorService>('VarProcessorService');
         const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output, flow));
         return input || {};
+    }
+
+    /**
+     * Get the controller strategy
+     * @param {string} type
+     * @returns {IStackManager} controller
+     */
+    public async getDelegate<T = any>(type: string): Promise<T> {
+        if (!this.prefix) {
+            throw new Error("Incorrect prefix configuration for: " + type);
+        }
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration for: " + type);
+        }
+        return await this.assistant.resolve<T>(this.prefix + type);
     }
 }

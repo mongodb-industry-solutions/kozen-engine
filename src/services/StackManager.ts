@@ -39,6 +39,7 @@ export class StackManager extends BaseService implements IStackManager {
     constructor(config?: IStackOptions | null, dep?: { assistant: IIoC, logger: ILoggerService }) {
         super(dep);
         this._config = config || {};
+        this.prefix = "StackManager";
     }
 
     /**
@@ -50,12 +51,7 @@ export class StackManager extends BaseService implements IStackManager {
      * @returns Promise resolving to operation result with status and metadata
      */
     protected async execute(config: IStackOptions, action: string, args: Array<any>): Promise<IResult> {
-        const type = config.orchestrator || "Pulumi";
-        const controllerName = "StackManager" + type;
-        if (!this.assistant) {
-            throw new Error("Incorrect dependency injection configuration.");
-        }
-        const controller = await this.assistant.resolve<IStackManager>(controllerName);
+        const controller = await this.getDelegate<IStackManager>(config.orchestrator || 'Node');
         const method = controller[action as keyof IStackManager] as Function;
         return await method?.apply(controller, args);
     }
