@@ -55,6 +55,7 @@ import { VCategory } from "../src/models/Types";
 
     // Exit
     controller.log({
+      flow: controller.getId(args),
       src: 'bin:Pipeline',
       message: resultMessage,
       data: {

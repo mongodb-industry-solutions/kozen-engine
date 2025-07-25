@@ -39,6 +39,7 @@ export class SecretManagerAWS extends SecretManager {
             throw new Error(`Secret '${key}' was found but the SecretString is empty.`);
         } catch (error) {
             this.logger?.error({
+                flow: options?.flow,
                 category: VCategory.core.secret,
                 src: 'Service:Secret:AWS:resolve',
                 message: `Failed to retrieve secret '${key}' from AWS Secrets Manager. ${(error as Error).message}`

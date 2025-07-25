@@ -15,6 +15,7 @@ export class DemoSecond extends BaseController {
    */
   async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
     this.logger?.info({
+      flow: pipeline?.id,
       category: VCategory.cmp.iac,
       src: 'component:DemoSecond:deploy',
       message: `Deploying with message: ${input?.message}`,
