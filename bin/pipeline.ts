@@ -42,32 +42,27 @@ import { VCategory } from "../src/models/Types";
       process.exit(0);
     }
 
+    // Get arguments
     const args = controller.parseArguments(process.argv.slice(2));
 
     // Execute pipeline operation
     const result = await controller.execute(args);
 
-    // Handle result
-    if (result.success) {
-      controller.log({
-        src: 'bin:Pipeline',
-        message: `✅ ${result.action} operation completed successfully`
-      });
-      process.exit(0);
-    } else {
+    // Handle result data
+    const resultCode = result.success ? 0 : 1;
+    const resultLogLevel = result.success ? ILogLevel.DEBUG : ILogLevel.ERROR;
+    const resultMessage = result.success ? `✅ ${result.action} operation completed successfully` : `❌ ${result.action} operation failed`;
 
-      controller.log({
-        src: 'bin:Pipeline',
-        message: `❌ ${result.action} operation failed`
-      }, ILogLevel.ERROR);
-
-      result.errors?.length && result.errors.map(error => controller.log({
-        src: 'bin:Pipeline',
-        message: `Error: ${error}`
-      }, ILogLevel.ERROR))
-
-      process.exit(1);
-    }
+    // Exit
+    controller.log({
+      src: 'bin:Pipeline',
+      message: resultMessage,
+      data: {
+        state: result.action,
+        errors: result.errors || []
+      }
+    }, resultLogLevel);
+    process.exit(resultCode);
 
   } catch (error) {
     console.error({
