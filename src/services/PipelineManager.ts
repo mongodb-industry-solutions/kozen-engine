@@ -142,18 +142,18 @@ export class PipelineManager extends BaseService {
         const stackAdm = await this.assistant.resolve<IStackManager>("StackManager");
 
         let id = this.getId(args);
-        let result = {};
+        let out: IResult = {};
         let template = await srvTemplate.load<ITemplate>(templateName, { flow: id });
         let pipeline = { args, assistant: this.assistant, template, id };
 
-        await stackAdm.deploy({
+        let stackResult = await stackAdm.deploy({
             id,
             name,
             project,
             ...template?.stack,
             program: async () => {
                 if (template.stack?.components) {
-                    result = await this.process({
+                    out = await this.process({
                         pipeline,
                         action: 'deploy',
                         components: template.stack.components,
@@ -174,6 +174,8 @@ export class PipelineManager extends BaseService {
                 return configs?.output || {};
             }
         });
+        out.results = out.results || [];
+        stackResult && out.results.push(stackResult)
 
         return {
             templateName,
@@ -181,7 +183,7 @@ export class PipelineManager extends BaseService {
             success: true,
             timestamp: new Date(),
             message: `Pipeline ${templateName} deployed successfully.`,
-            ...result
+            ...out
         };
     }
 
