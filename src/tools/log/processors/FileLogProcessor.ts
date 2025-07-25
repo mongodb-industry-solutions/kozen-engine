@@ -28,7 +28,10 @@ export class FileLogProcessor implements ILogProcessor {
     const logLine = this.formatLogLine(entry, outputType);
 
     // Simulate file writing
-    console.log(`[FILE] Writing to ${this.filePath}: ${logLine}`);
+    console.log({
+      src: 'Tool:Log:Prosessor:File',
+      message: `[FILE] Writing to ${this.filePath}: ${logLine}`
+    });
 
     // Real implementation would be:
     // import * as fs from 'fs';

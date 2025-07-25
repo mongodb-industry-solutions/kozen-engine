@@ -31,7 +31,10 @@ export class HybridLogProcessor implements ILogProcessor {
         processor.process(entry, level, outputType);
       } catch (error) {
         // If one processor fails, continue with others
-        console.error(`[HybridLogProcessor] Processor failed:`, error);
+        console.error({
+          src: 'Tool:Log:Prosessor:Hybrid',
+          message: (error as Error).message
+        });
       }
     });
   }
