@@ -24,7 +24,7 @@ export class FileLogProcessor implements ILogProcessor {
    * @param level - The numeric log level
    * @param outputType - The output format
    */
-  process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): void {
+  async process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): Promise<void> {
     const logLine = this.formatLogLine(entry, outputType);
 
     // Simulate file writing
