@@ -103,7 +103,7 @@ export abstract class BaseController implements IController {
         if (!Array.isArray(this.config.setup)) {
             return {};
         }
-        let output = await pipeline?.stack?.transformSetup(this.config, {}, 'setup') || {};
+        let output = await pipeline?.stack?.transformSetup({ component: this.config, key: 'setup', flow: pipeline?.id }) || {};
         return { output };
     }
 
@@ -177,6 +177,6 @@ export abstract class BaseController implements IController {
     protected getPrefix(pipeline?: IPipeline) {
         pipeline = pipeline ?? this.pipeline;
         // Get the current project name, which can be used in combination with the stackName as prefix for internal resource deployment (ex. K2025072112202952-dev)
-        return `${pipeline?.stack?.config?.project}-${pipeline?.stack?.config?.name}`;
+        return pipeline?.id || `${pipeline?.stack?.config?.project}-${pipeline?.stack?.config?.name}`;
     }
 }
