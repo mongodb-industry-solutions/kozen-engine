@@ -24,11 +24,11 @@ export class HybridLogProcessor implements ILogProcessor {
    * @param level - The numeric log level
    * @param outputType - The output format type
    */
-  process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): void {
+  async process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): Promise<void> {
     // Process log entry with all configured processors
-    this.processors.forEach(processor => {
+    const list = this.processors.map(async processor => {
       try {
-        processor.process(entry, level, outputType);
+        await processor.process(entry, level, outputType);
       } catch (error) {
         // If one processor fails, continue with others
         console.error({
@@ -37,6 +37,7 @@ export class HybridLogProcessor implements ILogProcessor {
         });
       }
     });
+    await Promise.all(list);
   }
 
   /**
