@@ -132,6 +132,7 @@ export class TemplateManager extends BaseService implements TemplateManager {
     constructor(options?: ITemplateConfig | null, dep?: { assistant: IIoC, logger: ILoggerService }) {
         super(dep);
         this._options = options ?? null;
+        this.prefix = "TemplateManager";
     }
 
     /**
@@ -179,8 +180,8 @@ export class TemplateManager extends BaseService implements TemplateManager {
             throw new Error("Incorrect dependency injection configuration.");
         }
         options = { ...this.options, ...options };
-        const controllerName = "TemplateManager" + options.type;
-        const controller = await this.assistant.resolve<ITemplateManager>(controllerName);
+        const controllerName = this.prefix || '' + options.type;
+        const controller = await this.getDelegate<ITemplateManager>(options.type || 'File');
         this.logger?.info({
             flow: options.flow,
             category: VCategory.core.template,

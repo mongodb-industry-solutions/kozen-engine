@@ -53,6 +53,7 @@ export class SecretManager extends BaseService implements ISecretManager {
     constructor(options?: ISecretManagerOptions, dep?: { assistant: IIoC, logger: ILoggerService }) {
         super(dep);
         this.options = options!;
+        this.prefix = 'SecretManager';
     }
 
     /**
@@ -77,8 +78,7 @@ export class SecretManager extends BaseService implements ISecretManager {
             if (!this.options?.type) {
                 throw new Error("SecretManager options or type is not defined.");
             }
-            const controllerName = "SecretManager" + options.type;
-            const controller = await this.assistant.resolve<ISecretManager>(controllerName);
+            const controller = await this.getDelegate<ISecretManager>(options.type || 'AWS');
             return await controller.resolve(key, options);
         }
         catch (error) {

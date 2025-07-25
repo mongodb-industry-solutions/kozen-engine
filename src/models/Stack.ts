@@ -238,5 +238,5 @@ export interface IStackManagerPulumi extends IStackManager {
      * Pulumi stack instance for direct automation access
      * @type {Stack}
      */
-    stack?: Stack;
+    driver?: Stack;
 }
