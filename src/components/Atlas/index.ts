@@ -3,7 +3,7 @@ import * as pulumi from "@pulumi/pulumi";
 
 import { BaseController } from '../../controllers/BaseController';
 import { IPipeline } from '../../models/Pipeline';
-import { constCategory, IResult, IStruct } from '../../models/Types';
+import { IResult, IStruct, VCategory } from '../../models/Types';
 import { IAtlasConfig } from "./IAtlasConfig";
 
 /**
@@ -31,7 +31,7 @@ export class Atlas extends BaseController {
     }
     try {
       this.logger?.info({
-        category: constCategory.cmp.iac,
+        category: VCategory.cmp.iac,
         src: 'component:Atlas:deploy',
         message: `Deploying with message: ${input?.message}`,
         data: {
