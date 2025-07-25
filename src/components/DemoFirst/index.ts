@@ -1,6 +1,6 @@
 import { BaseController } from '../../controllers/BaseController';
 import { IPipeline } from '../../models/Pipeline';
-import { IResult, IStruct } from '../../models/Types';
+import { constCategory, IResult, IStruct } from '../../models/Types';
 
 /**
  * Simple demo component controller for testing pipeline functionality
@@ -16,6 +16,7 @@ export class DemoFirst extends BaseController {
   async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
 
     this.logger?.info({
+      category: constCategory.cmp.iac,
       src: 'component:DemoFirst:deploy',
       message: `Deploying with message: ${input?.message}`,
       data: {
