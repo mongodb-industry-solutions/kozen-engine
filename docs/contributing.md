@@ -15,6 +15,7 @@ Kozen Engine's extensibility is built around three core extensible manager types
 Stack Managers handle infrastructure orchestration and deployment strategies.
 
 **Available Implementations:**
+
 - **StackManagerNode**: Node.js runtime execution for lightweight operations
 - **StackManagerPulumi**: Pulumi-based infrastructure deployment
 - **StackManager**: Generic manager with configurable workspace
@@ -22,27 +23,26 @@ Stack Managers handle infrastructure orchestration and deployment strategies.
 **Creating a Custom Stack Manager:**
 
 ```typescript
-import { BaseService } from './BaseService';
-import { IStackManager } from '../models/Stack';
-import { IPipeline } from '../models/Pipeline';
-import { IResult } from '../models/Types';
+import { BaseService } from "./BaseService";
+import { IStackManager } from "../models/Stack";
+import { IPipeline } from "../models/Pipeline";
+import { IResult } from "../models/Types";
 
 export class StackManagerCustom extends BaseService implements IStackManager {
-  
   async deploy(pipeline: IPipeline): Promise<IResult> {
     try {
       // Custom deployment logic
       const result = await this.executeCustomDeployment(pipeline);
-      
+
       return {
         success: true,
-        action: 'deploy',
+        action: "deploy",
         templateName: pipeline.template?.name,
         output: result,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
-      return this.handleError('deploy', error);
+      return this.handleError("deploy", error);
     }
   }
 
@@ -62,6 +62,7 @@ export class StackManagerCustom extends BaseService implements IStackManager {
 Secret Managers handle secure credential storage and retrieval.
 
 **Available Implementations:**
+
 - **SecretManagerAWS**: AWS Secrets Manager integration
 - **SecretManagerMDB**: MongoDB-based secret storage
 - **SecretManager**: Generic manager with configurable providers
@@ -69,27 +70,26 @@ Secret Managers handle secure credential storage and retrieval.
 **Creating a Custom Secret Manager:**
 
 ```typescript
-import { BaseService } from './BaseService';
-import { ISecretManager } from '../models/Secret';
+import { BaseService } from "./BaseService";
+import { ISecretManager } from "../models/Secret";
 
 export class SecretManagerCustom extends BaseService implements ISecretManager {
-  
   async getSecret(key: string): Promise<string | null> {
     try {
       // Custom secret retrieval logic
       const secret = await this.retrieveFromCustomProvider(key);
-      
+
       this.logger?.debug({
-        src: 'service:SecretManagerCustom:getSecret',
-        message: `Retrieved secret: ${key}`
+        src: "Service:SecretManagerCustom:getSecret",
+        message: `Retrieved secret: ${key}`,
       });
-      
+
       return secret;
     } catch (error) {
       this.logger?.error({
-        src: 'service:SecretManagerCustom:getSecret',
+        src: "Service:SecretManagerCustom:getSecret",
         message: `Failed to retrieve secret: ${key}`,
-        data: { error: error.message }
+        data: { error: error.message },
       });
       return null;
     }
@@ -102,8 +102,8 @@ export class SecretManagerCustom extends BaseService implements ISecretManager {
       return true;
     } catch (error) {
       this.logger?.error({
-        src: 'service:SecretManagerCustom:setSecret',
-        message: `Failed to store secret: ${key}`
+        src: "Service:SecretManagerCustom:setSecret",
+        message: `Failed to store secret: ${key}`,
       });
       return false;
     }
@@ -113,7 +113,10 @@ export class SecretManagerCustom extends BaseService implements ISecretManager {
     // Implement integration with HashiCorp Vault, Azure Key Vault, etc.
   }
 
-  private async storeInCustomProvider(key: string, value: string): Promise<void> {
+  private async storeInCustomProvider(
+    key: string,
+    value: string
+  ): Promise<void> {
     // Implement storage logic
   }
 }
@@ -124,6 +127,7 @@ export class SecretManagerCustom extends BaseService implements ISecretManager {
 Template Managers handle template storage, retrieval, and management.
 
 **Available Implementations:**
+
 - **TemplateManagerFile**: File system-based template storage
 - **TemplateManagerMDB**: MongoDB-based template management
 - **TemplateManager**: Generic manager with configurable storage
@@ -131,21 +135,23 @@ Template Managers handle template storage, retrieval, and management.
 **Creating a Custom Template Manager:**
 
 ```typescript
-import { BaseService } from './BaseService';
-import { ITemplateManager } from '../models/Template';
-import { ITemplate } from '../models/Template';
+import { BaseService } from "./BaseService";
+import { ITemplateManager } from "../models/Template";
+import { ITemplate } from "../models/Template";
 
-export class TemplateManagerCustom extends BaseService implements ITemplateManager {
-  
+export class TemplateManagerCustom
+  extends BaseService
+  implements ITemplateManager
+{
   async loadTemplate(name: string): Promise<ITemplate | null> {
     try {
       // Custom template loading logic
       const templateData = await this.fetchFromCustomSource(name);
-      
+
       if (!templateData) {
         this.logger?.warn({
-          src: 'service:TemplateManagerCustom:loadTemplate',
-          message: `Template not found: ${name}`
+          src: "Service:TemplateManagerCustom:loadTemplate",
+          message: `Template not found: ${name}`,
         });
         return null;
       }
@@ -153,8 +159,8 @@ export class TemplateManagerCustom extends BaseService implements ITemplateManag
       return this.parseTemplate(templateData);
     } catch (error) {
       this.logger?.error({
-        src: 'service:TemplateManagerCustom:loadTemplate',
-        message: `Failed to load template: ${name}`
+        src: "Service:TemplateManagerCustom:loadTemplate",
+        message: `Failed to load template: ${name}`,
       });
       return null;
     }
@@ -185,16 +191,15 @@ Components are the building blocks of pipelines. Each component implements the `
 **Component Structure Example:**
 
 ```typescript
-import { BaseController } from '../controllers/BaseController';
-import { IPipeline } from '../models/Pipeline';
-import { IResult, IStruct } from '../models/Types';
+import { BaseController } from "../controllers/BaseController";
+import { IPipeline } from "../models/Pipeline";
+import { IResult, IStruct } from "../models/Types";
 
 /**
  * Custom component for specific functionality
  * Example: Integration with external APIs, custom testing, data processing
  */
 export class CustomComponent extends BaseController {
-
   /**
    * Deploy/Execute the component functionality
    */
@@ -202,48 +207,47 @@ export class CustomComponent extends BaseController {
     try {
       // 1. Cast input to specific configuration
       const config = this.castToCustomConfig(input);
-      
+
       // 2. Validate configuration
       this.validateConfiguration(config);
-      
+
       // 3. Log execution details
       this.logger?.info({
-        src: 'component:CustomComponent:deploy',
+        src: "component:CustomComponent:deploy",
         message: `Executing custom component with config`,
         data: {
           componentName: this.config.name,
           templateName: pipeline?.template?.name,
           stackName: pipeline?.stack?.config?.name,
-          prefix: this.getPrefix(pipeline)
-        }
+          prefix: this.getPrefix(pipeline),
+        },
       });
-      
+
       // 4. Execute custom logic
       const result = await this.executeCustomLogic(config, pipeline);
-      
+
       // 5. Return standardized result
       return {
         templateName: pipeline?.template?.name,
-        action: 'deploy',
+        action: "deploy",
         success: true,
         message: `Custom component executed successfully`,
         output: result,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      
     } catch (error) {
       this.logger?.error({
-        src: 'component:CustomComponent:deploy',
-        message: `Component execution failed: ${error.message}`
+        src: "component:CustomComponent:deploy",
+        message: `Component execution failed: ${error.message}`,
       });
-      
+
       return {
         templateName: pipeline?.template?.name,
-        action: 'deploy',
+        action: "deploy",
         success: false,
         message: error.message,
         errors: [error.message],
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -252,10 +256,10 @@ export class CustomComponent extends BaseController {
     // Implement cleanup logic
     return {
       templateName: this.config.name,
-      action: 'undeploy',
+      action: "undeploy",
       success: true,
       message: `Custom component cleaned up successfully`,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
@@ -263,22 +267,22 @@ export class CustomComponent extends BaseController {
     try {
       const config = this.castToCustomConfig(input);
       this.validateConfiguration(config);
-      
+
       return {
         templateName: this.config.name,
-        action: 'validate',
+        action: "validate",
         success: true,
         message: `Custom component configuration is valid`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       return {
         templateName: this.config.name,
-        action: 'validate',
+        action: "validate",
         success: false,
         message: error.message,
         errors: [error.message],
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -287,10 +291,10 @@ export class CustomComponent extends BaseController {
     // Implement status checking logic
     return {
       templateName: this.config.name,
-      action: 'status',
+      action: "status",
       success: true,
       message: `Custom component is operational`,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
@@ -299,7 +303,7 @@ export class CustomComponent extends BaseController {
    */
   private castToCustomConfig(input?: IStruct): CustomComponentConfig {
     return {
-      endpoint: (input?.endpoint as string) || 'http://localhost:3000',
+      endpoint: (input?.endpoint as string) || "http://localhost:3000",
       timeout: Number(input?.timeout) || 30000,
       retries: Number(input?.retries) || 3,
       apiKey: input?.apiKey as string,
@@ -312,20 +316,23 @@ export class CustomComponent extends BaseController {
    */
   private validateConfiguration(config: CustomComponentConfig): void {
     if (!config.endpoint) {
-      throw new Error('Endpoint is required for CustomComponent');
+      throw new Error("Endpoint is required for CustomComponent");
     }
-    
+
     if (!config.apiKey) {
-      throw new Error('API key is required for CustomComponent');
+      throw new Error("API key is required for CustomComponent");
     }
-    
+
     // Add more validation logic
   }
 
   /**
    * Execute component-specific logic
    */
-  private async executeCustomLogic(config: CustomComponentConfig, pipeline?: IPipeline): Promise<any> {
+  private async executeCustomLogic(
+    config: CustomComponentConfig,
+    pipeline?: IPipeline
+  ): Promise<any> {
     // Implement your custom functionality here
     // Examples:
     // - Call external APIs
@@ -333,16 +340,16 @@ export class CustomComponent extends BaseController {
     // - Process data
     // - Deploy resources
     // - Run CLI commands
-    
+
     const result = {
-      status: 'completed',
+      status: "completed",
       data: {},
       metrics: {
         executionTime: Date.now(),
-        resourcesCreated: 1
-      }
+        resourcesCreated: 1,
+      },
     };
-    
+
     return result;
   }
 }
@@ -396,9 +403,11 @@ The project includes comprehensive VSCode debugging support for enhanced develop
 Located in `.vscode/launch.json`, the following debug configurations are available:
 
 #### 1. 🛠️ Develop
+
 General development debugging with full template execution.
 
 **Usage:**
+
 ```bash
 # Set environment variables in .env or directly
 export KOZEN_TEMPLATE=demo
@@ -410,9 +419,11 @@ export KOZEN_PROJECT=DEBUG001
 ```
 
 #### 2. 🚀 Test Deploy
+
 Debug deployment operations with specific templates.
 
 **Environment Configuration:**
+
 ```bash
 KOZEN_TEMPLATE=atlas.basic
 KOZEN_ACTION=deploy
@@ -421,15 +432,19 @@ KOZEN_PROJECT=TEST$(date +%Y%m%d%H%M%S)
 ```
 
 #### 3. 🗑️ Test Undeploy
+
 Debug cleanup and undeployment operations.
 
 #### 4. ✅ Test Validate
+
 Debug template and component validation.
 
 #### 5. 🔧 Test Status
+
 Debug status checking operations.
 
 #### 6. 📁 Debug Current File
+
 Debug individual TypeScript files directly.
 
 ### Advanced Debugging Techniques
@@ -439,6 +454,7 @@ Debug individual TypeScript files directly.
 To debug a specific component with different templates:
 
 1. **Set Environment Variables:**
+
 ```bash
 # Debug Atlas component
 export KOZEN_TEMPLATE=atlas.basic
@@ -455,15 +471,17 @@ export KOZEN_CONFIG=cfg/config.dev.json
 ```
 
 2. **Use Breakpoints:**
+
    - Set breakpoints in component files (`src/components/*.ts`)
    - Set breakpoints in service files (`src/services/*.ts`)
    - Set breakpoints in the pipeline controller (`src/controllers/PipelineController.ts`)
 
 3. **Debug with Different Stack Names:**
+
 ```bash
 # Different environments
 export KOZEN_STACK=dev      # Development debugging
-export KOZEN_STACK=test     # Testing debugging  
+export KOZEN_STACK=test     # Testing debugging
 export KOZEN_STACK=staging  # Staging debugging
 export KOZEN_STACK=prod     # Production debugging (careful!)
 ```
@@ -501,6 +519,7 @@ Debug specific services by setting breakpoints in:
 Create debug-specific environment files:
 
 **.env.debug:**
+
 ```bash
 NODE_ENV=development
 KOZEN_TEMPLATE=demo
@@ -534,16 +553,19 @@ ATLAS_PROJECT_ID=your-project-id
 Use GitHub Issues for bug reports, feature requests, and improvements:
 
 **Bug Report Template:**
-```markdown
+
+````markdown
 **Bug Description**
 A clear and concise description of the bug.
 
 **Environment**
+
 - OS: [e.g., Windows 10, macOS 12, Ubuntu 20.04]
 - Node.js version: [e.g., 18.17.0]
 - Kozen Engine version: [e.g., 1.0.5]
 
 **Template Configuration**
+
 ```json
 {
   "template": "template-name",
@@ -551,8 +573,10 @@ A clear and concise description of the bug.
   "stack": "dev"
 }
 ```
+````
 
 **Steps to Reproduce**
+
 1. Set environment variables...
 2. Run command...
 3. Observe error...
@@ -564,10 +588,12 @@ What should have happened.
 What actually happened.
 
 **Logs**
+
 ```
 Paste relevant logs here
 ```
-```
+
+````
 
 **Feature Request Template:**
 ```markdown
@@ -587,11 +613,12 @@ Any alternative approaches you've considered.
 - Components affected: [list]
 - Breaking changes: [yes/no]
 - Documentation updates needed: [yes/no]
-```
+````
 
 ### 2. Pull Request Process
 
 1. **Fork the Repository**
+
 ```bash
 git clone https://github.com/your-username/kozen-engine.git
 cd kozen-engine
@@ -599,6 +626,7 @@ npm install
 ```
 
 2. **Create Feature Branch**
+
 ```bash
 git checkout -b feature/your-feature-name
 # or
@@ -606,12 +634,14 @@ git checkout -b fix/bug-description
 ```
 
 3. **Development Guidelines**
+
    - Follow existing code style and patterns
    - Add comprehensive tests for new features
    - Update documentation as needed
    - Ensure all existing tests pass
 
 4. **Testing Your Changes**
+
 ```bash
 # Run existing tests
 npm test
@@ -627,6 +657,7 @@ npm run dev
 ```
 
 5. **Commit Guidelines**
+
 ```bash
 # Use conventional commit format
 git commit -m "feat: add custom secret manager support"
@@ -643,6 +674,7 @@ git commit -m "docs: update component development guide"
 ### 3. Code Review Process
 
 All pull requests require:
+
 - Code review by at least one maintainer
 - Passing automated tests
 - Documentation updates (if applicable)
@@ -653,29 +685,32 @@ All pull requests require:
 ### Component Testing
 
 **Unit Tests for Components:**
-```typescript
-import { CustomComponent } from '../src/components/CustomComponent';
-import { mockPipeline, mockInput } from './mocks';
 
-describe('CustomComponent', () => {
+```typescript
+import { CustomComponent } from "../src/components/CustomComponent";
+import { mockPipeline, mockInput } from "./mocks";
+
+describe("CustomComponent", () => {
   let component: CustomComponent;
 
   beforeEach(() => {
     component = new CustomComponent();
   });
 
-  test('should deploy successfully with valid input', async () => {
+  test("should deploy successfully with valid input", async () => {
     const result = await component.deploy(mockInput, mockPipeline);
-    
+
     expect(result.success).toBe(true);
-    expect(result.action).toBe('deploy');
+    expect(result.action).toBe("deploy");
     expect(result.output).toBeDefined();
   });
 
-  test('should handle validation errors gracefully', async () => {
-    const invalidInput = { /* invalid data */ };
+  test("should handle validation errors gracefully", async () => {
+    const invalidInput = {
+      /* invalid data */
+    };
     const result = await component.validate(invalidInput, mockPipeline);
-    
+
     expect(result.success).toBe(false);
     expect(result.errors).toBeDefined();
   });
@@ -683,6 +718,7 @@ describe('CustomComponent', () => {
 ```
 
 **Integration Tests:**
+
 ```bash
 # Test complete pipeline execution
 npm run test:integration
@@ -696,13 +732,13 @@ npm run dev -- --template=test-template --action=validate
 Test extensible services with different configurations:
 
 ```typescript
-import { CustomStackManager } from '../src/services/StackManagerCustom';
+import { CustomStackManager } from "../src/services/StackManagerCustom";
 
-describe('CustomStackManager', () => {
-  test('should deploy infrastructure successfully', async () => {
+describe("CustomStackManager", () => {
+  test("should deploy infrastructure successfully", async () => {
     const stackManager = new CustomStackManager();
     const result = await stackManager.deploy(mockPipeline);
-    
+
     expect(result.success).toBe(true);
   });
 });
@@ -720,12 +756,13 @@ Each new component should include:
 4. **Usage examples** in documentation
 
 **Example Component Documentation:**
-```typescript
+
+````typescript
 /**
  * @fileoverview Custom Component for External API Integration
  * @description Integrates with external REST APIs for data processing and validation.
  * Supports authentication, retry logic, and error handling.
- * 
+ *
  * @example
  * ```json
  * {
@@ -744,15 +781,16 @@ Each new component should include:
  *   ]
  * }
  * ```
- * 
+ *
  * @author Your Name <your.email@example.com>
  * @since 1.1.0
  */
-```
+````
 
 ### Service Documentation
 
 Document service extensions with:
+
 - Interface definitions
 - Configuration options
 - Usage examples
@@ -861,7 +899,8 @@ npm run dev -- --template=your-template --action=deploy
 This comprehensive guide ensures that Kozen Engine remains extensible, maintainable, and developer-friendly while providing clear pathways for contribution and enhancement.
 
 **📚 Related Documentation:**
+
 - [Configuration Guide](./configuration.md) - For environment and service configuration
 - [Deployment Guide](./deployment.md) - For production deployment strategies
 - [Components Guide](./components.md) - For detailed component development
-- [Templates Guide](./templates.md) - For template creation and management 
+- [Templates Guide](./templates.md) - For template creation and management

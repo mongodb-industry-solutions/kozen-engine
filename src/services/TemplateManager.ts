@@ -1,5 +1,6 @@
 import { ILoggerService } from "../models/Logger";
 import { ITemplateConfig, ITemplateManager } from "../models/Template";
+import { VCategory } from "../models/Types";
 import { IIoC } from "../tools";
 import { BaseService } from "./BaseService";
 
@@ -131,6 +132,7 @@ export class TemplateManager extends BaseService implements TemplateManager {
     constructor(options?: ITemplateConfig | null, dep?: { assistant: IIoC, logger: ILoggerService }) {
         super(dep);
         this._options = options ?? null;
+        this.prefix = "TemplateManager";
     }
 
     /**
@@ -177,10 +179,16 @@ export class TemplateManager extends BaseService implements TemplateManager {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        options = options || this.options;
-        const controllerName = "TemplateManager" + options.type;
-        const controller = await this.assistant.resolve<ITemplateManager>(controllerName);
-        this.logger?.info({ src: 'TemplateManager:load', message: 'Loading template', data: { controllerName, templateName } });
+        options = { ...this.options, ...options };
+        const controllerName = this.prefix || '' + options.type;
+        const controller = await this.getDelegate<ITemplateManager>(options.type || 'File');
+        this.logger?.info({
+            flow: options.flow,
+            category: VCategory.core.template,
+            src: 'Service:TemplateManager:load',
+            message: 'Loading template',
+            data: { controllerName, templateName }
+        });
         const data = await controller.load<T>(templateName, options);
         return data;
     }

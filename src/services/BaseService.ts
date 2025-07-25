@@ -1,4 +1,4 @@
-import { IComponent } from "../models/Component";
+import { IComponent, ITransformOption } from "../models/Component";
 import { ILoggerService } from "../models/Logger";
 import { IVarProcessorService } from "../models/Processor";
 import { IStruct } from "../models/Types";
@@ -52,6 +52,8 @@ export class BaseService {
      */
     protected assistant?: IIoC | null;
 
+    protected prefix?: string;
+
 
     public logger?: ILoggerService | null;
 
@@ -69,12 +71,28 @@ export class BaseService {
      * @param {string} [key="input"] - Property key to process (default: "input")
      * @returns {Promise<IStruct>} Promise resolving to processed input variables
      */
-    public async transformInput(component: IComponent, output: IStruct = {}, key: string = "input"): Promise<IStruct> {
+    public async transformInput(options: ITransformOption): Promise<IStruct> {
+        const { component, output = {}, key = "input", flow } = options;
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
         const srvVar = await this.assistant.resolve<IVarProcessorService>('VarProcessorService');
-        const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output));
+        const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output, flow));
         return input || {};
+    }
+
+    /**
+     * Get the controller strategy
+     * @param {string} type
+     * @returns {IStackManager} controller
+     */
+    public async getDelegate<T = any>(type: string): Promise<T> {
+        if (!this.prefix) {
+            throw new Error("Incorrect prefix configuration for: " + type);
+        }
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration for: " + type);
+        }
+        return await this.assistant.resolve<T>(this.prefix + type);
     }
 }

@@ -1,22 +1,12 @@
 import { ILogInput, ILogLevel, ILogProcessor, ILoggerConfig } from "../tools";
+import { ILoggerConfigMDB } from "../tools/log/types";
 
 /**
  * Configuration interface for LoggerService with MongoDB and console settings
  */
 export interface ILoggerConfigService extends ILoggerConfig {
-    mdb?: {
-        enabled?: boolean;
-        database: string;
-        collection: string;
-        uri: string;
-        level: string;
-    };
-
-    console?: {
-        enabled?: boolean;
-        level: string;
-    };
-
+    mdb?: ILoggerConfigMDB;
+    console?: ILoggerConfig;
     [key: string]: any
 }
 
