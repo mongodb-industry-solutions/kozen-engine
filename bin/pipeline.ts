@@ -29,12 +29,15 @@ import { VCategory } from "../src/models/Types";
  * @returns {Promise<void>} Promise that resolves when CLI execution completes
  */
 (async function main(): Promise<void> {
+  let resultCode = 1;
+  let controller = null;
+
   try {
     // Load environment variables
     dotenv.config();
 
     // Create controller and parse arguments
-    const controller = new PipelineController();
+    controller = new PipelineController();
 
     // Check for help flag
     if (process.argv.includes('--help') || process.argv.includes('-h')) {
@@ -49,7 +52,7 @@ import { VCategory } from "../src/models/Types";
     const result = await controller.execute(args);
 
     // Handle result data
-    const resultCode = result.success ? 0 : 1;
+    resultCode = result.success ? 0 : 1;
     const resultLogLevel = result.success ? ILogLevel.DEBUG : ILogLevel.ERROR;
     const resultMessage = result.success ? `✅ ${result.action} operation completed successfully` : `❌ ${result.action} operation failed`;
 
@@ -63,7 +66,6 @@ import { VCategory } from "../src/models/Types";
         errors: result.errors || []
       }
     }, resultLogLevel);
-    process.exit(resultCode);
 
   } catch (error) {
     console.error({
@@ -71,7 +73,10 @@ import { VCategory } from "../src/models/Types";
       category: VCategory.core.pipeline,
       message: 'Pipeline execution failed:' + (error instanceof Error ? error.message : String(error))
     });
-    console.error('\nUse --help for usage information');
-    process.exit(1);
+    resultCode = 1;
+  }
+  finally {
+    await controller?.await();
+    process.exit(resultCode);
   }
 })();

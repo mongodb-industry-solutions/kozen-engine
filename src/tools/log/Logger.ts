@@ -45,7 +45,7 @@ export class Logger {
    * Configures the logger settings - allows changing behavior at runtime
    * @param config - Logger configuration object
    */
-  setting(config: ILoggerConfig): void {
+  public setting(config: ILoggerConfig): void {
     if (config.level !== undefined) {
       this.currentLevel = config.level;
     }
@@ -169,8 +169,8 @@ export class Logger {
    * @param entry - The log entry to process
    * @param level - The numeric log level for processor logic
    */
-  protected process(entry: ILogEntry, level: ILogLevel): void {
-    this.processor.process(entry, level, this.outputType);
+  protected async process(entry: ILogEntry, level: ILogLevel): Promise<void> {
+    return await this.processor.process(entry, level, this.outputType);
   }
 
   /**
@@ -178,12 +178,12 @@ export class Logger {
    * @param level - The log level to use
    * @param input - The log input (string, number, or ILogEntry object)
    */
-  protected logWithLevel(level: ILogLevel, input: ILogInput): void {
+  protected async logWithLevel(level: ILogLevel, input: ILogInput): Promise<void> {
     if (!this.shouldLog(level)) return;
 
     const options = this.normalizeInput(input);
     const entry = this.createILogEntry(level, options);
-    this.process(entry, level);
+    return await this.process(entry, level);
   }
 
   /**
@@ -193,8 +193,8 @@ export class Logger {
    * logger.error('Simple error message');
    * logger.error({ message: 'Database error', data: { code: 500, query: 'SELECT * FROM users' }, flow: 'auth-flow' });
    */
-  error(input: ILogInput): void {
-    this.logWithLevel(ILogLevel.ERROR, input);
+  public error(input: ILogInput): Promise<void> {
+    return this.logWithLevel(ILogLevel.ERROR, input);
   }
 
   /**
@@ -204,8 +204,8 @@ export class Logger {
    * logger.warn('Deprecated function used');
    * logger.warn({ message: 'Memory usage high', data: { usage: '85%', threshold: '80%' } });
    */
-  warn(input: ILogInput): void {
-    this.logWithLevel(ILogLevel.WARN, input);
+  public warn(input: ILogInput): Promise<void> {
+    return this.logWithLevel(ILogLevel.WARN, input);
   }
 
   /**
@@ -215,8 +215,8 @@ export class Logger {
    * logger.debug('Processing user request');
    * logger.debug({ message: 'Variable state', data: { userId: 123, step: 'validation' } });
    */
-  debug(input: ILogInput): void {
-    this.logWithLevel(ILogLevel.DEBUG, input);
+  public debug(input: ILogInput): Promise<void> {
+    return this.logWithLevel(ILogLevel.DEBUG, input);
   }
 
   /**
@@ -226,8 +226,8 @@ export class Logger {
    * logger.info('User logged in successfully');
    * logger.info({ message: 'User session started', data: { userId: 'user123', sessionId: 'sess456' } });
    */
-  info(input: ILogInput): void {
-    this.logWithLevel(ILogLevel.INFO, input);
+  public info(input: ILogInput): Promise<void> {
+    return this.logWithLevel(ILogLevel.INFO, input);
   }
 
   /**
@@ -238,7 +238,7 @@ export class Logger {
    * logger.log('General message');
    * logger.log({ message: 'Process completed', data: { duration: '2.5s', items: 150 } });
    */
-  log(input: ILogInput, level: ILogLevel = ILogLevel.INFO): void {
-    this.logWithLevel(level, input);
+  public log(input: ILogInput, level: ILogLevel = ILogLevel.INFO): Promise<void> {
+    return this.logWithLevel(level, input);
   }
 } 

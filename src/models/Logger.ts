@@ -60,6 +60,8 @@ export interface ILoggerService {
      */
     category: string | undefined;
 
+    stack: Promise<void>[];
+
     /**
      * Adds an additional processor to the hybrid configuration for extended output destinations.
      * @param processor - The LogProcessor implementation for custom log handling.
