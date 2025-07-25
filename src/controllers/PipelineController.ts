@@ -239,7 +239,7 @@ export class PipelineController {
             stack: args.stack,
             project: args.project,
             template: result.templateName,
-            components: result.results?.length || 0,
+            components: (result.results?.length || 1) - 1,
             duration,
             error: result.error
           }
@@ -358,14 +358,20 @@ Examples:
    * logger.log('General message');
    * logger.log({ message: 'Process completed', data: { duration: '2.5s', items: 150 } });
    */
-  log(input: ILogInput, level: ILogLevel = ILogLevel.INFO) {
+  public log(input: ILogInput, level: ILogLevel = ILogLevel.INFO) {
     if (typeof input === 'object') {
       input.category = VCategory.core.pipeline;
     }
     return this.pipeline.logger?.log(input, level);
   }
 
-  getId(opt?: IPipelineConfig) {
+  public async await(): Promise<void> {
+    if (this.pipeline.logger?.stack) {
+      await Promise.all(this.pipeline.logger?.stack)
+    }
+  }
+
+  public getId(opt?: IPipelineConfig) {
     return this.pipeline.getId(opt);
   }
 } 
