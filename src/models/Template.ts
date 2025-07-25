@@ -19,6 +19,7 @@ export type IDeploymentMode = "sync" | "async";
  * @description Infrastructure template definition interface
  */
 export interface ITemplate {
+
     /**
      * Template name
      * @type {string}
@@ -67,12 +68,14 @@ export interface ITemplate {
  * @description Template storage configuration interface
  */
 export interface ITemplateConfig {
+    flow?: string;
+
     /**
      * Storage backend type
      * @type {string}
      * @description Supported types: MDB, File
      */
-    type: string;
+    type?: string;
 
     /**
      * MongoDB storage configuration
