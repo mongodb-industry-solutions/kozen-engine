@@ -34,9 +34,9 @@
  */
 import * as fs from 'fs';
 import { IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
-import { IAction, IResult } from '../models/Types';
+import { IAction, IResult, VCategory } from '../models/Types';
 import { PipelineManager } from '../services/PipelineManager';
-import { ILogInput, ILogLevel } from '../tools';
+import { getID, ILogInput, ILogLevel } from '../tools';
 
 /**
  * @class PipelineController
@@ -80,6 +80,23 @@ export class PipelineController {
   }
 
   /**
+   * Extract data from a CLI argument
+   * @param {string} arg
+   * @returns {{ key: string, value: string } | null} metadata
+   */
+  protected extract(arg: string): { key: string, value: string } | null {
+    // Define a regular expression to match "--key=value"
+    const argRegex = /^--([a-zA-Z0-9]+)=(.*)$/;
+    const match = arg.match(argRegex);
+    if (!match) {
+      return null;
+    }
+    // Destructure the captured groups
+    const [, key, value] = match;
+    return { key, value };
+  }
+
+  /**
    * Parses command line arguments into structured format
    * 
    * @method parseArguments
@@ -96,22 +113,13 @@ export class PipelineController {
     const parsed: Partial<IPipelineArgs> = {};
 
     for (const arg of args) {
-      if (arg.startsWith('--template=')) {
-        parsed.template = arg.split('=')[1];
-      } else if (arg.startsWith('--stack=')) {
-        parsed.stack = arg.split('=')[1];
-      } else if (arg.startsWith('--project=')) {
-        parsed.project = arg.split('=')[1];
-      } else if (arg.startsWith('--config=')) {
-        parsed.config = arg.split('=')[1];
-      } else if (arg.startsWith('--action=')) {
-        parsed.action = arg.split('=')[1] as IAction;
-      }
+      let meta = this.extract(arg);
+      meta && (parsed[meta?.key as keyof IPipelineArgs] = meta?.value);
     }
 
     return {
-      stack: parsed.stack || process.env.KOZEN_STACK || 'dev',
-      project: parsed.project || process.env.KOZEN_PROJECT || '',
+      stack: (parsed.stack || process.env.KOZEN_STACK || process.env["NODE_ENV"] || 'dev').toUpperCase(),
+      project: parsed.project || process.env.KOZEN_PROJECT || getID(),
       template: parsed.template || process.env.KOZEN_TEMPLATE || '',
       config: parsed.config || process.env.KOZEN_CONFIG || 'cfg/config.json',
       action: parsed.action || (process.env.KOZEN_ACTION as IAction) || 'deploy'
@@ -172,15 +180,22 @@ export class PipelineController {
    * ```
    */
   public async execute(args: IPipelineArgs): Promise<IResult> {
+    const exeStart = performance.now();
     try {
       // Validate arguments
       this.validateArguments(args);
+      this.pipeline.logger?.info({
+        flow: this.getId(args),
+        category: VCategory.core.pipeline,
+        src: 'Controller:Pipeline:CLI:execute:start',
+        message: `Executing ${args.action} operation for template: ${args.template}`
+      });
 
       // Load configuration
       const config = await this.pipeline.load(args.config);
 
       // Apply default values if not specified
-      this.applyConfigDefaults(config);
+      this.applyConfigDefaults(config, args);
 
       // Validate configuration structure
       this.validateConfiguration(config);
@@ -188,49 +203,73 @@ export class PipelineController {
       // Configure pipeline manager
       await this.pipeline.configure(config);
 
-      this.pipeline.logger?.debug({
-        src: 'Controller:Pipeline:CLI:execute',
-        message: `Executing ${args.action} operation for template: ${args.template}`
-      });
-
       // Execute the requested action
-      let result: IResult;
-      switch (args.action) {
-        case 'deploy':
-          result = await this.pipeline.deploy(args);
-          break;
-        case 'undeploy':
-          result = await this.pipeline.undeploy(args);
-          break;
-        case 'validate':
-          result = await this.pipeline.validate(args);
-          break;
-        case 'status':
-          result = await this.pipeline.status(args);
-          break;
-        default:
-          throw new Error(`Unsupported action: ${args.action}`);
+      const method = (this.pipeline as any)[args.action];
+      if (!(method instanceof Function)) {
+        throw new Error(`Unsupported action: ${args.action}`);
       }
+      const result: IResult = await method.apply(this.pipeline, [args]);
+      const exeEnd = performance.now();
+      const duration = (exeEnd - exeStart).toFixed(3);
 
       // Log execution result
-      await this.logExecutionResult(result);
+      if (result.success) {
+        this.pipeline.logger?.debug({
+          flow: config.id,
+          category: VCategory.core.pipeline,
+          src: 'Controller:Pipeline:CLI:execute:end',
+          message: `✅ ${result.action} operation completed successfully in ${duration} ms`,
+          data: {
+            action: args.action,
+            stack: args.stack,
+            project: args.project,
+            template: result.templateName,
+            components: result.results?.length || 0,
+            duration
+          }
+        })
+      } else {
+        this.pipeline.logger?.error({
+          flow: this.getId(args),
+          category: VCategory.core.pipeline,
+          src: 'Controller:Pipeline:CLI:execute:end',
+          message: `❌ ${result.action} operation failed after ${duration} ms`,
+          data: {
+            action: args.action,
+            stack: args.stack,
+            project: args.project,
+            template: result.templateName,
+            components: result.results?.length || 0,
+            duration,
+            error: result.error
+          }
+        })
+      }
 
       return result;
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
+      const exeEnd = performance.now();
+      const duration = (exeEnd - exeStart).toFixed(3);
 
       this.pipeline.logger?.error({
+        flow: this.getId(args),
+        category: VCategory.core.pipeline,
         src: 'Controller:Pipeline:CLI:execute',
-        message: `Pipeline execution failed: ${errorMessage}`
+        message: `Pipeline execution failed: ${errorMessage} in ${duration} ms`,
+        data: {
+          action: args.action as IAction,
+          template: args.template,
+          duration
+        }
       });
 
       return {
+        success: false,
         action: args.action as IAction,
         templateName: args.template,
-        success: false,
-        duration: 0,
-        results: [],
+        duration: Number(duration),
         errors: [errorMessage],
         timestamp: new Date()
       };
@@ -284,8 +323,9 @@ Examples:
    * @method applyConfigDefaults
    * @param {PipelineConfig} config - Configuration object to apply defaults to
    */
-  private applyConfigDefaults(config: IPipelineConfig): void {
+  private applyConfigDefaults(config: IPipelineConfig, arg?: IPipelineArgs): void {
     // Apply stack defaults
+    config.id = this.getId(arg);
     config.name = config.name || 'DefaultPipeline';
     config.engine = config.engine || 'default';
     config.version = config.version || '1.0.0';
@@ -311,45 +351,6 @@ Examples:
   }
 
   /**
-   * Logs execution result details
-   * 
-   * @private
-   * @method logExecutionResult
-   * @param {IResult} result - Execution result to log
-   */
-  private logExecutionResult(result: IResult): Promise<void[]> {
-
-    const logs = [];
-    if (result.success) {
-
-      logs.push(this.pipeline.logger?.debug({
-        src: 'Controller:Pipeline:CLI:ExecutionResult',
-        message: `✅ ${result.action} operation completed successfully in ${result.duration}ms`
-      }));
-
-      result?.results?.length && logs.push(this.pipeline.logger?.debug({
-        src: 'Controller:Pipeline:CLI:ExecutionResult',
-        message: `Processed ${result.results.length} component(s)`
-      }));
-
-    } else {
-
-      logs.push(this.pipeline.logger?.error({
-        src: 'Controller:Pipeline:CLI:ExecutionResult',
-        message: `❌ ${result.action} operation failed after ${result.duration}ms`
-      }));
-
-      result?.errors?.length && logs.push(...result.errors.map(error => this.pipeline.logger?.error({
-        src: 'Controller:Pipeline:CLI:ExecutionResult',
-        message: `Error: ${error}`
-      })));
-
-    }
-
-    return Promise.all(logs);
-  }
-
-  /**
    * Logs a general message - alias for info() method for compatibility
    * @param level - The log level to use
    * @param input - The log input: string/number for simple message, or ILogEntry object for complex logging
@@ -358,6 +359,13 @@ Examples:
    * logger.log({ message: 'Process completed', data: { duration: '2.5s', items: 150 } });
    */
   log(input: ILogInput, level: ILogLevel = ILogLevel.INFO) {
+    if (typeof input === 'object') {
+      input.category = VCategory.core.pipeline;
+    }
     return this.pipeline.logger?.log(input, level);
+  }
+
+  getId(opt?: IPipelineConfig) {
+    return this.pipeline.getId(opt);
   }
 } 

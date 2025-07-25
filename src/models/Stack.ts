@@ -6,7 +6,7 @@
  * @version 1.0.5
  */
 import { ConfigMap, Stack } from "@pulumi/pulumi/automation";
-import { IComponent } from "./Component";
+import { IComponent, ITransformOption } from "./Component";
 import { IResult, IStruct } from "./Types";
 
 /**
@@ -33,7 +33,6 @@ export interface IConfigValue extends ConfigMap { }
  * @description Complete configuration options for Pulumi stack management
  */
 export interface IStackOptions extends IComponent {
-
     /**
      * Infrastructure orchestration tool type
      * @type {string}
@@ -175,20 +174,6 @@ export interface IStackConfig<T = any, H = any> {
  * @description Interface for StackManager, exposing public properties and methods
  */
 export interface IStackManager {
-    /**
-     * Gets the project name for stack identification
-     * @readonly
-     * @type {string}
-     */
-    readonly projectName: string;
-
-    /**
-     * Gets the stack name for deployment identification
-     * @readonly
-     * @type {string}
-     */
-    readonly stackName: string;
-
 
     readonly config?: IStackOptions;
 
@@ -231,7 +216,7 @@ export interface IStackManager {
      * @param key - Property key to process for input configuration
      * @returns Promise resolving to transformed input configuration object
      */
-    transformInput(component: IComponent, output: IStruct, key: string): Promise<IStruct>;
+    transformInput(options: ITransformOption): Promise<IStruct>;
 
     /**
      * Transforms component setup configuration for stack initialization
@@ -240,7 +225,7 @@ export interface IStackManager {
      * @param key - Property key to process for setup configuration  
      * @returns Promise resolving to transformed setup configuration object
      */
-    transformSetup(component: IComponent, output: IStruct, key: string): Promise<IStruct>;
+    transformSetup(options: ITransformOption): Promise<IStruct>;
 }
 
 /**
@@ -253,5 +238,5 @@ export interface IStackManagerPulumi extends IStackManager {
      * Pulumi stack instance for direct automation access
      * @type {Stack}
      */
-    stack?: Stack;
+    driver?: Stack;
 }

@@ -7,6 +7,7 @@
  */
 import { ILoggerService } from "../models/Logger";
 import { ISecretManager, ISecretManagerOptions } from "../models/Secret";
+import { VCategory } from "../models/Types";
 import { IIoC } from "../tools";
 import { BaseService } from "./BaseService";
 
@@ -52,6 +53,7 @@ export class SecretManager extends BaseService implements ISecretManager {
     constructor(options?: ISecretManagerOptions, dep?: { assistant: IIoC, logger: ILoggerService }) {
         super(dep);
         this.options = options!;
+        this.prefix = 'SecretManager';
     }
 
     /**
@@ -72,16 +74,20 @@ export class SecretManager extends BaseService implements ISecretManager {
             if (!this.assistant) {
                 throw new Error("Incorrect dependency injection configuration.");
             }
-            options = options || this.options;
+            options = { ...this.options, ...options };
             if (!this.options?.type) {
                 throw new Error("SecretManager options or type is not defined.");
             }
-            const controllerName = "SecretManager" + options.type;
-            const controller = await this.assistant.resolve<ISecretManager>(controllerName);
+            const controller = await this.getDelegate<ISecretManager>(options.type || 'AWS');
             return await controller.resolve(key, options);
         }
         catch (error) {
-            console.log(error);
+            this.logger?.error({
+                flow: options?.flow,
+                category: VCategory.core.secret,
+                src: 'Service:SecretManager:getValue',
+                message: (error as Error).message
+            });
             return null;
         }
     }

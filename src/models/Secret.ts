@@ -11,12 +11,13 @@
  * @description Configuration interface for secret management backend
  */
 export interface ISecretManagerOptions {
+    flow?: string;
     /**
      * Secret backend type
      * @type {string}
      * @description Supported backends: AWS, MDB, ENV
      */
-    type: string;
+    type?: string;
 
     /**
      * Cloud provider authentication settings

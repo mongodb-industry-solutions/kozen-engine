@@ -248,7 +248,8 @@
           },
           "console": {
             "enabled": true,
-            "level": "all"
+            "level": "all",
+            "skip": "Stack output: \\."
           }
         }
       ],
