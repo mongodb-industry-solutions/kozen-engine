@@ -1,6 +1,6 @@
-import { BaseController } from '../controllers/BaseController';
-import { IPipeline } from '../models/Pipeline';
-import { IResult, IStruct } from '../models/Types';
+import { BaseController } from '../../controllers/BaseController';
+import { IPipeline } from '../../models/Pipeline';
+import { IResult, IStruct } from '../../models/Types';
 
 /**
  * Simple demo component controller for testing pipeline functionality
