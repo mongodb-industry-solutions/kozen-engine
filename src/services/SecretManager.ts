@@ -7,6 +7,7 @@
  */
 import { ILoggerService } from "../models/Logger";
 import { ISecretManager, ISecretManagerOptions } from "../models/Secret";
+import { VCategory } from "../models/Types";
 import { IIoC } from "../tools";
 import { BaseService } from "./BaseService";
 
@@ -81,7 +82,11 @@ export class SecretManager extends BaseService implements ISecretManager {
             return await controller.resolve(key, options);
         }
         catch (error) {
-            console.log(error);
+            this.logger?.error({
+                category: VCategory.core.secret,
+                src: 'service:SecretManager:getValue',
+                message: (error as Error).message
+            });
             return null;
         }
     }
