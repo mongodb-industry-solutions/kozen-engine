@@ -178,10 +178,11 @@ export class TemplateManager extends BaseService implements TemplateManager {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        options = options || this.options;
+        options = { ...this.options, ...options };
         const controllerName = "TemplateManager" + options.type;
         const controller = await this.assistant.resolve<ITemplateManager>(controllerName);
         this.logger?.info({
+            flow: options.flow,
             category: VCategory.core.template,
             src: 'Service:TemplateManager:load',
             message: 'Loading template',

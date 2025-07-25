@@ -73,7 +73,7 @@ export class SecretManager extends BaseService implements ISecretManager {
             if (!this.assistant) {
                 throw new Error("Incorrect dependency injection configuration.");
             }
-            options = options || this.options;
+            options = { ...this.options, ...options };
             if (!this.options?.type) {
                 throw new Error("SecretManager options or type is not defined.");
             }
@@ -83,6 +83,7 @@ export class SecretManager extends BaseService implements ISecretManager {
         }
         catch (error) {
             this.logger?.error({
+                flow: options?.flow,
                 category: VCategory.core.secret,
                 src: 'Service:SecretManager:getValue',
                 message: (error as Error).message

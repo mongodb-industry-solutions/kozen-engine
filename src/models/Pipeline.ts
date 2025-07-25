@@ -52,24 +52,27 @@ export interface IPipelineArgs {
  * @interface IPipelineConfig
  * @description Pipeline configuration for deployment management
  */
-export interface IPipelineConfig {
+export interface IPipelineConfig extends IPipelineArgs {
+
+  id?: string;
+
   /**
-   * Pipeline identifier
+   * Pipeline config identifier
    * @type {string}
    */
-  name: string;
+  name?: string;
 
   /**
    * Engine version requirements
    * @type {string}
    */
-  engine: string;
+  engine?: string;
 
   /**
    * Semantic version
    * @type {string}
    */
-  version: string;
+  version?: string;
 
   /**
    * Optional pipeline description
@@ -81,7 +84,7 @@ export interface IPipelineConfig {
    * Service configuration array for IoC container
    * @type {IDependency[]}
    */
-  dependencies: IDependency[];
+  dependencies?: IDependency[];
 }
 
 
@@ -90,6 +93,8 @@ export interface IPipelineConfig {
  * @description Pipeline runtime context interface for operation execution
  */
 export interface IPipeline {
+  id?: string;
+
   /**
    * CLI arguments for pipeline operation
    * @type {IPipelineArgs}

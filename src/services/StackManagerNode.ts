@@ -29,6 +29,7 @@ export class StackManagerNode extends StackManager {
             config?.program instanceof Function && await config.program();
 
             this.logger?.debug({
+                flow: config.id,
                 category: VCategory.core.stack,
                 src: 'Service:Stack:Node:deploy',
                 data: {
@@ -48,6 +49,7 @@ export class StackManagerNode extends StackManager {
         }
         catch (error) {
             this.logger?.error({
+                flow: config.id,
                 category: VCategory.core.stack,
                 src: 'Service:Stack:Node:deploy',
                 data: {

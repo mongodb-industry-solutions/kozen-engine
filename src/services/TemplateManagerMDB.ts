@@ -48,7 +48,7 @@ export class TemplateManagerMDB extends TemplateManager {
             }
 
             const { uri: uriKey, database, collection } = options.mdb;
-            const uri = await secret.resolve(uriKey) as string;
+            const uri = await secret.resolve(uriKey, { flow: options.flow }) as string;
 
             // Ensure MongoClient is initialized
             await this.initializeClient(uri);
