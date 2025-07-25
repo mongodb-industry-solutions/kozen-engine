@@ -18,6 +18,7 @@
 import dotenv from "dotenv";
 import { ILogLevel } from "../src";
 import { PipelineController } from '../src/controllers/PipelineController';
+import { VCategory } from "../src/models/Types";
 
 /**
  * Main CLI entry point
@@ -49,19 +50,19 @@ import { PipelineController } from '../src/controllers/PipelineController';
     // Handle result
     if (result.success) {
       controller.log({
-        src: 'bin:Pipeline:main',
+        src: 'bin:Pipeline',
         message: `✅ ${result.action} operation completed successfully`
       });
       process.exit(0);
     } else {
 
       controller.log({
-        src: 'bin:Pipeline:main',
+        src: 'bin:Pipeline',
         message: `❌ ${result.action} operation failed`
       }, ILogLevel.ERROR);
 
       result.errors?.length && result.errors.map(error => controller.log({
-        src: 'bin:Pipeline:main',
+        src: 'bin:Pipeline',
         message: `Error: ${error}`
       }, ILogLevel.ERROR))
 
@@ -69,7 +70,11 @@ import { PipelineController } from '../src/controllers/PipelineController';
     }
 
   } catch (error) {
-    console.error('Pipeline execution failed:', error instanceof Error ? error.message : String(error));
+    console.error({
+      src: 'bin:Pipeline',
+      category: VCategory.core.pipeline,
+      message: 'Pipeline execution failed:' + (error instanceof Error ? error.message : String(error))
+    });
     console.error('\nUse --help for usage information');
     process.exit(1);
   }
