@@ -144,7 +144,7 @@ export class PipelineManager extends BaseService {
         let id = this.getId(args);
         let result = {};
         let template = await srvTemplate.load<ITemplate>(templateName, { flow: id });
-        let pipeline = { args, assistant: this.assistant, template, stack: stackAdm, id };
+        let pipeline = { args, assistant: this.assistant, template, id };
 
         await stackAdm.deploy({
             id,

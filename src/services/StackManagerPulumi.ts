@@ -29,15 +29,15 @@ export class StackManagerPulumi extends StackManager {
      * Internal Pulumi stack instance for deployment operations
      * @protected
      */
-    protected _stack?: Stack
+    protected _driver?: Stack
 
     /**
      * Gets the current Pulumi stack instance
      * @public
      * @returns Current stack instance for deployment operations
      */
-    public get stack(): Stack {
-        return this._stack!;
+    public get driver(): Stack {
+        return this._driver!;
     }
 
     /**
@@ -45,8 +45,8 @@ export class StackManagerPulumi extends StackManager {
      * @protected
      * @param stack - Pulumi stack instance to configure for operations
      */
-    protected set stack(stack: Stack) {
-        this._stack = stack;
+    protected set driver(stack: Stack) {
+        this._driver = stack;
     }
 
 
@@ -160,8 +160,8 @@ export class StackManagerPulumi extends StackManager {
     protected async select(config?: IStackOptions): Promise<Stack> {
         // Configure the stack with the provided options
         const { args, opts } = await this.configure(config);
-        this.stack = await LocalWorkspace.selectStack(args, opts);
-        return this.stack;
+        this.driver = await LocalWorkspace.selectStack(args, opts);
+        return this.driver;
     }
 
     /**
@@ -184,7 +184,7 @@ export class StackManagerPulumi extends StackManager {
             }
 
             // return the configured stack
-            this.stack = stack;
+            this.driver = stack;
 
             await this.setup(stack, config);
             await stack.refresh({
