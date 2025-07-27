@@ -7,7 +7,7 @@ import { IIoC } from '../tools';
 
 /**
  * @fileoverview Base Controller - Abstract Bridge Component
- * @description Abstract base controller that implements the Bridge pattern to decouple
+ * Abstract base controller that implements the Bridge pattern to decouple
  * infrastructure component abstractions from their specific implementations.
  * 
  * This class serves as a bridge between the high-level pipeline orchestration and
@@ -27,7 +27,7 @@ import { IIoC } from '../tools';
  */
 export abstract class BaseController implements IController {
     /**
-     * @description IoC container instance for dependency management
+     * IoC container instance for dependency management
      * Protected IoC container providing dependency injection capabilities.
      * Allows controllers to resolve services, managers, and other dependencies
      * without tight coupling to their implementations.
@@ -42,13 +42,20 @@ export abstract class BaseController implements IController {
      */
     protected assistant?: IIoC | null;
 
-
+    /**
+     * Logger service instance for recording pipeline operations and errors
+     * @type {ILoggerService | null}
+     */
     public logger?: ILoggerService | null;
 
+    /**
+     * Current pipeline context containing arguments, template, and execution state
+     * @type {IPipeline}
+     */
     protected pipeline?: IPipeline;
 
     /**
-     * @description Component configuration object
+     * Component configuration object
      * Stores the component-specific configuration including name, version,
      * engine requirements, setup parameters, and component definitions. This configuration
      * drives the behavior of the specific infrastructure component implementation.
@@ -58,7 +65,7 @@ export abstract class BaseController implements IController {
     protected config: IComponent;
 
     /**
-     * @description Constructs a new BaseController instance
+     * Constructs a new BaseController instance
      * Initializes the base controller with default or provided configuration.
      * When no configuration is provided, initializes with a clearly defined invalid state
      * to ensure proper configuration before use.
@@ -72,7 +79,7 @@ export abstract class BaseController implements IController {
     }
 
     /**
-     * @description Configures the controller with the provided component configuration
+     * Configures the controller with the provided component configuration
      * Sets up the controller with component-specific configuration including
      * deployment parameters, setup instructions, input/output definitions, and metadata.
      * This method must be called before executing any deployment operations.
@@ -90,7 +97,7 @@ export abstract class BaseController implements IController {
     }
 
     /**
-     * @description Sets up component configuration parameters for deployment
+     * Sets up component configuration parameters for deployment
      * Processes component setup parameters and converts them into configuration
      * values suitable for infrastructure deployment. Handles different parameter types including
      * secrets, environment variables, and static values.
@@ -107,9 +114,8 @@ export abstract class BaseController implements IController {
         return { output };
     }
 
-
     /**
-     * @description Deploys the component using the current configuration
+     * Deploys the component using the current configuration
      * Abstract method that must be implemented by concrete controller classes.
      * Handles the actual deployment of infrastructure components based on the configured
      * parameters and input values. Each implementation should provide specific deployment
@@ -124,7 +130,7 @@ export abstract class BaseController implements IController {
     abstract deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
 
     /**
-     * @description Undeploys the component, removing all deployed resources
+     * Undeploys the component, removing all deployed resources
      * Removes previously deployed infrastructure resources and cleans up
      * any associated configurations. Default implementation provides no-op behavior;
      * derived classes should override with specific cleanup logic.
@@ -137,7 +143,7 @@ export abstract class BaseController implements IController {
     public async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult | void> { }
 
     /**
-     * @description Destroys the component and all associated resources permanently
+     * Destroys the component and all associated resources permanently
      * Permanently removes infrastructure resources without possibility of recovery.
      * This operation is typically more aggressive than undeploy and should be used with caution.
      * Default implementation provides no-op behavior.
@@ -149,7 +155,7 @@ export abstract class BaseController implements IController {
     public async destroy(input?: IStruct, pipeline?: IPipeline): Promise<IResult | void> { }
 
     /**
-     * @description Validates the current configuration and component state
+     * Validates the current configuration and component state
      * Performs comprehensive validation of component configuration, dependencies,
      * and deployment prerequisites without making actual infrastructure changes. Helps identify
      * configuration issues before attempting deployment.
@@ -161,7 +167,7 @@ export abstract class BaseController implements IController {
     public async validate(input?: IStruct, pipeline?: IPipeline): Promise<IResult | void> { }
 
     /**
-     * @description Checks the current status of the deployed component. 
+     * Checks the current status of the deployed component
      * Queries the current operational state of deployed infrastructure components
      * including health status, configuration state, and performance metrics. Provides
      * comprehensive status information for monitoring and troubleshooting.

@@ -10,7 +10,10 @@
 import dotenv from 'dotenv';
 import { SecretController } from '../src/controllers/SecretController';
 
-
+/**
+ * Main CLI entry point for secret management operations
+ * @returns {Promise<void>} Promise that resolves when CLI execution completes
+ */
 (async function main(): Promise<void> {
     try {
         // Load environment variables

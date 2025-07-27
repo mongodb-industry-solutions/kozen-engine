@@ -1,6 +1,6 @@
 /**
  * @fileoverview Pipeline Controller - CLI to Service Bridge Component
- * @description Controller that acts as a bridge between CLI input/output operations and the
+ * Controller that acts as a bridge between CLI input/output operations and the
  * PipelineManager service layer. This controller handles CLI validation, configuration loading,
  * and coordinates with the PipelineManager to execute infrastructure operations.
  * 
@@ -40,7 +40,7 @@ import { getID, ILogInput, ILogLevel } from '../tools';
 
 /**
  * @class PipelineController
- * @description CLI bridge controller for handling pipeline operations and user interface interactions.
+ * CLI bridge controller for handling pipeline operations and user interface interactions.
  * This controller serves as the primary interface between command-line operations and the
  * underlying pipeline management services, providing validation, error handling, and user feedback.
  * 
