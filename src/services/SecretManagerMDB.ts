@@ -5,7 +5,7 @@
  * @since 1.0.4
  * @version 1.0.5
  */
-import { ClientEncryption, MongoClient } from "mongodb";
+import { ClientEncryption, ClientEncryptionOptions, KMSProviders, MongoClient } from "mongodb";
 import { ISecretManagerOptions } from "../models/Secret";
 import { VCategory } from "../models/Types";
 import SecretManager from "./SecretManager";
@@ -21,21 +21,21 @@ export class SecretManagerMDB extends SecretManager {
      * @private
      * @type {MongoClient | null}
      */
-    private client: MongoClient | null = null;
+    protected client: MongoClient | null = null;
 
     /**
      * Client-Side Field Level Encryption instance
      * @private
      * @type {ClientEncryption | null}
      */
-    private encryption: ClientEncryption | null = null;
+    protected encryption: ClientEncryption | null = null;
 
     /**
      * KMS providers configuration for encryption operations
      * @private
      * @type {Object | null}
      */
-    private kmsProviders: { [key: string]: any } | null = null;
+    protected kmsProviders: KMSProviders | null = null;
 
     /**
      * Resolves a secret value from MongoDB with optional decryption
@@ -47,15 +47,17 @@ export class SecretManagerMDB extends SecretManager {
      */
     public async resolve(key: string, options?: ISecretManagerOptions): Promise<string | null | undefined | number | boolean> {
         try {
-            this.initializeKmsProviders();
-            await this.initializeClientAndEncryption();
-
-            const { mdb } = options || this.options;
+            options && (this.options = { ...this.options, ...options });
+            const { mdb } = this.options;
             if (!mdb) {
                 throw new Error("MongoDB configuration is missing in SecretManager options.");
             }
 
-            const collection = this.client!.db(mdb.database).collection(mdb.collection);
+            // Load MongoDB client
+            const client = await this.initClient(this.options);
+
+            // Get collection
+            const collection = client!.db(mdb.database).collection(mdb.collection);
 
             // Query the secret document by key
             const secretDocument = await collection.findOne({ key });
@@ -88,16 +90,68 @@ export class SecretManagerMDB extends SecretManager {
     }
 
     /**
+     * Resolves a secret value from MongoDB with optional decryption
+     * @public
+     * @param {string} key - The secret key to search for in the MongoDB collection
+     * @param {ISecretManagerOptions} [options] - Optional configuration override
+     * @returns {Promise<string | null | undefined | number | boolean>} Promise resolving to the decrypted secret value
+     * @throws {Error} When secret resolution fails
+     */
+    public async save(key: string, value: string, options?: ISecretManagerOptions): Promise<boolean> {
+        try {
+            options && (this.options = { ...this.options, ...options });
+            const { mdb } = this.options;
+            if (!mdb) {
+                throw new Error("MongoDB configuration is missing in SecretManager options.");
+            }
+
+            // Load MongoDB client
+            const client = await this.initClient(this.options);
+
+            // Get collection
+            const collection = client!.db(mdb.database).collection(mdb.collection);
+
+            // Query the secret document by key
+            const secretDocument = await collection.findOne({ key });
+            if (!secretDocument) {
+                this.logger?.warn({
+                    flow: options?.flow,
+                    category: VCategory.core.secret,
+                    src: 'Service:Secret:MDB:resolve',
+                    message: `Secret '${key}' not found in MongoDB collection: '${mdb.collection}'.`
+                });
+                return false;
+            }
+
+            // Decrypt the encrypted value if applicable
+            let resolvedValue = secretDocument.value;
+            if (secretDocument.encrypted && this.encryption) {
+                resolvedValue = await this.encryption.decrypt(resolvedValue);
+            }
+
+            return resolvedValue;
+        } catch (error) {
+            this.logger?.error({
+                flow: options?.flow,
+                category: VCategory.core.secret,
+                src: 'Service:Secret:MDB:resolve',
+                message: `Failed to retrieve secret '${key}' from MongoDB Secrets Manager. ${(error as Error).message}`
+            });
+            throw error;
+        }
+    }
+
+    /**
      * Initializes MongoDB client and Client-Side Field Level Encryption configuration
      * @private
      * @returns {Promise<void>} Promise that resolves when initialization is complete
      * @throws {Error} When MongoDB connection fails or encryption setup encounters errors
      */
-    private async initializeClientAndEncryption(): Promise<void> {
-        const { mdb } = this.options;
+    protected async initClient(options?: ISecretManagerOptions): Promise<MongoClient> {
+        const { mdb } = options || this.options;
 
         if (!mdb?.uri) {
-            throw new Error("MongoDB URI is required to initialize SecretManagerMDB.");
+            throw new Error("The MongoDB URI is required to initialize the MongoDB Secrets Manager.");
         }
 
         if (!this.assistant) {
@@ -115,13 +169,10 @@ export class SecretManagerMDB extends SecretManager {
 
         // Initialize Client-Side Field Level Encryption (if necessary)
         if (!this.encryption) {
-            const keyVaultNamespace = `${mdb.database}.keyVault`;
-
-            this.encryption = new ClientEncryption(this.client, {
-                kmsProviders: this.kmsProviders!,
-                keyVaultNamespace,
-            });
+            this.encryption = new ClientEncryption(this.client, this.getOptions(options));
         }
+
+        return this.client;
     }
 
     /**
@@ -130,20 +181,31 @@ export class SecretManagerMDB extends SecretManager {
      * @returns void
      * @description Sets up local and AWS KMS providers for encryption operations based on environment variables and configuration
      */
-    private initializeKmsProviders(): void {
+    protected getKmsProviders(options?: ISecretManagerOptions): KMSProviders {
+        const { cloud, mdb } = options || this.options || {};
         const localMasterKeyBase64 = process.env.LOCAL_MASTER_KEY;
-        this.kmsProviders = {
+
+        const kmsProviders: KMSProviders = {
             local: {
-                key: Buffer.from(localMasterKeyBase64 || "", "base64"), // Default to local key
-            },
+                key: Buffer.from(localMasterKeyBase64 || "*-*", "base64")
+            }
         };
 
-        const { cloud, mdb } = this.options;
         if (cloud?.accessKeyId && cloud?.secretAccessKey && mdb?.secretSource === 'cloud') {
-            this.kmsProviders["aws"] = {
+            kmsProviders["aws"] = {
                 accessKeyId: cloud.accessKeyId,
                 secretAccessKey: cloud.secretAccessKey,
             };
+        }
+
+        return kmsProviders;
+    }
+
+    protected getOptions(options?: ISecretManagerOptions): ClientEncryptionOptions {
+        const { mdb } = options || this.options || {};
+        return {
+            kmsProviders: this.getKmsProviders(options),
+            keyVaultNamespace: `${mdb?.database || 'db'}.keyVault`
         }
     }
 
@@ -152,7 +214,7 @@ export class SecretManagerMDB extends SecretManager {
      * @public
      * @returns {Promise<void>} Promise that resolves when cleanup is complete
      */
-    public async closeConnection(): Promise<void> {
+    public async close(): Promise<void> {
         if (this.client) {
             await this.client.close();
             this.client = null;
