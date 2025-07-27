@@ -77,7 +77,11 @@ export interface ISecretManagerOptions {
          * @type {string}
          * @description Supported strategies: cloud, local
          */
-        secretSource?: string;
+        source?: string;
+
+        keyAltName?: string;
+
+        algorithm?: string;
     };
 }
 
