@@ -1,6 +1,6 @@
 /**
  * @fileoverview Secret Manager Service - Secret Resolution Bridge Component
- * @description Bridge service for managing secrets from various backends (AWS, MongoDB, environment variables)
+ * Bridge service for managing secrets from various backends (AWS, MongoDB, environment variables)
  * @author MDB SAT
  * @since 1.0.4
  * @version 1.0.5
@@ -15,7 +15,7 @@ import { BaseService } from "./BaseService";
 /**
  * @class SecretManager
  * @extends BaseService
- * @description Bridge service for secret resolution from multiple backends
+ * Bridge service for secret resolution from multiple backends
  */
 export class SecretManager extends BaseService implements ISecretManager {
     /**
@@ -101,6 +101,14 @@ export class SecretManager extends BaseService implements ISecretManager {
         }
     }
 
+    /**
+     * Retrieves secret value from configured backend delegate
+     * @protected
+     * @param {string} key - The secret key to resolve
+     * @param {ISecretManagerOptions} [options] - Optional configuration override
+     * @returns {Promise<string | null | undefined | number | boolean>} Promise resolving to secret value or null
+     * @throws {Error} When secret resolution fails or configuration is invalid
+     */
     protected async getValue(key: string, options?: ISecretManagerOptions): Promise<string | null | undefined | number | boolean> {
         try {
             if (!this.assistant) {
