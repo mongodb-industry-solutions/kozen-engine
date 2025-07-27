@@ -82,6 +82,8 @@ export interface ISecretManagerOptions {
         keyAltName?: string;
 
         algorithm?: string;
+
+        key?: string;
     };
 }
 

@@ -183,11 +183,10 @@ export class SecretManagerMDB extends SecretManager {
      */
     protected getKmsProviders(options?: ISecretManagerOptions): KMSProviders {
         const { cloud, mdb } = options || this.options || {};
-        const localMasterKeyBase64 = process.env.LOCAL_MASTER_KEY;
-
+        const localMasterKeyBase64 = process.env[mdb?.key || 'MDB_MASTER_KEY'] || this.getLocalKey();
         const kmsProviders: KMSProviders = {
             local: {
-                key: Buffer.from(localMasterKeyBase64 || "*-*", "base64")
+                key: Buffer.from(localMasterKeyBase64, "base64")
             }
         };
 
@@ -199,6 +198,14 @@ export class SecretManagerMDB extends SecretManager {
         }
 
         return kmsProviders;
+    }
+
+    protected getLocalKey() {
+        const crypto = require('crypto');
+        // Generate a 96-byte random key
+        const localMasterKey = crypto.randomBytes(96);
+        // Encode the key in Base64 format
+        return localMasterKey.toString('base64');
     }
 
     /**
