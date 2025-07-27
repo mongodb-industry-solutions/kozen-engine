@@ -40,16 +40,10 @@ export class SecretController {
 
     /**
      * Saves a secret to MongoDB with encryption support
-     *
-     * @async
-     * @method saveSecret
+     * @public
      * @param {string} key - The key for the secret
      * @param {string} value - The value of the secret
      * @returns {Promise<boolean>} Success status of the save operation
-     *
-     * @example
-     * const success = await controller.saveSecret('API_KEY', 'super_secret_key');
-     * console.log('Secret saved:', success);
      */
     public async save(key: string, value: string): Promise<boolean> {
         try {
@@ -71,15 +65,9 @@ export class SecretController {
 
     /**
      * Resolves a secret from MongoDB with decryption support
-     *
-     * @async
-     * @method resolveSecret
+     * @public
      * @param {string} key - The key to search for
      * @returns {Promise<string | null>} The resolved secret value or null if not found
-     *
-     * @example
-     * const secret = await controller.resolveSecret('API_KEY');
-     * console.log('Resolved secret:', secret);
      */
     public async resolve(key: string): Promise<string | null> {
         try {
@@ -108,8 +96,8 @@ export class SecretController {
 
     /**
      * Displays CLI usage information for working with secrets
-     *
-     * @method displayUsage
+     * @public
+     * @static
      */
     public static displayUsage(): void {
         console.log(`
@@ -132,28 +120,16 @@ export class SecretController {
         `);
     }
 
-
     /**
      * Loads pipeline configuration from a JSON file
-     *
      * @public
      * @param {string} configPath - File system path to the configuration file
      * @returns {Promise<IPipelineConfig>} Promise resolving to the loaded and parsed pipeline configuration
      * @throws {Error} When file reading fails, JSON parsing errors occur, or file access is denied
-     *
+     * 
      * Loads and parses pipeline configuration from a JSON file, providing error handling
      * for common file system and parsing issues. The configuration includes service dependencies,
      * deployment settings, and environment-specific parameters.
-     *
-     * @example
-     * ```typescript
-     * try {
-     *   const config = await pipelineManager.load('cfg/production.json');
-     *   console.log('Loaded config:', config.name);
-     * } catch (error) {
-     *   console.error('Failed to load config:', error.message);
-     * }
-     * ```
      */
     public async load(configPath: string): Promise<IPipelineConfig> {
         try {
@@ -166,21 +142,18 @@ export class SecretController {
     }
 
     /**
-     * Configures the pipeline manager with the provided configuration and IoC container
-     * 
+     * Configures the secret controller with provided arguments and dependencies
      * @public
-     * @param {IPipelineConfig} config - The pipeline configuration to apply
-     * @param {IoC} [ioc] - Optional IoC container for dependency management
-     * @returns {Promise<PipelineManager>} Promise resolving to the configured PipelineManager instance
+     * @param {ISecretArgs} args - Secret controller configuration arguments
+     * @returns {Promise<void>} Promise that resolves when configuration is complete
      * @throws {Error} When configuration fails due to invalid configuration or dependency registration errors
      * 
-     * This method sets up the pipeline manager by:
-     * 1. Storing the provided configuration
+     * This method sets up the secret controller by:
+     * 1. Loading the configuration file if provided
      * 2. Setting up the IoC container for dependency injection
      * 3. Registering all service dependencies defined in the configuration
      */
     public async configure(args: ISecretArgs): Promise<void> {
-
         try {
             const config = args.config && await this.load(args.config);
             if (!config) {
@@ -197,19 +170,13 @@ export class SecretController {
             throw new Error(`Failed to configure pipeline: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
+
     /**
-      * Parses command line arguments into structured format
-      *
-      * @method parseArguments
-      * @param {string[]} args - Command line arguments array
-      * @returns {ISecretArgs} Parsed CLI arguments
-      *
-      * @example
-      * ```typescript
-      * const args = controller.parseArguments(['--template=atlas.basic', '--action=deploy']);
-      * // Returns: { template: 'atlas.basic', config: 'config.json', action: 'deploy' }
-      * ```
-      */
+     * Parses command line arguments into structured format
+     * @public
+     * @param {string[]} args - Command line arguments array
+     * @returns {ISecretArgs} Parsed CLI arguments with defaults applied
+     */
     public parseArguments(args: string[]): ISecretArgs {
         let parsed: Partial<ISecretArgs> = this.extract(args);
         parsed.action = parsed.action || (process.env.KOZEN_SM_ACTION as IAction) || 'resolve';
@@ -219,6 +186,12 @@ export class SecretController {
         return parsed as ISecretArgs;
     }
 
+    /**
+     * Extracts key-value pairs from command line arguments array
+     * @public
+     * @param {string[]} [argv] - Command line arguments array, defaults to process.argv
+     * @returns {Record<string, string>} Object containing parsed argument key-value pairs
+     */
     extract(argv?: string[]) {
         argv = argv || process.argv;
         return argv.slice(2).reduce((acc: Record<string, string>, arg: string) => {
