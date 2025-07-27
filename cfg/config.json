@@ -160,7 +160,7 @@
           "mdb": {
             "enabled": true,
             "database": "kozen",
-            "collection": "logs",
+            "collection": "secrets",
             "uri": "MDB_URI",
             "level": "DEBUG"
           }
