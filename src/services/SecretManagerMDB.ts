@@ -1,6 +1,6 @@
 /**
  * @fileoverview MongoDB Secret Manager Service - MongoDB Implementation with Encryption Support
- * @description MongoDB-specific implementation of secret management with Client-Side Field Level Encryption (CSFLE) support
+ * MongoDB-specific implementation of secret management with Client-Side Field Level Encryption (CSFLE) support
  * @author MDB SAT
  * @since 1.0.4
  * @version 1.0.6
@@ -14,25 +14,25 @@ import SecretManager from "./SecretManager";
 /**
  * @class SecretManagerMDB
  * @extends SecretManager
- * @description MongoDB implementation with Client-Side Field Level Encryption (CSFLE) support
+ * MongoDB implementation with Client-Side Field Level Encryption (CSFLE) support
  */
 export class SecretManagerMDB extends SecretManager {
     /**
-     * MongoDB client instance used for database operations.
+     * MongoDB client instance used for database operations
      * @private
      * @type {MongoClient | null}
      */
     protected client: MongoClient | null = null;
 
     /**
-     * Client-Side Field Level Encryption instance used for encryption and decryption.
+     * Client-Side Field Level Encryption instance used for encryption and decryption
      * @private
      * @type {ClientEncryption | null}
      */
     protected encryption: ClientEncryption | null = null;
 
     /**
-     * KMS providers configuration for encryption operations.
+     * KMS providers configuration for encryption operations
      * @private
      * @type {KMSProviders | null}
      */
@@ -171,6 +171,13 @@ export class SecretManagerMDB extends SecretManager {
         return this.client;
     }
 
+    /**
+     * Creates or retrieves existing data encryption key for MongoDB encryption operations
+     * @protected
+     * @param {ISecretManagerOptions} [options] - Optional configuration override
+     * @returns {Promise<any>} Promise resolving to the data encryption key ID
+     * @throws {Error} When data key creation fails
+     */
     protected async createDataKey(options?: ISecretManagerOptions) {
         const keyAltName = this.getKeyAlt(options);
         const collection = options?.mdb?.database && this.client!.db(options?.mdb.database).collection(options?.mdb.collection) as any;
@@ -190,11 +197,23 @@ export class SecretManagerMDB extends SecretManager {
         return dekId;
     }
 
+    /**
+     * Generates key alternative name for encryption key identification
+     * @protected
+     * @param {ISecretManagerOptions} [options] - Optional configuration override
+     * @returns {string} The key alternative name for encryption operations
+     */
     protected getKeyAlt(options?: ISecretManagerOptions) {
         const { mdb } = options || this.options;
         return mdb?.keyAltName || process.env.KOZEN_SM_ALT || `${mdb?.database || 'db'}-${mdb?.collection || 'co'}.alt`;
     }
 
+    /**
+     * Constructs key vault namespace string for MongoDB encryption operations
+     * @protected
+     * @param {ISecretManagerOptions} [options] - Optional configuration override
+     * @returns {string} The key vault namespace in database.collection format
+     */
     protected getkeyVaultNamespace(options?: ISecretManagerOptions) {
         const { mdb } = options || this.options;
         return `${mdb?.database || 'db'}.${mdb?.collection || 'keyVault'}`;
@@ -225,6 +244,11 @@ export class SecretManagerMDB extends SecretManager {
         return kmsProviders;
     }
 
+    /**
+     * Generates random local master key for encryption operations
+     * @protected
+     * @returns {string} Base64-encoded random master key for local encryption
+     */
     protected getLocalKey() {
         const crypto = require('crypto');
         // Generate a 96-byte random key
