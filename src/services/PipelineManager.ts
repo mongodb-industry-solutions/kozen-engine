@@ -11,7 +11,7 @@ import { BaseService } from './BaseService';
 
 /**
  * @fileoverview Pipeline Manager Service - Core Bridge Component
- * @description Main orchestrator service that acts as a bridge between CLI controllers and infrastructure services.
+ * Main orchestrator service that acts as a bridge between CLI controllers and infrastructure services.
  * This service coordinates template processing, component deployment, and infrastructure stack management.
  * 
  * The PipelineManager implements the Bridge pattern by abstracting the complexity of infrastructure
@@ -49,7 +49,7 @@ export class PipelineManager extends BaseService {
      * 
      * @private
      * @type {IPipelineConfig | null}
-     * @description Stores the active pipeline configuration including dependencies,
+     * Stores the active pipeline configuration including dependencies,
      * service registrations, and deployment settings. Null when not configured.
      */
     protected config: IPipelineConfig | null;
@@ -61,7 +61,7 @@ export class PipelineManager extends BaseService {
      * @param {IPipelineConfig} [config] - Optional initial pipeline configuration
      * @param {IoC} [ioc] - Optional IoC container for dependency management
      * 
-     * @description Initializes the pipeline manager with an IoC container for dependency injection.
+     * Initializes the pipeline manager with an IoC container for dependency injection.
      * The manager serves as the central bridge between CLI operations and infrastructure services.
      * Dependencies are registered during the configure() method call.
      * 
@@ -94,7 +94,7 @@ export class PipelineManager extends BaseService {
      * @returns {Promise<PipelineManager>} Promise resolving to the configured PipelineManager instance
      * @throws {Error} When configuration fails due to invalid configuration or dependency registration errors
      * 
-     * @description This method sets up the pipeline manager by:
+     * This method sets up the pipeline manager by:
      * 1. Storing the provided configuration
      * 2. Setting up the IoC container for dependency injection
      * 3. Registering all service dependencies defined in the configuration
@@ -123,7 +123,7 @@ export class PipelineManager extends BaseService {
      * @returns {Promise<IResult>} Promise resolving to the deployment execution result
      * @throws {Error} When deployment fails due to template loading, stack management, or component deployment errors
      * 
-     * @description This method orchestrates the complete deployment process by:
+     * This method orchestrates the complete deployment process by:
      * 1. Extracting deployment parameters from pipeline arguments
      * 2. Resolving StackManager and TemplateManager from IoC container
      * 3. Loading the specified template configuration
@@ -143,6 +143,9 @@ export class PipelineManager extends BaseService {
 
         let id = this.getId(args);
         let out: IResult = {};
+        if (!templateName) {
+            throw new Error('A valid template name was not provided');
+        }
         let template = await srvTemplate.load<ITemplate>(templateName, { flow: id });
         let pipeline = { args, assistant: this.assistant, template, id };
 
@@ -195,7 +198,7 @@ export class PipelineManager extends BaseService {
      * @returns {Promise<IResult>} Promise resolving to the processing results and aggregated outputs
      * @throws {Error} When component resolution, configuration, or deployment fails
      * 
-     * @description This method acts as a bridge between template definitions and component implementations by:
+     * This method acts as a bridge between template definitions and component implementations by:
      * 1. Resolving the VarProcessorService for variable interpolation
      * 2. Iterating through all template components
      * 3. Resolving each component controller from the IoC container
@@ -245,7 +248,7 @@ export class PipelineManager extends BaseService {
      * @returns {Promise<IResult>} Promise resolving to the undeployment execution result
      * @throws {Error} When undeployment fails due to stack management or component removal errors
      * 
-     * @description Removes previously deployed infrastructure by reversing the deployment process.
+     * Removes previously deployed infrastructure by reversing the deployment process.
      * This method coordinates with stack managers and component controllers to clean up resources.
      */
     public async undeploy(pipeline: IPipelineArgs): Promise<IResult> {
@@ -267,7 +270,7 @@ export class PipelineManager extends BaseService {
      * @returns {Promise<IResult>} Promise resolving to the validation result
      * @throws {Error} When validation fails due to template loading or configuration errors
      * 
-     * @description Performs comprehensive validation of template configuration, dependencies,
+     * Performs comprehensive validation of template configuration, dependencies,
      * and component settings without deploying actual infrastructure. This helps catch
      * configuration errors early in the deployment pipeline.
      */
@@ -290,7 +293,7 @@ export class PipelineManager extends BaseService {
      * @returns {Promise<IResult>} Promise resolving to the current infrastructure status
      * @throws {Error} When status check fails due to stack access or component query errors
      * 
-     * @description Queries the current state of deployed infrastructure components and provides
+     * Queries the current state of deployed infrastructure components and provides
      * comprehensive status information including health, configuration, and operational metrics.
      */
     public async status(pipeline: IPipelineArgs): Promise<IResult> {
@@ -312,7 +315,7 @@ export class PipelineManager extends BaseService {
      * @returns {Promise<IPipelineConfig>} Promise resolving to the loaded and parsed pipeline configuration
      * @throws {Error} When file reading fails, JSON parsing errors occur, or file access is denied
      * 
-     * @description Loads and parses pipeline configuration from a JSON file, providing error handling
+     * Loads and parses pipeline configuration from a JSON file, providing error handling
      * for common file system and parsing issues. The configuration includes service dependencies,
      * deployment settings, and environment-specific parameters.
      * 

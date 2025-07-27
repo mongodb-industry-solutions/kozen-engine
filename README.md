@@ -40,13 +40,13 @@ The [**Kozen Engine**](https://github.com/mongodb-industry-solutions/kozen-engin
 
 As seen in the previous image, Kozen is part of the SAU project. It serves as a crucial abstraction layer built on top of Pulumi, managing and orchestrating the deployment of testing environment definition templates.
 
-The **Kozen Engine** follows an extensible, plugin-based architecture with three core extensible managers:
-
 ![Kozen Engine Architecture Layers](docs/images/kozen-architecture-Layers.jpg)
 
 Please keep in mind that everything observed whether it's errors, bugs, features, suggestions, ideas, etc. should be logged in the "Issues" section of the following GitHub repository: [https://github.com/mongodb-industry-solutions/kozen-engine/issues](https://github.com/mongodb-industry-solutions/kozen-engine/issues). This ensures our team can track these items effectively and helps the project evolve successfully.
 
 ### Core Extensible Components
+
+The **Kozen Engine** follows an extensible, plugin-based architecture with three core extensible managers:
 
 - **StackManager**: Dynamic infrastructure orchestration with pluggable providers
 - **TemplateManager**: Flexible template storage and retrieval system
