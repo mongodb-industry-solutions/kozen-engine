@@ -206,6 +206,7 @@ export class SecretController {
         parsed.action = parsed.action || (process.env.KOZEN_SM_ACTION as IAction) || 'resolve';
         parsed.key = parsed.key || (process.env.KOZEN_SM_KEY as IAction);
         parsed.config = parsed.config || process.env.KOZEN_CONFIG || 'cfg/config.json';
+        parsed.value = parsed.value || process.env.KOZEN_SM_VAL;
         return parsed as ISecretArgs;
     }
 
