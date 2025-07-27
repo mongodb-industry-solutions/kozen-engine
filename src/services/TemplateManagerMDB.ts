@@ -1,6 +1,6 @@
 /**
  * @fileoverview MongoDB Template Manager Service - MongoDB Implementation
- * @description MongoDB-specific implementation for loading infrastructure templates from MongoDB collections
+ * MongoDB-specific implementation for loading infrastructure templates from MongoDB collections
  * @author MDB SAT
  * @since 1.0.4
  * @version 1.0.5
@@ -13,7 +13,7 @@ import TemplateManager from "./TemplateManager";
 /**
  * @class TemplateManagerMDB
  * @extends TemplateManager
- * @description MongoDB implementation for template loading with secure URI resolution and connection management
+ * MongoDB implementation for template loading with secure URI resolution and connection management
  */
 export class TemplateManagerMDB extends TemplateManager {
 
