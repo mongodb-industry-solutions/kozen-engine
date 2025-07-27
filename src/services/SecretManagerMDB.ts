@@ -102,11 +102,7 @@ export class SecretManagerMDB extends SecretManager {
      * @returns {Promise<boolean>} Promise resolving to true if the secret is successfully saved.
      * @throws {Error} When secret storage fails.
      */
-    public async save(
-        key: string,
-        value: string | Binary,
-        options?: ISecretManagerOptions
-    ): Promise<boolean> {
+    public async save(key: string, value: string | Binary, options?: ISecretManagerOptions): Promise<boolean> {
         try {
             options && (this.options = { ...this.options, ...options });
             const { mdb } = this.options;
@@ -123,7 +119,7 @@ export class SecretManagerMDB extends SecretManager {
             // Encrypt the value if necessary
             value = await this.encryption!.encrypt(value, {
                 algorithm: mdb.algorithm as ClientEncryptionEncryptOptions['algorithm'] || 'AEAD_AES_256_CBC_HMAC_SHA_512-Random',
-                keyAltName: mdb.keyAltName || `${mdb?.database || 'db'}-${mdb?.collection || 'co'}.alt`
+                keyId: await this.createDataKey(options)
             });
 
             // Insert or update the secret document
@@ -175,6 +171,35 @@ export class SecretManagerMDB extends SecretManager {
         return this.client;
     }
 
+    protected async createDataKey(options?: ISecretManagerOptions) {
+        const keyAltName = this.getKeyAlt(options);
+        const collection = options?.mdb?.database && this.client!.db(options?.mdb.database).collection(options?.mdb.collection) as any;
+        const existent = await collection?.findOne({ keyAltNames: keyAltName });
+
+        // Create a data encryption key (DEK)
+        const dekId = existent?.["_id"] || await this.encryption!.createDataKey('local', { keyAltNames: [keyAltName] });
+
+        this.logger?.warn({
+            flow: options?.flow,
+            category: VCategory.core.secret,
+            src: 'Service:Secret:MDB:createDataKey',
+            message: 'Create Data Key',
+            data: { dekId, keyAltName }
+        });
+
+        return dekId;
+    }
+
+    protected getKeyAlt(options?: ISecretManagerOptions) {
+        const { mdb } = options || this.options;
+        return mdb?.keyAltName || process.env.KOZEN_SM_ALT || `${mdb?.database || 'db'}-${mdb?.collection || 'co'}.alt`;
+    }
+
+    protected getkeyVaultNamespace(options?: ISecretManagerOptions) {
+        const { mdb } = options || this.options;
+        return `${mdb?.database || 'db'}.${mdb?.collection || 'keyVault'}`;
+    }
+
     /**
      * Retrieves the KMS providers configuration for encryption.
      * @protected
@@ -215,10 +240,9 @@ export class SecretManagerMDB extends SecretManager {
      * @returns {ClientEncryptionOptions} The encryption configuration options.
      */
     protected getOptions(options?: ISecretManagerOptions): ClientEncryptionOptions {
-        const { mdb } = options || this.options || {};
         return {
             kmsProviders: this.getKmsProviders(options),
-            keyVaultNamespace: `${mdb?.database || 'db'}-${mdb?.collection || 'co'}.keyVault`
+            keyVaultNamespace: this.getkeyVaultNamespace(options)
         };
     }
 
