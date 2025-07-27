@@ -15,12 +15,34 @@ import { ITemplate } from "./Template";
  * @interface IPipelineArgs
  * @description CLI arguments interface for pipeline operations
  */
-export interface IPipelineArgs {
+export interface ICLIArgs {
+  /**
+   * Help action entry
+   * @type {string}
+   */
+  help?: string;
+
+  /**
+   * Configuration file path
+   * @type {string}
+   */
+  config?: string;
+
+  /**
+   * Pipeline operation type
+   * @type {string}
+   * @description Supported actions: deploy, undeploy, validate, status
+   */
+  action: string;
+}
+
+export interface IPipelineArgs extends ICLIArgs {
+
   /**
    * Infrastructure template name
    * @type {string}
    */
-  template: string;
+  template?: string;
 
   /**
    * Optional unique stack identifier
@@ -33,19 +55,11 @@ export interface IPipelineArgs {
    * @type {string}
    */
   project?: string;
+}
 
-  /**
-   * Configuration file path
-   * @type {string}
-   */
-  config: string;
-
-  /**
-   * Pipeline operation type
-   * @type {string}
-   * @description Supported actions: deploy, undeploy, validate, status
-   */
-  action: string;
+export interface ISecretArgs extends ICLIArgs {
+  key?: string;
+  value?: string;
 }
 
 /**
