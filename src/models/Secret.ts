@@ -6,6 +6,8 @@
  * @version 1.0.5
  */
 
+import { Binary } from "mongodb";
+
 /**
  * @interface ISecretManagerOptions
  * @description Configuration interface for secret management backend
@@ -103,4 +105,15 @@ export interface ISecretManager {
      * @throws {Error} When secret resolution fails.
      */
     resolve(key: string, options?: ISecretManagerOptions): Promise<string | null | undefined | number | boolean>;
+
+
+    /**
+     * Resolves a secret value from the configured backend
+     * @public
+     * @param {string} key - The secret key to resolve
+     * @param {ISecretManagerOptions} [options] - Optional configuration override
+     * @returns {Promise<string | null | undefined | number | boolean>} Promise resolving to the secret value
+     * @throws {Error} When secret resolution fails
+     */
+    save(key: string, value: string | Binary, options?: ISecretManagerOptions): Promise<boolean>;
 }  

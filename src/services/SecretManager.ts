@@ -5,6 +5,7 @@
  * @since 1.0.4
  * @version 1.0.5
  */
+import { Binary } from "mongodb";
 import { ILoggerService } from "../models/Logger";
 import { ISecretManager, ISecretManagerOptions } from "../models/Secret";
 import { VCategory } from "../models/Types";
@@ -67,6 +68,37 @@ export class SecretManager extends BaseService implements ISecretManager {
     public async resolve(key: string, options?: ISecretManagerOptions): Promise<string | null | undefined | number | boolean> {
         const value = await this.getValue(key, options);
         return value ?? process.env[key];
+    }
+
+    /**
+     * Resolves a secret value from the configured backend
+     * @public
+     * @param {string} key - The secret key to resolve
+     * @param {ISecretManagerOptions} [options] - Optional configuration override
+     * @returns {Promise<string | null | undefined | number | boolean>} Promise resolving to the secret value
+     * @throws {Error} When secret resolution fails
+     */
+    public async save(key: string, value: string | Binary, options?: ISecretManagerOptions): Promise<boolean> {
+        try {
+            if (!this.assistant) {
+                throw new Error("Incorrect dependency injection configuration.");
+            }
+            options = { ...this.options, ...options };
+            if (!this.options?.type) {
+                throw new Error("SecretManager options or type is not defined.");
+            }
+            const controller = await this.getDelegate<ISecretManager>(options.type || 'AWS');
+            return controller.save(key, value, options);
+        }
+        catch (error) {
+            this.logger?.error({
+                flow: options?.flow,
+                category: VCategory.core.secret,
+                src: 'Service:SecretManager:save',
+                message: (error as Error).message
+            });
+            return false;
+        }
     }
 
     protected async getValue(key: string, options?: ISecretManagerOptions): Promise<string | null | undefined | number | boolean> {
