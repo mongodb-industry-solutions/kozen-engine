@@ -143,6 +143,9 @@ export class PipelineManager extends BaseService {
 
         let id = this.getId(args);
         let out: IResult = {};
+        if (!templateName) {
+            throw new Error('A valid template name was not provided');
+        }
         let template = await srvTemplate.load<ITemplate>(templateName, { flow: id });
         let pipeline = { args, assistant: this.assistant, template, id };
 

@@ -152,7 +152,7 @@ export class PipelineController {
       throw new Error(`Invalid action: ${args.action}. Must be one of: ${validActions.join(', ')}`);
     }
 
-    if (!fs.existsSync(args.config)) {
+    if (!args?.config || !fs.existsSync(args.config)) {
       throw new Error(`Configuration file not found: ${args.config}`);
     }
   }
@@ -192,7 +192,10 @@ export class PipelineController {
       });
 
       // Load configuration
-      const config = await this.pipeline.load(args.config);
+      const config = args?.config && await this.pipeline.load(args.config);
+      if (!config) {
+        throw new Error(`Configuration file not found: ${args.config}`);
+      }
 
       // Apply default values if not specified
       this.applyConfigDefaults(config, args);
