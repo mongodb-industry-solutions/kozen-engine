@@ -1,6 +1,6 @@
 /**
  * @fileoverview SecretController - CLI to SecretManager bridge component
- * @description Controller for managing secrets in MongoDB through CLI interactions using SecretManagerMDB.
+ * Controller for managing secrets in MongoDB through CLI interactions using SecretManagerMDB.
  * Supports operations like saving and resolving secrets using encryption.
  *
  * @author IaC Pipeline Team
@@ -16,7 +16,16 @@ import { IAction } from '../models/Types';
 import { IIoC, IoC } from '../tools';
 
 export class SecretController {
+    /**
+     * IoC container instance for dependency injection and service resolution
+     * @type {IIoC | null}
+     */
     protected assistant?: IIoC | null;
+
+    /**
+     * Logger service instance for recording secret management operations
+     * @type {ILoggerService | null}
+     */
     public logger?: ILoggerService | null;
 
     /**
@@ -132,7 +141,7 @@ export class SecretController {
      * @returns {Promise<IPipelineConfig>} Promise resolving to the loaded and parsed pipeline configuration
      * @throws {Error} When file reading fails, JSON parsing errors occur, or file access is denied
      *
-     * @description Loads and parses pipeline configuration from a JSON file, providing error handling
+     * Loads and parses pipeline configuration from a JSON file, providing error handling
      * for common file system and parsing issues. The configuration includes service dependencies,
      * deployment settings, and environment-specific parameters.
      *
@@ -165,7 +174,7 @@ export class SecretController {
      * @returns {Promise<PipelineManager>} Promise resolving to the configured PipelineManager instance
      * @throws {Error} When configuration fails due to invalid configuration or dependency registration errors
      * 
-     * @description This method sets up the pipeline manager by:
+     * This method sets up the pipeline manager by:
      * 1. Storing the provided configuration
      * 2. Setting up the IoC container for dependency injection
      * 3. Registering all service dependencies defined in the configuration

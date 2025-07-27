@@ -1,6 +1,6 @@
 /**
  * @fileoverview Core type definitions and interfaces for pipeline operations
- * @description Defines fundamental types and interfaces used throughout the pipeline system
+ * Defines fundamental types and interfaces used throughout the pipeline system
  * @author MDB SAT
  * @since 1.0.4
  * @version 1.0.5
@@ -32,7 +32,7 @@ export type IStructType = "reference" | "value" | "environment" | "secret" | "pr
 
 /**
  * @interface IMetadata
- * @description Variable definition interface for value resolution
+ * Variable definition interface for value resolution
  */
 export interface IMetadata {
     /**
@@ -70,7 +70,7 @@ export interface IMetadata {
 
 /**
  * @interface IResult
- * @description Comprehensive result interface for pipeline operations
+ * Comprehensive result interface for pipeline operations
  */
 export interface IResult {
     /**
