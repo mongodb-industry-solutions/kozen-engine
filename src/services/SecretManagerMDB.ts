@@ -60,7 +60,7 @@ export class SecretManagerMDB extends SecretManager {
             // Initialize MongoDB client
             const client = await this.initClient(this.options);
 
-            // Get collection  
+            // Get collection
             const collection = client!.db(mdb.database).collection(mdb.collection);
 
             // Query the secret document by key
