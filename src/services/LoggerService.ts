@@ -37,12 +37,22 @@ import {
  * ```
  */
 export class LoggerService implements ILoggerService {
-    /** Internal logger instance configured with hybrid processor */
+    /**
+     * Internal logger instance configured with hybrid processor for dual output
+     * @private
+     */
     private readonly logger: Logger;
 
-    /** Hybrid processor combining console and MongoDB output destinations */
+    /**
+     * Hybrid processor combining console and MongoDB output destinations
+     * @private
+     */
     private readonly hybridProcessor: HybridLogProcessor;
 
+    /**
+     * Array of pending log processing promises for asynchronous operations
+     * @type {Promise<void>[]}
+     */
     public stack: Promise<void>[];
 
     /**

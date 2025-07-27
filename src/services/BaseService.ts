@@ -6,7 +6,7 @@ import { IIoC } from "../tools";
 
 /**
  * @fileoverview Base Service - Foundation Class for All Services
- * @description Abstract base class that provides common functionality and dependency injection
+ * Abstract base class that provides common functionality and dependency injection
  * capabilities for all service classes in the application. This class establishes a consistent
  * pattern for service implementation and ensures proper IoC container integration.
  * All service classes should extend this base class to maintain consistency in dependency
@@ -40,7 +40,7 @@ export class BaseService {
      * 
      * @protected
      * @type {IIoC}
-     * @description Protected IoC container providing dependency injection capabilities
+     * Protected IoC container providing dependency injection capabilities
      * to derived service classes. This allows services to resolve dependencies without
      * tight coupling to specific implementations, promoting modularity and testability.
      * 
@@ -52,9 +52,17 @@ export class BaseService {
      */
     protected assistant?: IIoC | null;
 
+    /**
+     * Prefix string used for dynamic delegate resolution and service naming
+     * @protected
+     * @type {string}
+     */
     protected prefix?: string;
 
-
+    /**
+     * Logger service instance for recording service operations and errors
+     * @type {ILoggerService | null}
+     */
     public logger?: ILoggerService | null;
 
     constructor(dependency?: { assistant: IIoC, logger: ILoggerService }) {
