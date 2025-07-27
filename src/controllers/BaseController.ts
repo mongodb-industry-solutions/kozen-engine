@@ -33,23 +33,19 @@ export abstract class BaseController implements IController {
      * without tight coupling to their implementations.
      * @protected
      * @type {IIoC}
-     * 
-     * @example
-     * ```typescript
-     * // Resolving dependencies in derived controllers
-     * const secretManager = await this.assistant.resolve<SecretManager>('SecretManager');
-     * ```
      */
     protected assistant?: IIoC | null;
 
     /**
      * Logger service instance for recording pipeline operations and errors
+     * @public
      * @type {ILoggerService | null}
      */
     public logger?: ILoggerService | null;
 
     /**
      * Current pipeline context containing arguments, template, and execution state
+     * @protected
      * @type {IPipeline}
      */
     protected pipeline?: IPipeline;
@@ -71,6 +67,7 @@ export abstract class BaseController implements IController {
      * to ensure proper configuration before use.
      * @constructor
      * @param {IComponent} [config] - Optional initial component configuration
+     * @param {Object} [dependency] - Optional dependency injection object
      */
     constructor(config?: IComponent, dependency?: { assistant: IIoC, logger: ILoggerService }) {
         this.config = config || {};
@@ -86,8 +83,8 @@ export abstract class BaseController implements IController {
      * @public
      * @param {IComponent} config - The component configuration object containing
      *                              deployment parameters, setup instructions, and metadata
+     * @param {Object} [dependency] - Optional dependency injection object
      * @returns {BaseController} Returns the configured controller instance for method chaining
-     *
      */
     configure(config: IComponent, dependency?: { assistant: IIoC, logger: ILoggerService }): BaseController {
         this.config = config;
@@ -102,9 +99,9 @@ export abstract class BaseController implements IController {
      * values suitable for infrastructure deployment. Handles different parameter types including
      * secrets, environment variables, and static values.
      * @public
-     * @param {IStruct} [input] - Optional input parameters for setup configuration
-     * @returns {Promise<void | IConfigValue[]>} Promise resolving to configuration values or void
-     * 
+     * @param {IStruct} input - Input parameters for setup configuration
+     * @param {IPipeline} [pipeline] - Optional pipeline context for setup operations
+     * @returns {Promise<IResult>} Promise resolving to setup result with output configuration
      */
     public async setup(input: IStruct, pipeline?: IPipeline): Promise<IResult> {
         if (!Array.isArray(this.config.setup)) {
@@ -123,9 +120,9 @@ export abstract class BaseController implements IController {
      * @abstract
      * @public
      * @param {IStruct} [input] - Optional input parameters for deployment
+     * @param {IPipeline} [pipeline] - Optional pipeline context for deployment operations
      * @returns {Promise<IResult>} Promise resolving to deployment result with success status and outputs
      * @throws {Error} When deployment fails due to configuration, network, or infrastructure errors
-     * 
      */
     abstract deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
 
@@ -136,9 +133,9 @@ export abstract class BaseController implements IController {
      * derived classes should override with specific cleanup logic.
      * @public
      * @param {IStruct} [input] - Optional input parameters for undeployment
+     * @param {IPipeline} [pipeline] - Optional pipeline context for undeployment operations
      * @returns {Promise<IResult | void>} Promise resolving to undeployment result or void
      * @throws {Error} When undeployment fails due to access issues or resource dependencies
-     * 
      */
     public async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult | void> { }
 
@@ -149,6 +146,7 @@ export abstract class BaseController implements IController {
      * Default implementation provides no-op behavior.
      * @public
      * @param {IStruct} [input] - Optional input parameters for destruction
+     * @param {IPipeline} [pipeline] - Optional pipeline context for destruction operations
      * @returns {Promise<IResult | void>} Promise resolving to destruction result or void
      * @throws {Error} When destruction fails due to access issues or resource protection
      */
@@ -161,6 +159,7 @@ export abstract class BaseController implements IController {
      * configuration issues before attempting deployment.
      * @public
      * @param {IStruct} [input] - Optional input parameters for validation
+     * @param {IPipeline} [pipeline] - Optional pipeline context for validation operations
      * @returns {Promise<IResult | void>} Promise resolving to validation result or void
      * @throws {Error} When validation encounters configuration or dependency errors
      */
@@ -173,13 +172,18 @@ export abstract class BaseController implements IController {
      * comprehensive status information for monitoring and troubleshooting.
      * @public
      * @param {IStruct} [input] - Optional input parameters for status checking
+     * @param {IPipeline} [pipeline] - Optional pipeline context for status operations
      * @returns {Promise<IResult | void>} Promise resolving to component status information or void
      * @throws {Error} When status check fails due to network issues or access problems
-     * 
      */
     public async status(input?: IStruct, pipeline?: IPipeline): Promise<IResult | void> { }
 
-
+    /**
+     * Generates unique prefix for resource naming using pipeline context
+     * @protected
+     * @param {IPipeline} [pipeline] - Optional pipeline context, defaults to instance pipeline
+     * @returns {string} Generated prefix combining project and stack identifiers
+     */
     protected getPrefix(pipeline?: IPipeline) {
         pipeline = pipeline ?? this.pipeline;
         // Get the current project name, which can be used in combination with the stackName as prefix for internal resource deployment (ex. K2025072112202952-dev)
