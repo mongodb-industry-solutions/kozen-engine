@@ -7,7 +7,7 @@ import { IIoC } from "../tools";
 
 /**
  * @fileoverview Variable Processor Service - Variable Resolution Bridge Component
- * @description Service that acts as a bridge between template variable definitions and their resolved values.
+ * Service that acts as a bridge between template variable definitions and their resolved values.
  * This service abstracts the complexity of variable resolution from different sources including
  * environment variables, reference scopes, secrets, and static values.
  * 
@@ -42,22 +42,23 @@ import { IIoC } from "../tools";
 export class VarProcessorService implements IVarProcessorService {
     /**
      * Optional assistant for IoC resolution
-     * 
      * @public
      * @type {IIoC}
-     * @description Used for resolving dependencies such as SecretManager if not provided directly.
+     * Used for resolving dependencies such as SecretManager if not provided directly.
      */
     public assistant?: IIoC;
 
-
+    /**
+     * Logger service instance for recording variable processing operations
+     * @type {ILoggerService | null}
+     */
     public logger?: ILoggerService | null;
 
     /**
      * Variable scope for reference resolution
-     * 
      * @private
      * @type {IStruct}
-     * @description Stores key-value pairs that can be referenced by template variables.
+     * Stores key-value pairs that can be referenced by template variables.
      * This scope provides a context for resolving reference-type variables and enables
      * variable interpolation within template processing workflows.
      */
@@ -65,23 +66,21 @@ export class VarProcessorService implements IVarProcessorService {
 
     /**
      * Secret manager service instance
-     * 
      * @private
      * @type {ISecretManager}
-     * @description Secret manager service for resolving secure variables from external
+     * Secret manager service for resolving secure variables from external
      * secret stores like AWS Secrets Manager, Azure Key Vault, or other secure backends.
      */
     private srvSecret?: ISecretManager;
 
     /**
      * Creates a new VarProcessorService instance
-     * 
      * @constructor
      * @param {Object} options - Configuration options for the variable processor
      * @param {IStruct} [options.scope={}] - Optional initial scope for reference variable resolution
      * @param {ISecretManager} options.srvSecret - Secret manager service for secure variable resolution
      * 
-     * @description Initializes the variable processor with a reference scope and secret manager.
+     * Initializes the variable processor with a reference scope and secret manager.
      * The processor serves as a bridge between template variable definitions and their actual
      * values from various sources (environment, scope, secrets, static values).
      * 
@@ -111,14 +110,13 @@ export class VarProcessorService implements IVarProcessorService {
 
     /**
      * Processes variable definitions and resolves their values from various sources
-     * 
      * @public
      * @param {IMetadata[]} inputs - Array of variable definitions to process
      * @param {IStruct} [scope] - Optional scope to use for reference resolution, defaults to instance scope
      * @returns {Promise<IStruct>} Promise resolving to an object containing resolved variable values
      * @throws {Error} When variable resolution fails due to missing sources or access issues
      * 
-     * @description This method acts as the main bridge between variable definitions and their resolved values.
+     * This method acts as the main bridge between variable definitions and their resolved values.
      * It supports multiple variable types and provides a unified resolution mechanism:
      * 
      * - **environment**: Resolves from process environment variables
@@ -216,7 +214,7 @@ export class VarProcessorService implements IVarProcessorService {
      * @param {any} [defaultValue] - Optional default value to use if secret resolution fails
      * @returns {Promise<any>} Promise resolving to the secret value or the default value
      * 
-     * @description Safely resolves secrets from external secret management systems with
+     * Safely resolves secrets from external secret management systems with
      * comprehensive error handling. If secret resolution fails, logs the error and returns
      * the default value to prevent deployment failures due to temporary secret access issues.
      * 

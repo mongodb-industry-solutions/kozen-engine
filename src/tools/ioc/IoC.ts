@@ -6,10 +6,34 @@ import { IClassConstructor, IDependency, IDependencyMap, IIoC } from './types';
  * IoC container with auto-registration and recursive dependency resolution.
  */
 export class IoC implements IIoC {
+  /**
+   * Awilix container instance for dependency registration and resolution
+   * @private
+   */
   private readonly container: AwilixContainer;
+
+  /**
+   * Console instance for logging container operations and debug information
+   * @private
+   */
   private readonly logger: Console;
+
+  /**
+   * Array storing all registered dependency configurations for tracking
+   * @private
+   */
   private readonly store: IDependency[] = [];
+
+  /**
+   * Cache map storing auto-registration patterns by regex keys
+   * @private
+   */
   private readonly cache = new Map<string, IDependency>();
+
+  /**
+   * Template resolver instance for processing file path templates
+   * @private
+   */
   private readonly tpl: Tpl;
 
   /**
