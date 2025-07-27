@@ -9,24 +9,28 @@ export class Logger {
   /**
    * Current minimum log level threshold for message filtering
    * @private
+   * @type {ILogLevel}
    */
   private currentLevel: ILogLevel;
 
   /**
    * Optional category identifier for logging context organization
    * @private
+   * @type {string | undefined}
    */
   private category?: string;
 
   /**
    * Output format type controlling serialization behavior
    * @private
+   * @type {ILogOutputType}
    */
   private outputType: ILogOutputType;
 
   /**
    * Processor instance responsible for log message output handling
    * @protected
+   * @type {ILogProcessor}
    */
   protected processor: ILogProcessor;
 
