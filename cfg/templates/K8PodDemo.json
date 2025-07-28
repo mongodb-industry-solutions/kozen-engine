@@ -29,18 +29,18 @@
                 "type": "protected",
                 "name": "aws:accessKey",
                 "value": "AWS_ACCESS_KEY_ID",
-                "default": "AKIAUALWIMQRFNDRB2NX"
+                "default": ""
             },
             {
                 "type": "protected",
                 "name": "aws:secretKey",
                 "value": "AWS_SECRET_ACCESS_KEY",
-                "default": "w0XOlxR1L7uUkykhSN1fyrYY2RLJj3s7evhKkPDp"
+                "default": ""
             }
         ],
         "components": [
             {
-                "name": "K8Pod",
+                "name": "K8Pods",
                 "input": [
                     {
                         "type": "environment",
