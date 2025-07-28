@@ -146,8 +146,23 @@ export class PipelineManager extends BaseService {
         if (!templateName) {
             throw new Error('A valid template name was not provided');
         }
+
         let template = await srvTemplate.load<ITemplate>(templateName, { flow: id });
         let pipeline = { args, assistant: this.assistant, template, id };
+
+        this.logger?.info({
+            flow: id,
+            src: 'Service:PipelineManager:Deploy',
+            message: 'Init Deployment',
+            data: {
+                templateName,
+                projectName: project,
+                stackName: name,
+                engine: template.engine,
+                orchestrator: template.stack?.orchestrator,
+                components: template.stack?.components?.length || 0
+            }
+        });
 
         let stackResult = await stackAdm.deploy({
             id,
