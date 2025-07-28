@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb';
-import { ILogEntry, ILogLevel, ILogOutputType, ILogProcessorOptMDB } from '../types';
+import { ILogEntry, ILogLevel, ILogOutputType, ILoggerConfigMDB } from '../types';
 import { LogProcessor } from './LogProcessor';
 
 /**
@@ -30,7 +30,7 @@ export class MongoDBLogProcessor extends LogProcessor {
    * @param database - Target database name, defaults to 'logs'
    * @param collection - Target collection name, defaults to 'application_logs'
    */
-  constructor(options: ILogProcessorOptMDB) {
+  constructor(options: ILoggerConfigMDB) {
     super(options);
     const { uri = 'mongodb://localhost:27017', database = 'logs', collection = 'application_logs' } = options;
     this.uri = uri;
@@ -46,7 +46,7 @@ export class MongoDBLogProcessor extends LogProcessor {
    */
   async process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): Promise<void> {
 
-    if (!this.shouldLog(level)) return;
+    if (!this.shouldLog({ ...entry, level })) return;
     // In a real implementation, this would connect to MongoDB and insert the log
     // For this demo, we'll simulate the operation
     const mongoDocument = {
@@ -57,9 +57,18 @@ export class MongoDBLogProcessor extends LogProcessor {
       storedAt: new Date().toISOString()
     };
 
-    // Real implementation would be:
-    const client = new MongoClient(this.uri);
-    await client.db(this.database).collection(this.collection).insertOne(mongoDocument);
+    try {
+      // Real implementation would be:
+      const client = new MongoClient(this.uri);
+      const collection = client.db(this.database).collection(this.collection);
+      await collection.insertOne(mongoDocument);
+    }
+    catch (error) {
+      console.log({
+        src: 'Tool:Log:Processor:MDB',
+        message: (error as Error).message
+      })
+    }
   }
 
   /**

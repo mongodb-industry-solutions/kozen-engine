@@ -13,9 +13,9 @@ import {
     ProjectRuntime,
     Stack
 } from "@pulumi/pulumi/automation";
-import { IComponent } from "../models/Component";
+import { ITransformOption } from "../models/Component";
 import { IStackConfig, IStackOptions } from "../models/Stack";
-import { IMetadata, IResult, IStruct } from "../models/Types";
+import { IMetadata, IResult, IStruct, VCategory } from "../models/Types";
 import StackManager from "./StackManager";
 
 /**
@@ -29,15 +29,15 @@ export class StackManagerPulumi extends StackManager {
      * Internal Pulumi stack instance for deployment operations
      * @protected
      */
-    protected _stack?: Stack
+    protected _driver?: Stack
 
     /**
      * Gets the current Pulumi stack instance
      * @public
      * @returns Current stack instance for deployment operations
      */
-    public get stack(): Stack {
-        return this._stack!;
+    public get driver(): Stack {
+        return this._driver!;
     }
 
     /**
@@ -45,8 +45,8 @@ export class StackManagerPulumi extends StackManager {
      * @protected
      * @param stack - Pulumi stack instance to configure for operations
      */
-    protected set stack(stack: Stack) {
-        this._stack = stack;
+    protected set driver(stack: Stack) {
+        this._driver = stack;
     }
 
 
@@ -60,10 +60,11 @@ export class StackManagerPulumi extends StackManager {
 
     public async configure(stack?: IStackOptions): Promise<IStackConfig<InlineProgramArgs, LocalWorkspaceOptions>> {
 
+        stack && (this._config = stack);
         // Create a unique project name for each cluster to avoid conflicts.
         const projectName = stack?.project || "K0Z3N";
-        const stackName = stack?.name || "dev";
-        const inputs = await this.transformInput({ input: stack?.input });
+        const stackName = stack?.name || "DEV";
+        const inputs = await this.transformInput({ component: { input: stack?.input }, flow: stack?.id });
 
         // Ensure the stack name is unique by appending the project name.
         const args: InlineProgramArgs = {
@@ -103,7 +104,7 @@ export class StackManagerPulumi extends StackManager {
      */
     protected async setup(stack: Stack, opts: IStackOptions): Promise<Stack> {
         // Configure the stack with the provided configuration
-        let stackSetup = await this.transformSetup({ setup: opts.setup }, {}, 'setup');
+        let stackSetup = await this.transformSetup({ component: { setup: opts.setup }, key: 'setup', flow: opts.id });
         let cmpSetup = {};
         if (opts.init instanceof Function) {
             cmpSetup = await opts.init(stack);
@@ -121,9 +122,10 @@ export class StackManagerPulumi extends StackManager {
      * @param key - Property key to process for setup configuration
      * @returns Promise resolving to transformed setup configuration object
      */
-    public async transformSetup(opts: IComponent, output: IStruct = {}, key: string = "setup"): Promise<IStruct> {
+    public async transformSetup(options: ITransformOption): Promise<IStruct> {
+        let { component: opts, output = {}, key = "setup", flow } = options;
         if (Array.isArray(opts[key])) {
-            let input = await this.transformInput(opts, {}, key);
+            let input = await this.transformInput({ component: opts, key, output, flow });
             for (let item of opts[key]) {
                 let tmp = await this.transformSetupItem(item, input);
                 output = { ...output, ...tmp }
@@ -158,8 +160,8 @@ export class StackManagerPulumi extends StackManager {
     protected async select(config?: IStackOptions): Promise<Stack> {
         // Configure the stack with the provided options
         const { args, opts } = await this.configure(config);
-        this.stack = await LocalWorkspace.selectStack(args, opts);
-        return this.stack;
+        this.driver = await LocalWorkspace.selectStack(args, opts);
+        return this.driver;
     }
 
     /**
@@ -182,19 +184,23 @@ export class StackManagerPulumi extends StackManager {
             }
 
             // return the configured stack
-            this.stack = stack;
+            this.driver = stack;
 
             await this.setup(stack, config);
             await stack.refresh({
-                onOutput: (output: string) => this.logger?.info({
+                onOutput: (message: string) => this.logger?.info({
+                    flow: config.id,
+                    category: VCategory.core.stack,
                     src: 'Service:Stack:Pulumi:load',
-                    message: `Stack output: ${output}`
+                    message
                 })
             })
             return stack;
 
         } catch (error) {
             this.logger?.error({
+                flow: config.id,
+                category: VCategory.core.stack,
                 src: 'Service:Stack:Pulumi:load',
                 message: '❌ Error configuring stack: ' + (error as Error)?.message
             })
@@ -214,6 +220,7 @@ export class StackManagerPulumi extends StackManager {
             const stack = await this.load(config);
             const upRes = await stack.up({
                 onOutput: (output: string) => this.logger?.info({
+                    flow: config.id,
                     src: 'Service:Stack:Pulumi:deploy',
                     message: `Stack output: ${output}`
                 })
@@ -228,7 +235,16 @@ export class StackManagerPulumi extends StackManager {
             };
         }
         catch (error) {
-            console.log(error)
+            this.logger?.error({
+                flow: config.id,
+                category: VCategory.core.stack,
+                src: 'Service:Stack:Pulumi:deploy',
+                data: {
+                    stackName: config.name,
+                    projectName: config.project,
+                },
+                message: `Stack ${config.name} deployed failed.`,
+            });
             return {
                 stackName: config.name,
                 projectName: config.project,
