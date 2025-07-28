@@ -1,18 +1,20 @@
 /**
  * @fileoverview AWS Secret Manager Service - AWS Secrets Manager Implementation
- * @description AWS-specific implementation of the secret management bridge for AWS Secrets Manager integration
+ * AWS-specific implementation of the secret management bridge for AWS Secrets Manager integration
  * @author MDB SAT
  * @since 1.0.4
  * @version 1.0.5
  */
 import { GetSecretValueCommand, SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
+import { Binary } from "mongodb";
 import { ISecretManagerOptions } from "../models/Secret";
+import { VCategory } from "../models/Types";
 import SecretManager from "./SecretManager";
 
 /**
  * @class SecretManagerAWS
  * @extends SecretManager
- * @description AWS Secrets Manager implementation with authentication and JSON parsing support
+ * AWS Secrets Manager implementation with authentication and JSON parsing support
  */
 export class SecretManagerAWS extends SecretManager {
 
@@ -38,11 +40,26 @@ export class SecretManagerAWS extends SecretManager {
             throw new Error(`Secret '${key}' was found but the SecretString is empty.`);
         } catch (error) {
             this.logger?.error({
+                flow: options?.flow,
+                category: VCategory.core.secret,
                 src: 'Service:Secret:AWS:resolve',
                 message: `Failed to retrieve secret '${key}' from AWS Secrets Manager. ${(error as Error).message}`
             });
             throw error;
         }
+    }
+
+    /**
+     * Saves a secret value to AWS Secrets Manager (not implemented)
+     * @public
+     * @param {string} key - The secret key to store
+     * @param {string | Binary} value - The secret value to store
+     * @param {ISecretManagerOptions} [options] - Optional configuration override
+     * @returns {Promise<boolean>} Promise resolving to false (not implemented)
+     * @throws {Error} When save operation is attempted
+     */
+    public async save(key: string, value: string | Binary, options?: ISecretManagerOptions): Promise<boolean> {
+        throw new Error("Save operation not implemented for AWS Secrets Manager");
     }
 
     /**

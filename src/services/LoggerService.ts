@@ -37,11 +37,23 @@ import {
  * ```
  */
 export class LoggerService implements ILoggerService {
-    /** Internal logger instance configured with hybrid processor */
+    /**
+     * Internal logger instance configured with hybrid processor for dual output
+     * @private
+     */
     private readonly logger: Logger;
 
-    /** Hybrid processor combining console and MongoDB output destinations */
+    /**
+     * Hybrid processor combining console and MongoDB output destinations
+     * @private
+     */
     private readonly hybridProcessor: HybridLogProcessor;
+
+    /**
+     * Array of pending log processing promises for asynchronous operations
+     * @type {Promise<void>[]}
+     */
+    public stack: Promise<void>[];
 
     /**
      * Creates new LoggerService instance with console and MongoDB processors
@@ -49,17 +61,21 @@ export class LoggerService implements ILoggerService {
      */
     constructor(config: ILoggerConfigService = {}, dep?: { assistant: IIoC }) {
         const level = config.level ?? ILogLevel.ALL;
+        const skip = config.skip;
+        this.stack = [];
 
         // Create processors for dual output destination
         const processors = [];
         config.console?.enabled && processors.push(new ConsoleLogProcessor({
-            level: ILogLevel[config.console?.level as keyof typeof ILogLevel] ?? level,
+            level: ILogLevel[(config.console?.level as unknown) as keyof typeof ILogLevel] ?? level,
+            skip: config.console?.skip ?? skip
         }));
         config.mdb?.enabled && processors.push(new MongoDBLogProcessor({
-            level: ILogLevel[config.mdb?.level as keyof typeof ILogLevel] ?? level,
+            level: ILogLevel[(config.mdb?.level as unknown) as keyof typeof ILogLevel] ?? level,
             uri: process.env[config.mdb.uri] || config.mdb.uri,
             database: config.mdb.database || 'kozen',
-            collection: config.mdb.collection || 'logs'
+            collection: config.mdb.collection || 'logs',
+            skip: config.mdb?.skip ?? skip
         }));
 
         // Combine processors for simultaneous console and database logging
@@ -68,6 +84,7 @@ export class LoggerService implements ILoggerService {
         // Initialize logger with hybrid processor and configuration
         this.logger = new Logger({
             level,
+            skip,
             category: config.category || 'KOZEN',
             type: config?.type || 'object',
             processor: this.hybridProcessor
@@ -79,7 +96,7 @@ export class LoggerService implements ILoggerService {
      * @param input - Error message string or structured log options object
      */
     public error(input: ILogInput): void {
-        this.logger.error(input);
+        this.stack.push(this.logger.error(input));
     }
 
     /**
@@ -87,7 +104,7 @@ export class LoggerService implements ILoggerService {
      * @param input - Warning message string or structured log options object
      */
     public warn(input: ILogInput): void {
-        this.logger.warn(input);
+        this.stack.push(this.logger.warn(input));
     }
 
     /**
@@ -95,7 +112,7 @@ export class LoggerService implements ILoggerService {
      * @param input - Debug message string or structured log options object
      */
     public debug(input: ILogInput): void {
-        this.logger.debug(input);
+        this.stack.push(this.logger.debug(input));
     }
 
     /**
@@ -103,7 +120,7 @@ export class LoggerService implements ILoggerService {
      * @param input - Info message string or structured log options object
      */
     public info(input: ILogInput): void {
-        this.logger.info(input);
+        this.stack.push(this.logger.info(input));
     }
 
     /**
@@ -112,7 +129,7 @@ export class LoggerService implements ILoggerService {
      * @param level - The log level to use
      */
     public log(input: ILogInput, level: ILogLevel = ILogLevel.INFO): void {
-        this.logger.log(input, level);
+        this.stack.push(this.logger.log(input, level));
     }
 
     /**

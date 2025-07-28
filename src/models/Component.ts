@@ -18,8 +18,15 @@ export type IComponentInput = IMetadata;
  * @description Infrastructure component configuration interface
  */
 export interface IComponent {
+
     /**
      * Unique component identifier
+     * @type {string}
+     */
+    id?: string;
+
+    /**
+     * Component identifier
      * @type {string}
      */
     name?: string;
@@ -73,3 +80,11 @@ export interface IComponent {
  * @typedef {(component: IComponent, output: IStruct) => Promise<IStruct>} ITransformFn
  */
 export type ITransformFn = (component: IComponent, output: IStruct) => Promise<IStruct>;
+
+
+export interface ITransformOption {
+    flow?: string;
+    component: IComponent;
+    output?: IStruct;
+    key?: string;
+}

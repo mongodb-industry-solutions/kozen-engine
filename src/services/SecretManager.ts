@@ -1,19 +1,21 @@
 /**
  * @fileoverview Secret Manager Service - Secret Resolution Bridge Component
- * @description Bridge service for managing secrets from various backends (AWS, MongoDB, environment variables)
+ * Bridge service for managing secrets from various backends (AWS, MongoDB, environment variables)
  * @author MDB SAT
  * @since 1.0.4
  * @version 1.0.5
  */
+import { Binary } from "mongodb";
 import { ILoggerService } from "../models/Logger";
 import { ISecretManager, ISecretManagerOptions } from "../models/Secret";
+import { VCategory } from "../models/Types";
 import { IIoC } from "../tools";
 import { BaseService } from "./BaseService";
 
 /**
  * @class SecretManager
  * @extends BaseService
- * @description Bridge service for secret resolution from multiple backends
+ * Bridge service for secret resolution from multiple backends
  */
 export class SecretManager extends BaseService implements ISecretManager {
     /**
@@ -52,6 +54,7 @@ export class SecretManager extends BaseService implements ISecretManager {
     constructor(options?: ISecretManagerOptions, dep?: { assistant: IIoC, logger: ILoggerService }) {
         super(dep);
         this.options = options!;
+        this.prefix = 'SecretManager';
     }
 
     /**
@@ -67,21 +70,64 @@ export class SecretManager extends BaseService implements ISecretManager {
         return value ?? process.env[key];
     }
 
+    /**
+     * Resolves a secret value from the configured backend
+     * @public
+     * @param {string} key - The secret key to resolve
+     * @param {ISecretManagerOptions} [options] - Optional configuration override
+     * @returns {Promise<string | null | undefined | number | boolean>} Promise resolving to the secret value
+     * @throws {Error} When secret resolution fails
+     */
+    public async save(key: string, value: string | Binary, options?: ISecretManagerOptions): Promise<boolean> {
+        try {
+            if (!this.assistant) {
+                throw new Error("Incorrect dependency injection configuration.");
+            }
+            options = { ...this.options, ...options };
+            if (!this.options?.type) {
+                throw new Error("SecretManager options or type is not defined.");
+            }
+            const controller = await this.getDelegate<ISecretManager>(options.type || 'AWS');
+            return controller.save(key, value, options);
+        }
+        catch (error) {
+            this.logger?.error({
+                flow: options?.flow,
+                category: VCategory.core.secret,
+                src: 'Service:SecretManager:save',
+                message: (error as Error).message
+            });
+            return false;
+        }
+    }
+
+    /**
+     * Retrieves secret value from configured backend delegate
+     * @protected
+     * @param {string} key - The secret key to resolve
+     * @param {ISecretManagerOptions} [options] - Optional configuration override
+     * @returns {Promise<string | null | undefined | number | boolean>} Promise resolving to secret value or null
+     * @throws {Error} When secret resolution fails or configuration is invalid
+     */
     protected async getValue(key: string, options?: ISecretManagerOptions): Promise<string | null | undefined | number | boolean> {
         try {
             if (!this.assistant) {
                 throw new Error("Incorrect dependency injection configuration.");
             }
-            options = options || this.options;
+            options = { ...this.options, ...options };
             if (!this.options?.type) {
                 throw new Error("SecretManager options or type is not defined.");
             }
-            const controllerName = "SecretManager" + options.type;
-            const controller = await this.assistant.resolve<ISecretManager>(controllerName);
+            const controller = await this.getDelegate<ISecretManager>(options.type || 'AWS');
             return await controller.resolve(key, options);
         }
         catch (error) {
-            console.log(error);
+            this.logger?.error({
+                flow: options?.flow,
+                category: VCategory.core.secret,
+                src: 'Service:SecretManager:getValue',
+                message: (error as Error).message
+            });
             return null;
         }
     }

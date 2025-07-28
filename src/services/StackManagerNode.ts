@@ -7,6 +7,7 @@
  */
 
 import { IStackOptions } from "../models/Stack";
+import { VCategory } from "../models/Types";
 import StackManager from "./StackManager";
 
 /**
@@ -28,6 +29,8 @@ export class StackManagerNode extends StackManager {
             config?.program instanceof Function && await config.program();
 
             this.logger?.debug({
+                flow: config.id,
+                category: VCategory.core.stack,
                 src: 'Service:Stack:Node:deploy',
                 data: {
                     stackName: config.name,
@@ -46,7 +49,9 @@ export class StackManagerNode extends StackManager {
         }
         catch (error) {
             this.logger?.error({
-                src: '',
+                flow: config.id,
+                category: VCategory.core.stack,
+                src: 'Service:Stack:Node:deploy',
                 data: {
                     stackName: config.name,
                     projectName: config.project,
@@ -54,10 +59,10 @@ export class StackManagerNode extends StackManager {
                 message: `Stack ${config.name} deployed failed.`,
             });
             return {
-                stackName: config.name,
-                projectName: config.project,
                 success: false,
                 timestamp: new Date(),
+                stackName: config?.name,
+                projectName: config?.project,
                 message: `Stack ${config.name} deployed failed.`,
             };
         }
@@ -74,10 +79,10 @@ export class StackManagerNode extends StackManager {
         // Configure the stack with the provided options
         config?.program instanceof Function && await config.program();
         return {
-            stackName: config.name,
-            projectName: config.project,
-            success: true,
+            success: false,
             timestamp: new Date(),
+            stackName: config?.name,
+            projectName: config?.project,
             message: `Stack ${config.name} undeployed successfully.`
         };
     }
@@ -95,10 +100,10 @@ export class StackManagerNode extends StackManager {
         // without performing actual deployment
 
         return {
-            stackName: config.name,
-            projectName: config.project,
-            success: true,
+            success: false,
             timestamp: new Date(),
+            stackName: config?.name,
+            projectName: config?.project,
             message: `Stack ${config.name} configuration validation completed.`,
             results: []
         };
@@ -115,10 +120,10 @@ export class StackManagerNode extends StackManager {
         // Configure the stack with the provided options
         config?.program instanceof Function && await config.program();
         return {
-            stackName: config.name,
-            projectName: config.project,
-            success: true,
+            success: false,
             timestamp: new Date(),
+            stackName: config?.name,
+            projectName: config?.project,
             message: `Stack ${config.name} configuration status completed.`,
         };
     }
