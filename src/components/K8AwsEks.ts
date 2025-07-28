@@ -32,6 +32,7 @@ export class K8AwsEks extends BaseController {
     }
     try {
       this.logger?.info({
+        flow: pipeline?.id,
         src: 'component:K8AwsEks:deploy',
         message: `Deploying with message: ${input?.message}`,
         data: {

@@ -22,18 +22,19 @@ export class K8Pod extends BaseController {
    * @returns Promise resolving to deployment result with pod details
    */
   async deploy(input?: IPodConfig, pipeline?: IPipeline): Promise<IResult> {
-    if (!pipeline?.stack) {
-      return {
-        templateName: pipeline?.template?.name,
-        action: 'deploy',
-        success: false,
-        message: `Missing pipeline stack reference`,
-        timestamp: new Date(),
-      }
-    }
+    // if (!pipeline?.stack) {
+    //   return {
+    //     templateName: pipeline?.template?.name,
+    //     action: 'deploy',
+    //     success: false,
+    //     message: `Missing pipeline stack reference`,
+    //     timestamp: new Date(),
+    //   }
+    // }
 
     try {
       this.logger?.info({
+        flow: pipeline?.id,
         src: 'component:K8Pod:deploy',
         message: `Deploying container with message: ${input?.message}`,
         data: {
@@ -56,8 +57,7 @@ export class K8Pod extends BaseController {
 
       // Create Kubernetes provider using file path
       this.k8sProvider = new kubernetes.Provider(`${resourcePrefix}-k8s-provider`, { 
-        kubeconfig,
-
+        kubeconfig
        });
       
       // Create namespace (optional)
@@ -165,6 +165,7 @@ export class K8Pod extends BaseController {
 
     } catch (error) {
       this.logger?.error({
+        flow: pipeline?.id,
         src: 'component:K8Pod:deploy',
         message: `Error deploying K8s Pod: ${error instanceof Error ? error.message : String(error)}`,
         data: { error }
@@ -187,6 +188,7 @@ export class K8Pod extends BaseController {
    */
   async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
     this.logger?.info({
+      flow: pipeline?.id,
       src: 'component:K8Pod:undeploy',
       message: `Undeploying K8s Pod: ${this.config.name}`
     });
