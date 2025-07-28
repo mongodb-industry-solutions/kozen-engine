@@ -1,21 +1,24 @@
-import { BaseController } from '../controllers/BaseController';
-import { IPipeline } from '../models/Pipeline';
-import { IResult, IStruct } from '../models/Types';
+import { BaseController } from '../../controllers/BaseController';
+import { IPipeline } from '../../models/Pipeline';
+import { IResult, IStruct, VCategory } from '../../models/Types';
 
 /**
- * Simple HelloWorld component controller for testing pipeline functionality
+ * Simple demo component controller for testing pipeline functionality
  * This component demonstrates basic deployment, validation, and cleanup operations
  */
-export class DemoSecond extends BaseController {
+export class DemoFirst extends BaseController {
 
   /**
-   * Deploys the DemoSecond component with logging and result generation
-   * @param input - Optional deployment input parameters with message
-   * @returns Promise resolving to deployment result with success status
+   * Deploys the DemoFirst component with message logging and output generation
+   * @param input - Optional deployment input parameters with message and timeout
+   * @returns Promise resolving to deployment result with success status and IP address output
    */
   async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
+
     this.logger?.info({
-      src: 'component:DemoSecond:deploy',
+      flow: pipeline?.id,
+      category: VCategory.cmp.iac,
+      src: 'component:DemoFirst:deploy',
       message: `Deploying with message: ${input?.message}`,
       data: {
         // Get the current component name
@@ -30,28 +33,25 @@ export class DemoSecond extends BaseController {
         prefix: this.getPrefix(pipeline)
       }
     });
+    // await new Promise(resolve => setTimeout(resolve, input?. || 1000));
     return {
-      templateName: this.config.name,
+      templateName: pipeline?.template?.name,
       action: 'deploy',
       success: true,
-      message: `DemoFirst deployed successfully with message: ${input?.address}`,
+      message: `DemoFirst deployed successfully with message: ${input?.message}`,
       timestamp: new Date(),
+      output: {
+        ipAddress: "123.94.55.2"
+      }
     };
   }
 
   /**
-   * Undeploys the DemoSecond component with cleanup confirmation
+   * Undeploys the DemoFirst component with cleanup confirmation
    * @param input - Optional undeployment input parameters
    * @returns Promise resolving to undeployment result with success status
    */
   async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
-    this.logger?.info({
-      src: 'component:DemoSecond:undeploy',
-      message: `Deploying with message: ${input?.message}`,
-      data: {
-        templateName: this.config.name,
-      }
-    });
     return {
       templateName: this.config.name,
       action: 'undeploy',
@@ -62,9 +62,9 @@ export class DemoSecond extends BaseController {
   }
 
   /**
-   * Validates the DemoSecond component configuration
+   * Validates the DemoFirst component configuration for deployment readiness
    * @param input - Optional validation input parameters
-   * @returns Promise resolving to validation result with status confirmation
+   * @returns Promise resolving to validation result with success confirmation
    */
   async validate(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
     return {
@@ -77,7 +77,7 @@ export class DemoSecond extends BaseController {
   }
 
   /**
-   * Retrieves current status information for the DemoSecond component
+   * Retrieves current operational status information for the DemoFirst component
    * @param input - Optional status query input parameters
    * @returns Promise resolving to status result with operational state
    */
@@ -93,4 +93,4 @@ export class DemoSecond extends BaseController {
 
 }
 
-export default DemoSecond;
+export default DemoFirst;

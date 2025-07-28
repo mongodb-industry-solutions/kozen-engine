@@ -156,6 +156,13 @@
             "region": "us-east-1",
             "accessKeyId": "AWS_ACCESS_KEY_ID",
             "secretAccessKey": "AWS_SECRET_ACCESS_KEY"
+          },
+          "mdb": {
+            "enabled": true,
+            "database": "kozen",
+            "collection": "secrets",
+            "uri": "MDB_URI",
+            "level": "DEBUG"
           }
         }
       ],
@@ -248,7 +255,8 @@
           },
           "console": {
             "enabled": true,
-            "level": "all"
+            "level": "all",
+            "skip": "Stack output: \\."
           }
         }
       ],

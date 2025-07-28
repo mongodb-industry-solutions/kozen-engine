@@ -1,6 +1,6 @@
 /**
  * @fileoverview File-based Template Manager Service - File System Implementation
- * @description File system-specific implementation for loading infrastructure templates from local or network directories
+ * File system-specific implementation for loading infrastructure templates from local or network directories
  * @author MDB SAT
  * @since 1.0.4
  * @version 1.0.5
@@ -13,7 +13,7 @@ import TemplateManager from "./TemplateManager";
 /**
  * @class TemplateManagerFile
  * @extends TemplateManager
- * @description File system implementation for template loading with JSON parsing and error handling
+ * File system implementation for template loading with JSON parsing and error handling
  */
 export class TemplateManagerFile extends TemplateManager {
 

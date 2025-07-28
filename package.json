@@ -11,6 +11,9 @@
         "start": "node dist/bin/pipeline.js",
         "help": "ts-node bin/pipeline.ts --help",
         "dev": "ts-node bin/pipeline.ts",
+        "secret": "ts-node bin/secret.ts",
+        "secret:save": "ts-node bin/secret.ts --action=save",
+        "secret:resolve": "ts-node bin/secret.ts --action=resolve",
         "test:deploy": "ts-node bin/pipeline.ts --action=deploy",
         "test:validate": "ts-node bin/pipeline.ts --action=validate",
         "test:undeploy": "ts-node bin/pipeline.ts --action=undeploy",
@@ -49,6 +52,7 @@
         "awilix": "^8.0.1",
         "dotenv": "^17.0.1",
         "mongodb": "^6.17.0",
+        "mongodb-client-encryption": "^6.4.0",
         "ora": "^8.2.0"
     },
     "engines": {
