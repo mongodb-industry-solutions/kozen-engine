@@ -16,7 +16,7 @@ export interface IVarProcessorService {
      * @returns {Promise<IStruct>} A promise resolving to an object containing resolved variable values.
      * @throws {Error} When variable resolution fails due to missing sources or access issues.
      */
-    process(inputs: IMetadata[], scope?: IStruct): Promise<IStruct>;
+    process(inputs: IMetadata[], scope?: IStruct, flow?: string): Promise<IStruct>;
 
     /**
      * Transforms a single variable definition by resolving its value from the appropriate source.
@@ -26,5 +26,5 @@ export interface IVarProcessorService {
      * @param {IStruct} [result={}] - Result object to accumulate resolved variables.
      * @returns {Promise<IStruct>} Promise resolving to the result object with the resolved variable added.
      */
-    transform(definition: IMetadata, scope?: IStruct, result?: IStruct): Promise<IStruct>;
+    transform(definition: IMetadata, scope?: IStruct, result?: IStruct, flow?: string): Promise<IStruct>;
 }  

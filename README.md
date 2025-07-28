@@ -32,13 +32,21 @@ npm run dev -- --template=demo --config=cfg/config.json --action=validate
 npm run dev -- --template=atlas.basic --config=cfg/config.json --action=undeploy
 ```
 
-## 🏗️ Architecture Overview
+## 🏗️ Architecture & Components
 
-Kozen Engine follows an extensible, plugin-based architecture with three core extensible managers:
+The [**Kozen Engine**](https://github.com/mongodb-industry-solutions/kozen-engine) is an essential component that contains all the necessary implementation to launch and operate the testing platform.
+
+![](./docs/images/kozen-architecture-SAU.jpg)
+
+As seen in the previous image, Kozen is part of the SAU project. It serves as a crucial abstraction layer built on top of Pulumi, managing and orchestrating the deployment of testing environment definition templates.
 
 ![Kozen Engine Architecture Layers](docs/images/kozen-architecture-Layers.jpg)
 
+Please keep in mind that everything observed whether it's errors, bugs, features, suggestions, ideas, etc. should be logged in the "Issues" section of the following GitHub repository: [https://github.com/mongodb-industry-solutions/kozen-engine/issues](https://github.com/mongodb-industry-solutions/kozen-engine/issues). This ensures our team can track these items effectively and helps the project evolve successfully.
+
 ### Core Extensible Components
+
+The **Kozen Engine** follows an extensible, plugin-based architecture with three core extensible managers:
 
 - **StackManager**: Dynamic infrastructure orchestration with pluggable providers
 - **TemplateManager**: Flexible template storage and retrieval system
@@ -198,6 +206,7 @@ Kozen Engine is designed for extensibility and welcomes contributions! Whether y
 ### Quick Start for Contributors
 
 1. **Fork and Clone**
+
    ```bash
    git clone https://github.com/your-username/kozen-engine.git
    cd kozen-engine
@@ -205,6 +214,7 @@ Kozen Engine is designed for extensibility and welcomes contributions! Whether y
    ```
 
 2. **Set Up Development Environment**
+
    ```bash
    # Create debug environment
    export KOZEN_TEMPLATE=demo
@@ -213,12 +223,14 @@ Kozen Engine is designed for extensibility and welcomes contributions! Whether y
    ```
 
 3. **Use VSCode Debugging**
+
    - Open in VSCode
    - Use F5 → "🛠️ Develop" for debugging
    - Set breakpoints in components/services
    - Test with different templates via environment variables
 
 4. **Create Your Enhancement**
+
    - **New Components**: Add to `src/components/`
    - **New Services**: Extend `StackManager`, `SecretManager`, or `TemplateManager`
    - **New Templates**: Add to `cfg/templates/`

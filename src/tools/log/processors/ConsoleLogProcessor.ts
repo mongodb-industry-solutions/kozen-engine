@@ -11,7 +11,8 @@ export class ConsoleLogProcessor extends LogProcessor {
    * @param level - The numeric log level for console method selection
    * @param outputType - The output format type
    */
-  process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): void {
+  public async process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): Promise<void> {
+    if (!this.shouldLog({ ...entry, level })) return;
     if (outputType === 'json') {
       // Output as JSON string - useful for log aggregation systems
       const jsonString = JSON.stringify(entry);

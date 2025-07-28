@@ -1,6 +1,6 @@
 /**
  * @fileoverview Pipeline Controller - CLI to Service Bridge Component
- * @description Controller that acts as a bridge between CLI input/output operations and the
+ * Controller that acts as a bridge between CLI input/output operations and the
  * PipelineManager service layer. This controller handles CLI validation, configuration loading,
  * and coordinates with the PipelineManager to execute infrastructure operations.
  * 
@@ -34,13 +34,13 @@
  */
 import * as fs from 'fs';
 import { IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
-import { IAction, IResult } from '../models/Types';
+import { IAction, IResult, VCategory } from '../models/Types';
 import { PipelineManager } from '../services/PipelineManager';
-import { ILogInput, ILogLevel } from '../tools';
+import { getID, ILogInput, ILogLevel } from '../tools';
 
 /**
  * @class PipelineController
- * @description CLI bridge controller for handling pipeline operations and user interface interactions.
+ * CLI bridge controller for handling pipeline operations and user interface interactions.
  * This controller serves as the primary interface between command-line operations and the
  * underlying pipeline management services, providing validation, error handling, and user feedback.
  * 
@@ -80,38 +80,40 @@ export class PipelineController {
   }
 
   /**
+   * Extracts key-value pairs from CLI argument string
+   * @protected
+   * @param {string} arg - Single CLI argument in --key=value format
+   * @returns {{ key: string, value: string } | null} Parsed key-value pair or null if invalid format
+   */
+  protected extract(arg: string): { key: string, value: string } | null {
+    // Define a regular expression to match "--key=value"
+    const argRegex = /^--([a-zA-Z0-9]+)=(.*)$/;
+    const match = arg.match(argRegex);
+    if (!match) {
+      return null;
+    }
+    // Destructure the captured groups
+    const [, key, value] = match;
+    return { key, value };
+  }
+
+  /**
    * Parses command line arguments into structured format
-   * 
-   * @method parseArguments
+   * @public
    * @param {string[]} args - Command line arguments array
-   * @returns {IPipelineArgs} Parsed CLI arguments
-   * 
-   * @example
-   * ```typescript
-   * const args = controller.parseArguments(['--template=atlas.basic', '--action=deploy']);
-   * // Returns: { template: 'atlas.basic', config: 'config.json', action: 'deploy' }
-   * ```
+   * @returns {IPipelineArgs} Parsed CLI arguments with defaults applied
    */
   public parseArguments(args: string[]): IPipelineArgs {
     const parsed: Partial<IPipelineArgs> = {};
 
     for (const arg of args) {
-      if (arg.startsWith('--template=')) {
-        parsed.template = arg.split('=')[1];
-      } else if (arg.startsWith('--stack=')) {
-        parsed.stack = arg.split('=')[1];
-      } else if (arg.startsWith('--project=')) {
-        parsed.project = arg.split('=')[1];
-      } else if (arg.startsWith('--config=')) {
-        parsed.config = arg.split('=')[1];
-      } else if (arg.startsWith('--action=')) {
-        parsed.action = arg.split('=')[1] as IAction;
-      }
+      let meta = this.extract(arg);
+      meta && (parsed[meta?.key as keyof IPipelineArgs] = meta?.value);
     }
 
     return {
-      stack: parsed.stack || process.env.KOZEN_STACK || 'dev',
-      project: parsed.project || process.env.KOZEN_PROJECT || '',
+      stack: (parsed.stack || process.env.KOZEN_STACK || process.env["NODE_ENV"] || 'dev').toUpperCase(),
+      project: parsed.project || process.env.KOZEN_PROJECT || getID(),
       template: parsed.template || process.env.KOZEN_TEMPLATE || '',
       config: parsed.config || process.env.KOZEN_CONFIG || 'cfg/config.json',
       action: parsed.action || (process.env.KOZEN_ACTION as IAction) || 'deploy'
@@ -120,19 +122,9 @@ export class PipelineController {
 
   /**
    * Validates CLI arguments for correctness and completeness
-   * 
-   * @method validateArguments
-   * @param {PipelineArgs} args - CLI arguments to validate
-   * @throws {Error} If validation fails
-   * 
-   * @example
-   * ```typescript
-   * try {
-   *   controller.validateArguments(args);
-   * } catch (error) {
-   *   console.error('Validation failed:', error.message);
-   * }
-   * ```
+   * @public
+   * @param {IPipelineArgs} args - CLI arguments to validate
+   * @throws {Error} When validation fails due to missing or invalid arguments
    */
   public validateArguments(args: IPipelineArgs): void {
     if (!args.template) {
@@ -144,43 +136,38 @@ export class PipelineController {
       throw new Error(`Invalid action: ${args.action}. Must be one of: ${validActions.join(', ')}`);
     }
 
-    if (!fs.existsSync(args.config)) {
+    if (!args?.config || !fs.existsSync(args.config)) {
       throw new Error(`Configuration file not found: ${args.config}`);
     }
   }
 
   /**
    * Executes the pipeline operation based on CLI arguments
-   * 
-   * @method execute
-   * @param {PipelineArgs} args - CLI arguments specifying the operation
-   * @returns {Promise<ExecutionResult>} Result of the pipeline execution
-   * 
-   * @example
-   * ```typescript
-   * const result = await controller.execute({
-   *   template: 'atlas.basic',
-   *   config: 'cfg/config.json',
-   *   action: 'deploy'
-   * });
-   * 
-   * if (result.success) {
-   *   console.log('Operation completed successfully');
-   * } else {
-   *   console.error('Operation failed:', result.errors);
-   * }
-   * ```
+   * @public
+   * @param {IPipelineArgs} args - CLI arguments specifying the operation
+   * @returns {Promise<IResult>} Promise resolving to pipeline execution result
+   * @throws {Error} When execution fails due to configuration or runtime errors
    */
   public async execute(args: IPipelineArgs): Promise<IResult> {
+    const exeStart = performance.now();
     try {
       // Validate arguments
       this.validateArguments(args);
+      this.pipeline.logger?.info({
+        flow: this.getId(args),
+        category: VCategory.core.pipeline,
+        src: 'Controller:Pipeline:CLI:execute:start',
+        message: `Executing ${args.action} operation for template: ${args.template}`
+      });
 
       // Load configuration
-      const config = await this.pipeline.load(args.config);
+      const config = args?.config && await this.pipeline.load(args.config);
+      if (!config) {
+        throw new Error(`Configuration file not found: ${args.config}`);
+      }
 
       // Apply default values if not specified
-      this.applyConfigDefaults(config);
+      this.applyConfigDefaults(config, args);
 
       // Validate configuration structure
       this.validateConfiguration(config);
@@ -188,49 +175,73 @@ export class PipelineController {
       // Configure pipeline manager
       await this.pipeline.configure(config);
 
-      this.pipeline.logger?.debug({
-        src: 'Controller:Pipeline:CLI:execute',
-        message: `Executing ${args.action} operation for template: ${args.template}`
-      });
-
       // Execute the requested action
-      let result: IResult;
-      switch (args.action) {
-        case 'deploy':
-          result = await this.pipeline.deploy(args);
-          break;
-        case 'undeploy':
-          result = await this.pipeline.undeploy(args);
-          break;
-        case 'validate':
-          result = await this.pipeline.validate(args);
-          break;
-        case 'status':
-          result = await this.pipeline.status(args);
-          break;
-        default:
-          throw new Error(`Unsupported action: ${args.action}`);
+      const method = (this.pipeline as any)[args.action];
+      if (!(method instanceof Function)) {
+        throw new Error(`Unsupported action: ${args.action}`);
       }
+      const result: IResult = await method.apply(this.pipeline, [args]);
+      const exeEnd = performance.now();
+      const duration = (exeEnd - exeStart).toFixed(3);
 
       // Log execution result
-      await this.logExecutionResult(result);
+      if (result.success) {
+        this.pipeline.logger?.debug({
+          flow: config.id,
+          category: VCategory.core.pipeline,
+          src: 'Controller:Pipeline:CLI:execute:end',
+          message: `✅ ${result.action} operation completed successfully in ${duration} ms`,
+          data: {
+            action: args.action,
+            stack: args.stack,
+            project: args.project,
+            template: result.templateName,
+            components: result.results?.length || 0,
+            duration
+          }
+        })
+      } else {
+        this.pipeline.logger?.error({
+          flow: this.getId(args),
+          category: VCategory.core.pipeline,
+          src: 'Controller:Pipeline:CLI:execute:end',
+          message: `❌ ${result.action} operation failed after ${duration} ms`,
+          data: {
+            action: args.action,
+            stack: args.stack,
+            project: args.project,
+            template: result.templateName,
+            components: (result.results?.length || 1) - 1,
+            duration,
+            error: result.error
+          }
+        })
+      }
 
       return result;
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
+      const exeEnd = performance.now();
+      const duration = (exeEnd - exeStart).toFixed(3);
 
       this.pipeline.logger?.error({
+        flow: this.getId(args),
+        category: VCategory.core.pipeline,
         src: 'Controller:Pipeline:CLI:execute',
-        message: `Pipeline execution failed: ${errorMessage}`
+        message: `Pipeline execution failed: ${errorMessage} in ${duration} ms`,
+        data: {
+          action: args.action as IAction,
+          template: args.template,
+          duration
+        }
       });
 
       return {
+        success: false,
         action: args.action as IAction,
         templateName: args.template,
-        success: false,
-        duration: 0,
-        results: [],
+        duration: Number(duration),
         errors: [errorMessage],
         timestamp: new Date()
       };
@@ -238,15 +249,8 @@ export class PipelineController {
   }
 
   /**
-   * Displays usage information for the CLI
-   * 
-   * @method displayUsage
-   * @static
-   * 
-   * @example
-   * ```typescript
-   * PipelineController.displayUsage();
-   * ```
+   * Displays CLI usage information and command examples
+   * @public
    */
   public displayUsage(): void {
     console.log(`
@@ -257,7 +261,7 @@ Usage:
   pipeline --template=<template-name> --config=<config-file> --action=<action> --project=<id> --stack=<id>
 
 Options:
-  --template=<name>    Template name to use (required)
+  --template=<n>    Template name to use (required)
   --stack=<id>         Environment identifier (optional) (default: autogenerated, e.g., 'dev')
   --project=<id>       Project identifier (optional) (default: autogenerated, e.g., 'K2025071525')
   --config=<file>      Configuration file path (optional) (default: cfg/config.json)
@@ -279,13 +283,13 @@ Examples:
 
   /**
    * Applies default values to configuration if not specified
-   * 
    * @private
-   * @method applyConfigDefaults
-   * @param {PipelineConfig} config - Configuration object to apply defaults to
+   * @param {IPipelineConfig} config - Configuration object to apply defaults to
+   * @param {IPipelineArgs} [arg] - Optional CLI arguments for context
    */
-  private applyConfigDefaults(config: IPipelineConfig): void {
+  private applyConfigDefaults(config: IPipelineConfig, arg?: IPipelineArgs): void {
     // Apply stack defaults
+    config.id = this.getId(arg);
     config.name = config.name || 'DefaultPipeline';
     config.engine = config.engine || 'default';
     config.version = config.version || '1.0.0';
@@ -298,11 +302,9 @@ Examples:
 
   /**
    * Validates configuration structure and required fields
-   * 
    * @private
-   * @method validateConfiguration
    * @param {IPipelineConfig} config - Configuration to validate
-   * @throws {Error} If configuration is invalid
+   * @throws {Error} When configuration is invalid or missing required fields
    */
   private validateConfiguration(config: IPipelineConfig): void {
     if (!config.engine) {
@@ -311,53 +313,37 @@ Examples:
   }
 
   /**
-   * Logs execution result details
-   * 
-   * @private
-   * @method logExecutionResult
-   * @param {IResult} result - Execution result to log
+   * Logs a message using the pipeline logger with specified level
+   * @public
+   * @param {ILogInput} input - Log input message or structured log object
+   * @param {ILogLevel} [level] - Log level, defaults to INFO
+   * @returns {void | Promise<void>} Log operation result
    */
-  private logExecutionResult(result: IResult): Promise<void[]> {
-
-    const logs = [];
-    if (result.success) {
-
-      logs.push(this.pipeline.logger?.debug({
-        src: 'Controller:Pipeline:CLI:ExecutionResult',
-        message: `✅ ${result.action} operation completed successfully in ${result.duration}ms`
-      }));
-
-      result?.results?.length && logs.push(this.pipeline.logger?.debug({
-        src: 'Controller:Pipeline:CLI:ExecutionResult',
-        message: `Processed ${result.results.length} component(s)`
-      }));
-
-    } else {
-
-      logs.push(this.pipeline.logger?.error({
-        src: 'Controller:Pipeline:CLI:ExecutionResult',
-        message: `❌ ${result.action} operation failed after ${result.duration}ms`
-      }));
-
-      result?.errors?.length && logs.push(...result.errors.map(error => this.pipeline.logger?.error({
-        src: 'Controller:Pipeline:CLI:ExecutionResult',
-        message: `Error: ${error}`
-      })));
-
+  public log(input: ILogInput, level: ILogLevel = ILogLevel.INFO) {
+    if (typeof input === 'object') {
+      input.category = VCategory.core.pipeline;
     }
-
-    return Promise.all(logs);
+    return this.pipeline.logger?.log(input, level);
   }
 
   /**
-   * Logs a general message - alias for info() method for compatibility
-   * @param level - The log level to use
-   * @param input - The log input: string/number for simple message, or ILogEntry object for complex logging
-   * @example
-   * logger.log('General message');
-   * logger.log({ message: 'Process completed', data: { duration: '2.5s', items: 150 } });
+   * Waits for all pending logger operations to complete
+   * @public
+   * @returns {Promise<void>} Promise that resolves when all log operations complete
    */
-  log(input: ILogInput, level: ILogLevel = ILogLevel.INFO) {
-    return this.pipeline.logger?.log(input, level);
+  public async await(): Promise<void> {
+    if (this.pipeline.logger?.stack) {
+      await Promise.all(this.pipeline.logger?.stack)
+    }
+  }
+
+  /**
+   * Generates unique pipeline identifier from configuration options
+   * @public
+   * @param {IPipelineConfig} [opt] - Optional pipeline configuration for ID generation
+   * @returns {string} Generated pipeline identifier
+   */
+  public getId(opt?: IPipelineConfig) {
+    return this.pipeline.getId(opt);
   }
 } 

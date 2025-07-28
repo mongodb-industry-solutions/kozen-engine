@@ -3,10 +3,24 @@ import { ILogEntry, ILoggerConfig, ILogLevel, ILogOutputType, ILogProcessor } fr
 export class LogProcessor implements ILogProcessor {
 
     public level: ILogLevel;
+    public skip?: string;
 
     constructor(opt?: ILoggerConfig) {
-        const { level = ILogLevel.INFO } = opt || {};
+        const { level = ILogLevel.INFO, skip } = opt || {};
         this.level = level;
+        this.skip = skip;
+    }
+
+    protected compare(skip?: string, input?: string) {
+        if (!skip || !input) {
+            return false;
+        }
+        try {
+            return (new RegExp(skip)).test(input);
+        }
+        catch (_) {
+            return input === skip;
+        }
     }
 
     /**
@@ -14,20 +28,26 @@ export class LogProcessor implements ILogProcessor {
      * @param level - The level to check
      * @returns True if the level should be logged
      */
-    protected shouldLog(level: ILogLevel): boolean {
+    protected shouldLog(entry: ILogEntry): boolean {
+        let level: ILogLevel = (typeof entry?.level === 'string' ? ILogLevel[entry?.level as keyof typeof ILogLevel] : entry?.level) ?? ILogLevel.INFO;
+
         if (this.level === ILogLevel.NONE) return false;
+        if (this.compare(this.skip, entry.message)) {
+            return false;
+        }
         if (this.level === ILogLevel.ALL) return true;
         return level <= this.level;
     }
 
-    public process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): void {
+    public async process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): Promise<void> {
         // Example implementation: Save log entry to a database (stubbed)
-        if (!this.shouldLog(level)) return;
+        if (!this.shouldLog({ ...entry, level })) return;
 
         // Simulate DB insert
-        console.log(`[DBLogProcessor] Saving log to DB:`, {
-            message: entry.message,
+        console.log({
             level,
+            src: 'Tool:Log:Prosessor',
+            message: entry.message,
             outputType
         });
         // In a real implementation, insert into DB here

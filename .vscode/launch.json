@@ -91,6 +91,20 @@
                 "NODE_ENV": "development"
             },
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "🛠️ Run Secret",
+            "runtimeExecutable": "npm",
+            "console": "integratedTerminal",
+            "runtimeArgs": [
+                "run",
+                "secret"
+            ],
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
         }
     ]
 }
