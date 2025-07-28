@@ -5,7 +5,7 @@ import { ILoggerService } from '../models/Logger';
 import { IPipeline, IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
 import { IStackManager } from '../models/Stack';
 import { ITemplate, ITemplateManager } from '../models/Template';
-import { IAction, IResult, IStruct } from "../models/Types";
+import { IAction, IResult, IStruct, VCategory } from "../models/Types";
 import { IIoC, IoC } from "../tools";
 import { BaseService } from './BaseService';
 
@@ -146,8 +146,24 @@ export class PipelineManager extends BaseService {
         if (!templateName) {
             throw new Error('A valid template name was not provided');
         }
+
         let template = await srvTemplate.load<ITemplate>(templateName, { flow: id });
         let pipeline = { args, assistant: this.assistant, template, id };
+
+        this.logger?.debug({
+            flow: id,
+            src: 'Service:Pipeline:Deploy:Init',
+            message: 'Initiation of the deployment process',
+            category: VCategory.core.pipeline,
+            data: {
+                templateName,
+                projectName: project,
+                stackName: name,
+                engine: template.engine,
+                orchestrator: template.stack?.orchestrator,
+                components: template.stack?.components?.length || 0
+            }
+        });
 
         let stackResult = await stackAdm.deploy({
             id,
@@ -179,6 +195,14 @@ export class PipelineManager extends BaseService {
         });
         out.results = out.results || [];
         stackResult && out.results.push(stackResult)
+
+        this.logger?.debug({
+            flow: id,
+            src: 'Service:Pipeline:Deploy:End',
+            message: 'End of deployment process',
+            category: VCategory.core.pipeline,
+            data: stackResult
+        });
 
         return {
             templateName,

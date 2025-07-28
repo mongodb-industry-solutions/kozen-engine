@@ -1,7 +1,8 @@
 {
     "cmp": {
         "iac": "cmp:iac",
-        "exe": "cmp:exe"
+        "exe": "cmp:exe",
+        "api": "cmp:api"
     },
     "test": {
         "e2e": "test:e2e",

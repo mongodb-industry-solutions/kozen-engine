@@ -226,12 +226,14 @@ export class StackManagerPulumi extends StackManager {
                 })
             });
             return {
+                success: !!upRes,
                 stackName: config.name,
                 projectName: config.project,
-                success: true,
-                timestamp: new Date(),
-                message: `Stack ${config.name} deployed successfully.`,
-                output: upRes
+                duration: (upRes?.summary?.endTime?.getTime() || 0) - (upRes?.summary?.startTime?.getTime() || 0),
+                timestamp: upRes?.summary?.endTime || new Date(),
+                message: `Stack deployment: ${upRes?.summary?.result}`,
+                error: (upRes?.stderr && new Error(upRes.stderr)) || undefined,
+                output: upRes?.outputs
             };
         }
         catch (error) {
