@@ -69,7 +69,39 @@
                         "value": "AWS_SECRET_ACCESS_KEY"
                     }
                 ]
+            },
+            {
+                "name": "K8Pod",
+
+                "input": [],
+                "output": [
+                    {
+                        "type": "reference",
+                        "name": "kubeconfig",
+                        "value": "kubeconfig",
+                        "description": "Kubeconfig file for accessing the EKS cluster"
+                    },
+                    {
+                        "type": "reference",
+                        "name": "kubeconfigJson",
+                        "value": "kubeconfigJson",
+                        "description": "Kubeconfig JSON for accessing the EKS cluster"
+                    }
+                ],
+                "setup": [
+                    {
+                        "type": "secret",
+                        "name": "aws:accessKey",
+                        "value": "AWS_ACCESS_KEY_ID"
+                    },
+                    {
+                        "type": "secret",
+                        "name": "aws:secretKey",
+                        "value": "AWS_SECRET_ACCESS_KEY"
+                    }
+                ]
             }
+
         ]
     }
 }

@@ -1,0 +1,87 @@
+{
+    "name": "DemoK8AwsEks",
+    "description": "Demo template for deploying ECR image to AWS EKS using Pulumi",
+    "version": "1.0.0",
+    "engine": "1.0.0",
+    "release": "20241201",
+    "requires": [],
+    "deploymentMode": "synchronous",
+    "stack": {
+        "orchestrator": "Pulumi",
+        "input": [
+            {
+                "type": "environment",
+                "name": "PULUMI_CONFIG_PASSPHRASE"
+            },
+            {
+                "type": "environment",
+                "name": "PULUMI_BACKEND_URL"
+            }
+        ],
+        "setup": [
+            {
+                "type": "environment",
+                "name": "aws:region",
+                "value": "AWS_REGION",
+                "default": "us-east-1"
+            },
+            {
+                "type": "protected",
+                "name": "aws:accessKey",
+                "value": "AWS_ACCESS_KEY_ID",
+                "default": "***AWS_AKID_REDACTED***"
+            },
+            {
+                "type": "protected",
+                "name": "aws:secretKey",
+                "value": "AWS_SECRET_ACCESS_KEY",
+                "default": "***AWS_SECRET_REDACTED***"
+            }
+        ],
+        "components": [
+            {
+                "name": "K8Pod",
+                "input": [
+                    {
+                        "type": "environment",
+                        "name": "kubeconfig",
+                        "value": "KUBECONFIG_CONTENT",
+                        "description": "Kubeconfig content for accessing the EKS cluster"
+                    },
+                    {
+                        "type": "environment",
+                        "name": "image",
+                        "value": "IMAGE",
+                        "description": "ECR Docker image URI to deploy"
+                    },
+                    {
+                        "type": "value",
+                        "name": "containerName",
+                        "value": "ditto-app",
+                        "description": "Name for the container"
+                    },
+                    {
+                        "type": "value",
+                        "name": "containerPort",
+                        "value": 8080,
+                        "description": "Container port (adjust based on your app)"
+                    },
+                    {
+                        "type": "value",
+                        "name": "serviceType",
+                        "value": "LoadBalancer",
+                        "description": "Service type for external access"
+                    },
+                    {
+                        "type": "value",
+                        "name": "replicas",
+                        "value": 1,
+                        "description": "Number of pod replicas"
+                    }
+                ],
+                "output": [],
+                "setup": []
+            }
+        ]
+    }
+}
