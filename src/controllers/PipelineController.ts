@@ -156,7 +156,7 @@ export class PipelineController {
       this.pipeline.logger?.info({
         flow: this.getId(args),
         category: VCategory.core.pipeline,
-        src: 'Controller:Pipeline:CLI:execute:start',
+        src: 'Controller:Pipeline:Init',
         message: `Executing ${args.action} operation for template: ${args.template}`
       });
 
@@ -189,7 +189,7 @@ export class PipelineController {
         this.pipeline.logger?.debug({
           flow: config.id,
           category: VCategory.core.pipeline,
-          src: 'Controller:Pipeline:CLI:execute:end',
+          src: 'Controller:Pipeline:End',
           message: `✅ ${result.action} operation completed successfully in ${duration} ms`,
           data: {
             action: args.action,
@@ -204,7 +204,7 @@ export class PipelineController {
         this.pipeline.logger?.error({
           flow: this.getId(args),
           category: VCategory.core.pipeline,
-          src: 'Controller:Pipeline:CLI:execute:end',
+          src: 'Controller:Pipeline:End',
           message: `❌ ${result.action} operation failed after ${duration} ms`,
           data: {
             action: args.action,
@@ -228,7 +228,7 @@ export class PipelineController {
       this.pipeline.logger?.error({
         flow: this.getId(args),
         category: VCategory.core.pipeline,
-        src: 'Controller:Pipeline:CLI:execute',
+        src: 'Controller:Pipeline:Execute',
         message: `Pipeline execution failed: ${errorMessage} in ${duration} ms`,
         data: {
           action: args.action as IAction,
