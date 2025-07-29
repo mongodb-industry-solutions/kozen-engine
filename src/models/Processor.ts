@@ -1,7 +1,7 @@
 import { IIoC } from "../tools";
 import { IMetadata, IStruct } from "./Types";
 
-export interface IVarProcessorService {
+export interface IProcessorService {
     /**
      * Optional assistant for IoC resolution.
      * Used for resolving dependencies such as SecretManager.

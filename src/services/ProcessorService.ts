@@ -1,6 +1,6 @@
 
 import { ILoggerService } from "../models/Logger";
-import { IVarProcessorService } from "../models/Processor";
+import { IProcessorService } from "../models/Processor";
 import { ISecretManager } from "../models/Secret";
 import { IMetadata, IStruct, VCategory } from "../models/Types";
 import { IIoC } from "../tools";
@@ -11,11 +11,11 @@ import { IIoC } from "../tools";
  * This service abstracts the complexity of variable resolution from different sources including
  * environment variables, reference scopes, secrets, and static values.
  * 
- * The VarProcessorService implements a bridge pattern by providing a unified interface for
+ * The ProcessorService implements a bridge pattern by providing a unified interface for
  * variable resolution regardless of the source type, enabling templates to use variables
  * without knowing their specific resolution mechanisms.
  * 
- * @class VarProcessorService
+ * @class ProcessorService
  * @author MDB SAT
  * @since 1.0.4
  * @version 1.0.5
@@ -23,7 +23,7 @@ import { IIoC } from "../tools";
  * @example
  * ```typescript
  * // Basic usage with environment variables and secrets
- * const processor = new VarProcessorService({
+ * const processor = new ProcessorService({
  *   scope: { deploymentId: 'prod-001' },
  *   srvSecret: secretManager
  * });
@@ -39,7 +39,7 @@ import { IIoC } from "../tools";
  * // Returns: { environment: 'production', deploymentId: 'prod-001', apiKey: '***', region: 'us-east-1' }
  * ```
  */
-export class VarProcessorService implements IVarProcessorService {
+export class ProcessorService implements IProcessorService {
     /**
      * Optional assistant for IoC resolution
      * @public
@@ -74,7 +74,7 @@ export class VarProcessorService implements IVarProcessorService {
     private srvSecret?: ISecretManager;
 
     /**
-     * Creates a new VarProcessorService instance
+     * Creates a new ProcessorService instance
      * @constructor
      * @param {Object} options - Configuration options for the variable processor
      * @param {IStruct} [options.scope={}] - Optional initial scope for reference variable resolution
@@ -87,7 +87,7 @@ export class VarProcessorService implements IVarProcessorService {
      * @example
      * ```typescript
      * // Initialize with custom scope and secret manager
-     * const processor = new VarProcessorService({
+     * const processor = new ProcessorService({
      *   scope: {
      *     projectName: 'my-project',
      *     version: '1.0.0',
@@ -243,4 +243,4 @@ export class VarProcessorService implements IVarProcessorService {
     }
 }
 
-export default VarProcessorService;
+export default ProcessorService;

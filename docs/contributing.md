@@ -509,7 +509,7 @@ export KOZEN_TEMPLATE=my-custom-template
 Debug specific services by setting breakpoints in:
 
 - `src/services/PipelineManager.ts` - Pipeline orchestration
-- `src/services/VarProcessorService.ts` - Variable processing
+- `src/services/ProcessorService.ts` - Variable processing
 - `src/services/TemplateManager*.ts` - Template management
 - `src/services/SecretManager*.ts` - Secret management
 - `src/services/StackManager*.ts` - Stack management
