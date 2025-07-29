@@ -1,6 +1,6 @@
 {
     "name": "DemoK8AwsEks",
-    "description": "Demo template for deploying ECR image to AWS EKS using Pulumi",
+    "description": "Demo template for deploying test Pod in AWS EKS",
     "version": "1.0.0",
     "engine": "1.0.0",
     "release": "20241201",
@@ -43,40 +43,14 @@
                 "name": "K8Pods",
                 "input": [
                     {
-                        "type": "environment",
-                        "name": "kubeconfig",
-                        "value": "KUBECONFIG_CONTENT",
-                        "description": "Kubeconfig content for accessing the EKS cluster"
-                    },
-                    {
-                        "type": "environment",
-                        "name": "image",
-                        "value": "IMAGE",
-                        "description": "ECR Docker image URI to deploy"
-                    },
-                    {
                         "type": "value",
                         "name": "containerName",
-                        "value": "ditto-app",
-                        "description": "Name for the container"
+                        "value": "ditto-demo"
                     },
                     {
                         "type": "value",
-                        "name": "containerPort",
-                        "value": 8080,
-                        "description": "Container port (adjust based on your app)"
-                    },
-                    {
-                        "type": "value",
-                        "name": "serviceType",
-                        "value": "LoadBalancer",
-                        "description": "Service type for external access"
-                    },
-                    {
-                        "type": "value",
-                        "name": "replicas",
-                        "value": 1,
-                        "description": "Number of pod replicas"
+                        "name": "image",
+                        "value": "275662791714.dkr.ecr.us-east-1.amazonaws.com/sa-demo/ditto-vehicle-digital-twin-feedback-loop:latest"
                     }
                 ],
                 "output": [],
