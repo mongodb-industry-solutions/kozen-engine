@@ -1,4 +1,3 @@
-import { env } from 'process';
 import { BaseController } from '../../controllers/BaseController';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct, VCategory } from '../../models/Types';
@@ -46,8 +45,8 @@ export class DemoFirst extends BaseController {
     const resourcePrefix = this.getPrefix(pipeline).toLowerCase();
 
     // Define el proveedor de Kubernetes con el kubeconfig
-    const k8sProvider = new kubernetes.Provider("eksProvider", { 
-      kubeconfig 
+    const k8sProvider = new kubernetes.Provider("eksProvider", {
+      kubeconfig
     });
 
     const namespaceName = `${resourcePrefix}-namespace`;
@@ -86,6 +85,7 @@ export class DemoFirst extends BaseController {
         metadata: {
           name: podName,
           namespace: namespace.metadata.name,
+          labels: { app: podName },
         },
         spec: {
           containers: [
@@ -100,6 +100,24 @@ export class DemoFirst extends BaseController {
       },
       { provider: k8sProvider }
     );
+
+    const serviceName = `${resourcePrefix}-service`;
+    const service = new kubernetes.core.v1.Service(serviceName, {
+      metadata: {
+        name: serviceName,
+        namespace: namespace.metadata.name,
+      },
+      spec: {
+        type: "LoadBalancer",
+        selector: {
+          // This should match the Pod's label
+          "app": podName,
+        },
+        ports: [
+          { name: "http-3000", port: 3000, targetPort: 3000 }
+        ],
+      },
+    }, { provider: k8sProvider });
 
     // Exporta detalles importantes
     return {
