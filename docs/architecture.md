@@ -33,7 +33,7 @@ Kozen Engine implements a layered, extensible architecture designed for scalabil
 - `StackManager.ts` - Infrastructure stack management abstraction
 - `TemplateManager.ts` - Template storage and retrieval abstraction
 - `SecretManager.ts` - Secret management abstraction
-- `VarProcessorService.ts` - Variable resolution and processing
+- `ProcessorService.ts` - Variable resolution and processing
 
 ### 4. Components Layer (`src/components/`)
 

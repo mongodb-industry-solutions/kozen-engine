@@ -1,6 +1,6 @@
 import { IComponent, ITransformOption } from "../models/Component";
 import { ILoggerService } from "../models/Logger";
-import { IVarProcessorService } from "../models/Processor";
+import { IProcessorService } from "../models/Processor";
 import { IStruct } from "../models/Types";
 import { IIoC } from "../tools";
 
@@ -72,7 +72,7 @@ export class BaseService {
     }
 
     /**
-     * Transforms component input by processing variables through VarProcessorService
+     * Transforms component input by processing variables through ProcessorService
      * @protected
      * @param {IComponent} component - Component containing input definitions
      * @param {IStruct} output - Current output scope for variable resolution
@@ -84,7 +84,7 @@ export class BaseService {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        const srvVar = await this.assistant.resolve<IVarProcessorService>('VarProcessorService');
+        const srvVar = await this.assistant.resolve<IProcessorService>('ProcessorService');
         const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output, flow));
         return input || {};
     }
