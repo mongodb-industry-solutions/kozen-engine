@@ -1,6 +1,8 @@
+import { env } from 'process';
 import { BaseController } from '../../controllers/BaseController';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct, VCategory } from '../../models/Types';
+import { IK8PodsConfig } from "./IK8PodsConfig";
 
 import * as kubernetes from '@pulumi/kubernetes';
 import * as fs from 'fs';
@@ -16,7 +18,7 @@ export class DemoFirst extends BaseController {
    * @param input - Optional deployment input parameters with message and timeout
    * @returns Promise resolving to deployment result with success status and IP address output
    */
-  async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
+  async deploy(input?: IK8PodsConfig, pipeline?: IPipeline): Promise<IResult> {
 
     const kubeconfigPath = `${process.env.HOME}/.kube/config`;
     const kubeconfig = fs.readFileSync(kubeconfigPath).toString();
@@ -40,11 +42,15 @@ export class DemoFirst extends BaseController {
       }
     });
 
-    // Define el proveedor de Kubernetes con el kubeconfig
-    const k8sProvider = new kubernetes.Provider("eksProvider", { kubeconfig });
+    // Create a unique resource name with the prefix
+    const resourcePrefix = this.getPrefix(pipeline).toLowerCase();
 
-    // Crea un namespace para tus recursos
-    const namespaceName = "pulumi-namespace";
+    // Define el proveedor de Kubernetes con el kubeconfig
+    const k8sProvider = new kubernetes.Provider("eksProvider", { 
+      kubeconfig 
+    });
+
+    const namespaceName = `${resourcePrefix}-namespace`;
     const namespace = new kubernetes.core.v1.Namespace(
       namespaceName,
       {
@@ -53,8 +59,27 @@ export class DemoFirst extends BaseController {
       { provider: k8sProvider }
     );
 
-    // Define un Pod básico
-    const podName = "nginx-pod-v2";
+    const envVars = [
+      {
+        name: "DITTO_WEBSOCKET_URL",
+        value: process.env.DITTO_WEBSOCKET_URL
+      },
+      {
+        name: "DITTO_CUSTOM_AUTH_URL",
+        value: process.env.DITTO_CUSTOM_AUTH_URL
+      },
+      {
+        name: "DITTO_PLAYGROUND_TOKEN",
+        value: process.env.DITTO_PLAYGROUND_TOKEN
+      },
+      {
+        name: "DITTO_APP_ID",
+        value: process.env.DITTO_APP_ID
+      }
+    ];
+
+
+    const podName = `${resourcePrefix}-pod`;
     const pod = new kubernetes.core.v1.Pod(
       podName,
       {
@@ -65,9 +90,10 @@ export class DemoFirst extends BaseController {
         spec: {
           containers: [
             {
-              name: "nginx-container",
-              image: "nginx:latest", // Imagen del contenedor
-              ports: [{ containerPort: 80 }], // Exponer el puerto 80
+              name: input?.containerName || "app-container", // Default container name
+              image: input?.image || "nginx:latest", // Container image to deploy
+              ports: [{ containerPort: 80 }, { containerPort: 8080 }, { containerPort: 3000 }], // Expose port 80 and 8080
+              env: envVars
             },
           ],
         },
