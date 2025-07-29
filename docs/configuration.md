@@ -49,13 +49,13 @@ The main configuration file defines global settings, service dependencies, and e
 
 ### Configuration Schema
 
-| Property       | Type          | Required | Description                   |
-| -------------- | ------------- | -------- | ----------------------------- |
-| `name`         | string        | Yes      | Pipeline identifier           |
-| `version`      | string        | Yes      | Configuration version         |
-| `engine`       | string        | Yes      | Engine version compatibility  |
-| `description`  | string        | No       | Pipeline description          |
-| `dependencies` | IDependency[] | Yes      | IoC service registrations     |
+| Property       | Type          | Required | Description                  |
+| -------------- | ------------- | -------- | ---------------------------- |
+| `name`         | string        | Yes      | Pipeline identifier          |
+| `version`      | string        | Yes      | Configuration version        |
+| `engine`       | string        | Yes      | Engine version compatibility |
+| `description`  | string        | No       | Pipeline description         |
+| `dependencies` | IDependency[] | Yes      | IoC service registrations    |
 
 ## Service Dependencies Configuration
 
@@ -65,12 +65,13 @@ The `dependencies` array configures the IoC container with service registrations
 
 ```typescript
 interface IDependency {
-  target: string;           // Service class name
+  target: string; // Service class name
   type: "class" | "value" | "function" | "ref" | "auto";
   lifetime: "singleton" | "transient" | "scoped";
-  path?: string;           // Module path for classes
-  args?: JsonValue[];      // Constructor arguments
-  dependencies?: Array<{   // Injected dependencies
+  path?: string; // Module path for classes
+  args?: JsonValue[]; // Constructor arguments
+  dependencies?: Array<{
+    // Injected dependencies
     key: string;
     target: string;
     type: "ref";
@@ -83,6 +84,7 @@ interface IDependency {
 ### Stack Manager Services
 
 #### Generic Stack Manager
+
 ```json
 {
   "target": "StackManager",
@@ -113,6 +115,7 @@ interface IDependency {
 ```
 
 #### Pulumi Stack Manager
+
 ```json
 {
   "target": "StackManagerPulumi",
@@ -136,6 +139,7 @@ interface IDependency {
 ```
 
 #### Node Stack Manager
+
 ```json
 {
   "target": "StackManagerNode",
@@ -161,6 +165,7 @@ interface IDependency {
 ### Template Manager Services
 
 #### File-based Template Manager
+
 ```json
 {
   "target": "TemplateManagerFile",
@@ -183,6 +188,7 @@ interface IDependency {
 ```
 
 #### MongoDB Template Manager
+
 ```json
 {
   "target": "TemplateManagerMDB",
@@ -205,6 +211,7 @@ interface IDependency {
 ```
 
 #### Generic Template Manager (with configuration)
+
 ```json
 {
   "target": "TemplateManager",
@@ -243,6 +250,7 @@ interface IDependency {
 ### Secret Manager Services
 
 #### AWS Secret Manager
+
 ```json
 {
   "target": "SecretManagerAWS",
@@ -266,6 +274,7 @@ interface IDependency {
 ```
 
 #### MongoDB Secret Manager
+
 ```json
 {
   "target": "SecretManagerMDB",
@@ -289,6 +298,7 @@ interface IDependency {
 ```
 
 #### Generic Secret Manager (with configuration)
+
 ```json
 {
   "target": "SecretManager",
@@ -323,6 +333,7 @@ interface IDependency {
 ### Core Pipeline Services
 
 #### Pipeline Manager
+
 ```json
 {
   "target": "PipelineManager",
@@ -345,6 +356,7 @@ interface IDependency {
 ```
 
 #### Logger Service
+
 ```json
 {
   "target": "LoggerService",
@@ -377,9 +389,10 @@ interface IDependency {
 ```
 
 #### Variable Processor Service
+
 ```json
 {
-  "target": "VarProcessorService",
+  "target": "ProcessorService",
   "type": "class",
   "lifetime": "singleton",
   "path": "../../services",
@@ -434,6 +447,7 @@ Kozen Engine supports environment variable resolution for secure configuration a
 ### Required Environment Variables
 
 #### Pipeline Configuration
+
 ```bash
 # Template Selection
 KOZEN_TEMPLATE=demo
@@ -444,6 +458,7 @@ KOZEN_PROJECT=K2025072112202952
 ```
 
 #### AWS Configuration
+
 ```bash
 # AWS Credentials for AWS services
 AWS_REGION=us-east-1
@@ -455,6 +470,7 @@ AWS_PROFILE=your-profile-name
 ```
 
 #### Pulumi Configuration
+
 ```bash
 # Pulumi Backend Configuration
 PULUMI_BACKEND_URL=s3://your-pulumi-state-bucket
@@ -465,6 +481,7 @@ PULUMI_ORG=your-organization
 ```
 
 #### MongoDB Configuration
+
 ```bash
 # MongoDB Connection for templates and logs
 MDB_URI=mongodb://localhost:27017/kozen-data
@@ -474,6 +491,7 @@ MONGODB_ATLAS_URI=mongodb+srv://user:pass@cluster.mongodb.net/kozen
 ```
 
 #### Component-Specific Configuration
+
 ```bash
 # Atlas Component Configuration
 ATLAS_PUBLIC_KEY=your-atlas-public-key
@@ -486,6 +504,7 @@ DEMO_DELAY=1000
 ```
 
 #### Development Configuration
+
 ```bash
 # Application Environment
 NODE_ENV=development
@@ -593,6 +612,7 @@ The project includes pre-configured VSCode debug configurations in `.vscode/laun
 Create `.env` files for different environments:
 
 #### Development (`.env.development`)
+
 ```bash
 NODE_ENV=development
 KOZEN_TEMPLATE=demo
@@ -602,6 +622,7 @@ LOG_LEVEL=debug
 ```
 
 #### Testing (`.env.test`)
+
 ```bash
 NODE_ENV=test
 KOZEN_TEMPLATE=demo
@@ -611,6 +632,7 @@ LOG_LEVEL=info
 ```
 
 #### Production (`.env.production`)
+
 ```bash
 NODE_ENV=production
 KOZEN_TEMPLATE=atlas.basic
@@ -745,16 +767,19 @@ LOG_LEVEL=warn
 ### Common Configuration Issues
 
 1. **Service Registration Errors**
+
    - Verify service paths are correct
    - Check dependency injection configuration
    - Ensure all required dependencies are registered
 
 2. **Environment Variable Issues**
+
    - Verify environment variables are set
    - Check variable names match configuration
    - Use default values where appropriate
 
 3. **Template Loading Issues**
+
    - Verify template file paths
    - Check template JSON syntax
    - Ensure template structure matches schema

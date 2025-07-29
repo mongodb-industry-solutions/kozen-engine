@@ -746,7 +746,7 @@ logger.info("Operation completed", { duration: 1500 });
 logger.error("Operation failed", { error: "Connection timeout" });
 ```
 
-### VarProcessorService
+### ProcessorService
 
 Variable processing and resolution service.
 
@@ -763,7 +763,7 @@ Transforms and resolves setup variables.
 **Example:**
 
 ```typescript
-const processor = new VarProcessorService();
+const processor = new ProcessorService();
 
 const resolvedInputs = await processor.transformInput(
   component,
