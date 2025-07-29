@@ -110,7 +110,7 @@
                                 ]
                             },
                             {
-                                "name": "params",
+                                "name": "query",
                                 "value": [
                                     {
                                         "name": "page",

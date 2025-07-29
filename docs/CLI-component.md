@@ -20,14 +20,18 @@ The CLI component extends the `BaseController` and implements the standard compo
 
 ```typescript
 export class CLI extends BaseController {
-  async run(input?: IStruct, pipeline?: IPipeline): Promise<IResult>
-  async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>
-  async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>
-  async getInput(input: IStruct, action: string): Promise<IStruct>
+  async run(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
+  async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
+  async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
+  async getInput(input: IStruct, action: string): Promise<IStruct>;
 }
 ```
 
 ## Configuration
+
+### Input Structure Overview
+
+The CLI component uses an **overloaded input system** that supports separate configurations for `deploy` and `undeploy` actions. Each action contains **IComponentInput metadata structures** that are evaluated at runtime, enabling dynamic command construction from various sources including environment variables, secrets, and references to other component outputs.
 
 ### Basic Configuration Structure
 
@@ -40,11 +44,46 @@ export class CLI extends BaseController {
       "value": [
         {
           "name": "cmd",
-          "value": "command_to_execute"
+          "value": "docker"
         },
         {
           "name": "args",
-          "value": ["arg1", "arg2", "arg3"]
+          "value": [
+            {
+              "name": "action",
+              "value": "run"
+            },
+            {
+              "name": "image",
+              "type": "environment",
+              "value": "DOCKER_IMAGE",
+              "default": "nginx:latest"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "undeploy",
+      "value": [
+        {
+          "name": "cmd",
+          "value": "docker"
+        },
+        {
+          "name": "args",
+          "value": [
+            {
+              "name": "action",
+              "value": "stop"
+            },
+            {
+              "name": "container",
+              "type": "reference",
+              "value": "containerId",
+              "description": "Container ID from deploy phase"
+            }
+          ]
         }
       ]
     }
@@ -52,52 +91,120 @@ export class CLI extends BaseController {
 }
 ```
 
-### Input Parameters
+### IComponentInput Metadata Structure
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `cmd` | string | Yes | The base command to execute |
-| `args` | array/object | No | Command arguments (can be array or key-value object) |
-| `[...argv]` | any | No | Additional arguments that will be appended to args |
+Each input parameter follows the **IComponentInput** (IMetadata) structure for runtime evaluation:
 
-### Argument Handling
-
-The CLI component supports flexible argument handling:
-
-#### Array-based Arguments
-```json
-{
-  "cmd": "ls",
-  "args": ["-la", "/home/user"]
+```typescript
+interface IComponentInput {
+  name: string; // Parameter identifier
+  type?: IStructType; // Resolution strategy
+  value: any; // Actual value or reference key
+  description?: string; // Documentation
+  default?: any; // Fallback value
 }
 ```
 
-#### Object-based Arguments
+### Input Resolution Types
+
+| Type          | Description                             | Example Use Case                 |
+| ------------- | --------------------------------------- | -------------------------------- |
+| `value`       | Static value used as-is                 | Fixed commands, static arguments |
+| `environment` | Environment variable resolution         | `DOCKER_IMAGE`, `NODE_ENV`       |
+| `secret`      | Secret management system (AWS SM, etc.) | Database passwords, API keys     |
+| `reference`   | Reference to previous component output  | Container IDs, file paths        |
+| `protected`   | Protected configuration values          | Sensitive configuration data     |
+
+### Core CLI Parameters
+
+| Parameter   | Type            | Required | Description                           |
+| ----------- | --------------- | -------- | ------------------------------------- |
+| `cmd`       | IComponentInput | Yes      | The base command to execute           |
+| `args`      | IComponentInput | No       | Command arguments as metadata array   |
+| `[...argv]` | IComponentInput | No       | Additional arguments appended to args |
+
+### Advanced Argument Configuration Patterns
+
+#### Dynamic Arguments with Metadata Evaluation
+
 ```json
 {
-  "cmd": "docker",
-  "args": {
-    "action": "run",
-    "detach": "-d",
-    "port": "-p 8080:80",
-    "image": "nginx:latest"
-  }
+  "name": "args",
+  "value": [
+    {
+      "name": "subcommand",
+      "value": "apply"
+    },
+    {
+      "name": "filename",
+      "type": "reference",
+      "value": "manifestPath",
+      "description": "Path from previous component output"
+    },
+    {
+      "name": "namespace",
+      "type": "environment",
+      "value": "KUBE_NAMESPACE",
+      "default": "default"
+    },
+    {
+      "name": "token",
+      "type": "secret",
+      "value": "KUBE_AUTH_TOKEN",
+      "description": "Kubernetes authentication token"
+    }
+  ]
 }
 ```
 
-#### Mixed Arguments
+#### Conditional Command Construction
+
 ```json
 {
-  "cmd": "kubectl",
-  "args": ["get", "pods"],
-  "namespace": "-n production",
-  "output": "-o json"
+  "name": "deploy",
+  "value": [
+    {
+      "name": "cmd",
+      "type": "environment",
+      "value": "DEPLOY_COMMAND",
+      "default": "kubectl"
+    },
+    {
+      "name": "args",
+      "value": [
+        {
+          "name": "action",
+          "value": "apply"
+        },
+        {
+          "name": "context",
+          "type": "reference",
+          "value": "kubeContext",
+          "default": "production"
+        }
+      ]
+    }
+  ]
 }
 ```
+
+## Runtime Metadata Evaluation
+
+The CLI component performs **deep input evaluation** before executing the `run` method. This process:
+
+1. **Resolves Environment Variables**: `type: "environment"` fetches values from system environment
+2. **Retrieves Secrets**: `type: "secret"` accesses values from Key Management Systems (AWS Secrets Manager, etc.)
+3. **References Component Outputs**: `type: "reference"` gets values from previous pipeline component results
+4. **Applies Default Values**: Uses `default` when resolution fails or returns null
+5. **Constructs Command**: Builds the final command string from evaluated metadata
+
+### Component Output Exposure
+
+CLI component results are automatically exposed through the pipeline **output system**, making command execution results accessible to all subsequent components in the pipeline sequence. This enables command chaining and result-based decision making.
 
 ## Usage Examples
 
-### Example 1: Basic Directory Listing
+### Example 1: Dynamic Directory Listing
 
 ```json
 {
@@ -112,7 +219,18 @@ The CLI component supports flexible argument handling:
         },
         {
           "name": "args",
-          "value": ["-la", "/home/user"]
+          "value": [
+            {
+              "name": "flags",
+              "value": "-la"
+            },
+            {
+              "name": "path",
+              "type": "environment",
+              "value": "TARGET_DIRECTORY",
+              "default": "/home/user"
+            }
+          ]
         }
       ]
     }
@@ -120,7 +238,7 @@ The CLI component supports flexible argument handling:
 }
 ```
 
-### Example 2: Docker Container Management
+### Example 2: Docker Container Lifecycle Management
 
 ```json
 {
@@ -128,27 +246,74 @@ The CLI component supports flexible argument handling:
   "input": [
     {
       "name": "deploy",
+      "type": "value",
       "value": [
         {
           "name": "cmd",
+          "type": "value",
           "value": "docker"
         },
         {
           "name": "args",
-          "value": ["run", "-d", "--name", "my-app", "-p", "8080:80", "nginx:latest"]
+          "type": "value",
+          "value": [
+            {
+              "name": "action",
+              "type": "value",
+              "value": "run"
+            },
+            {
+              "name": "detach",
+              "type": "value",
+              "value": "-d"
+            },
+            {
+              "name": "name",
+              "type": "environment",
+              "value": "CONTAINER_NAME",
+              "default": "my-app"
+            },
+            {
+              "name": "port",
+              "type": "reference",
+              "value": "portMapping",
+              "default": "8080:80"
+            },
+            {
+              "name": "image",
+              "type": "secret",
+              "value": "DOCKER_IMAGE",
+              "default": "nginx:latest"
+            }
+          ]
         }
       ]
     },
     {
       "name": "undeploy",
+      "type": "value",
       "value": [
         {
           "name": "cmd",
+          "type": "value",
           "value": "docker"
         },
         {
           "name": "args",
-          "value": ["stop", "my-app"]
+          "type": "value",
+          "value": [
+            {
+              "name": "action",
+              "type": "value",
+              "value": "stop"
+            },
+            {
+              "name": "container",
+              "type": "reference",
+              "value": "containerName",
+              "description": "Container name from deploy phase"
+            }
+          ]
         }
       ]
     }
@@ -250,14 +415,15 @@ interface IResult {
   timestamp: Date;
   duration: number;
   output?: {
-    raw: string;           // Raw command output
-    processed: IStruct;    // Parsed output (JSON if applicable)
+    raw: string; // Raw command output
+    processed: IStruct; // Parsed output (JSON if applicable)
   };
   error?: Error;
 }
 ```
 
 ### Success Response Example
+
 ```json
 {
   "templateName": "demo",
@@ -275,6 +441,7 @@ interface IResult {
 ```
 
 ### Error Response Example
+
 ```json
 {
   "templateName": "demo",
@@ -358,7 +525,10 @@ interface IResult {
         },
         {
           "name": "args",
-          "value": ["-c", "if [ \"$NODE_ENV\" = \"production\" ]; then npm run build:prod; else npm run build:dev; fi"]
+          "value": [
+            "-c",
+            "if [ \"$NODE_ENV\" = \"production\" ]; then npm run build:prod; else npm run build:dev; fi"
+          ]
         }
       ]
     }
@@ -396,21 +566,25 @@ interface IResult {
 ## Common Use Cases
 
 ### 1. Infrastructure Deployment
+
 - **Terraform**: `terraform apply -auto-approve`
 - **Ansible**: `ansible-playbook site.yml`
 - **Helm**: `helm install myapp ./chart`
 
 ### 2. Application Deployment
+
 - **Docker**: Container building and deployment
 - **Kubernetes**: Resource management and deployment
 - **Cloud CLI**: AWS/Azure/GCP resource management
 
 ### 3. Testing and Validation
+
 - **Unit Tests**: `npm test`
 - **Integration Tests**: Custom test scripts
 - **Health Checks**: `curl -f http://localhost:8080/health`
 
 ### 4. Data Operations
+
 - **Database Migrations**: Database schema updates
 - **Data Import/Export**: ETL operations
 - **Backup Operations**: Database and file backups
@@ -420,14 +594,17 @@ interface IResult {
 ### Common Issues
 
 1. **Command Not Found**
+
    - Verify command is installed and in PATH
    - Check spelling and case sensitivity
 
 2. **Permission Denied**
+
    - Verify user permissions
    - Check file and directory permissions
 
 3. **Timeout Errors**
+
    - Increase timeout settings
    - Optimize command performance
 
@@ -479,4 +656,4 @@ interface IResult {
 }
 ```
 
-This CLI component provides a powerful and flexible way to integrate any command-line tool or script into your infrastructure and deployment pipelines, ensuring consistent execution, proper error handling, and comprehensive logging. 
+This CLI component provides a powerful and flexible way to integrate any command-line tool or script into your infrastructure and deployment pipelines, ensuring consistent execution, proper error handling, and comprehensive logging.
