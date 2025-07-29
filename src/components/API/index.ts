@@ -52,7 +52,7 @@ export class API extends BaseController {
 
             this.logger?.info({
                 flow: pipeline?.id,
-                category: VCategory.cmp.iac,
+                category: VCategory.cmp.api,
                 src: 'Component:API:run',
                 message: `API call completed successfully: ${method} ${fullUrl}`,
                 data: { duration, result },
@@ -71,7 +71,7 @@ export class API extends BaseController {
 
             this.logger?.error({
                 flow: pipeline?.id,
-                category: VCategory.cmp.iac,
+                category: VCategory.cmp.api,
                 src: 'Component:API:run',
                 message: `API call failed: ${method} ${fullUrl}`,
                 data: { duration, error },
@@ -105,7 +105,10 @@ export class API extends BaseController {
     }
 
     /**
-     * Deploy logic for CLI component (calls `run` method indirectly)
+     * Deploys the API component by executing the run method with processed input parameters
+     * @param input - Optional input parameters containing deployment configuration
+     * @param pipeline - Optional pipeline context for deployment execution
+     * @returns Promise resolving to deployment result with success status and response data
      */
     async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
         let inpuTmp = await this.getInput(input || {}, 'deploy');
@@ -113,14 +116,24 @@ export class API extends BaseController {
     }
 
     /**
-     * Undeploy logic for CLI component
-     * (For simplicity, no CLI command execution required here)
+     * Undeploys the API component by executing the run method with processed input parameters
+     * Note: For API components, undeploy typically means executing cleanup API calls
+     * @param input - Optional input parameters containing undeployment configuration
+     * @param pipeline - Optional pipeline context for undeployment execution
+     * @returns Promise resolving to undeployment result with success status and response data
      */
     async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
         let inpuTmp = await this.getInput(input || {}, 'undeploy');
         return await this.run(inpuTmp, pipeline);
     }
 
+    /**
+     * Processes and transforms input parameters for API requests based on the specified action
+     * Handles action-specific input transformations and processes headers, body, and params
+     * @param input - Raw input parameters to be processed
+     * @param action - Action type ('deploy' or 'undeploy') that determines input processing logic
+     * @returns Promise resolving to processed input structure ready for API execution
+     */
     async getInput(input: IStruct, action: string = 'deploy'): Promise<IStruct> {
         let result = input;
         input[action] && (result = await this.transformInput({ component: { input: input[action] }, key: 'input' }));

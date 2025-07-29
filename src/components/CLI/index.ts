@@ -31,7 +31,7 @@ export class CLI extends BaseController {
 
         this.logger?.info({
             flow: pipeline?.id,
-            category: VCategory.cmp.iac,
+            category: VCategory.cmp.exe,
             src: 'Component:CLI:run',
             message: `Executing command: ${command}`,
             data: {
@@ -49,7 +49,7 @@ export class CLI extends BaseController {
             let duration = Date.now() - startTime;
             this.logger?.info({
                 flow: pipeline?.id,
-                category: VCategory.cmp.iac,
+                category: VCategory.cmp.exe,
                 src: 'Component:CLI:run',
                 message: `Command executed successfully: ${command}`,
                 data: { duration, result },
@@ -69,7 +69,7 @@ export class CLI extends BaseController {
             const duration = Date.now() - startTime;
             this.logger?.error({
                 flow: pipeline?.id,
-                category: VCategory.cmp.iac,
+                category: VCategory.cmp.exe,
                 src: 'Component:CLI:run',
                 message: `Command execution failed: ${command}`,
                 data: { duration, error },
@@ -119,7 +119,10 @@ export class CLI extends BaseController {
     }
 
     /**
-     * Deploy logic for CLI component (calls `run` method indirectly)
+     * Deploys the CLI component by executing the run method with processed input parameters
+     * @param input - Optional input parameters containing deployment commands and configuration
+     * @param pipeline - Optional pipeline context for deployment execution
+     * @returns Promise resolving to deployment result with command execution status and output
      */
     async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
         let inpuTmp = await this.getInput(input || {}, 'deploy');
@@ -127,14 +130,24 @@ export class CLI extends BaseController {
     }
 
     /**
-     * Undeploy logic for CLI component
-     * (For simplicity, no CLI command execution required here)
+     * Undeploys the CLI component by executing the run method with processed input parameters
+     * Note: For CLI components, undeploy typically means executing cleanup or teardown commands
+     * @param input - Optional input parameters containing undeployment commands and configuration
+     * @param pipeline - Optional pipeline context for undeployment execution
+     * @returns Promise resolving to undeployment result with command execution status and output
      */
     async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
         let inpuTmp = await this.getInput(input || {}, 'undeploy');
         return await this.run(inpuTmp, pipeline);
     }
 
+    /**
+     * Processes and transforms input parameters for CLI command execution based on the specified action
+     * Handles action-specific input transformations and processes command arguments
+     * @param input - Raw input parameters containing command and arguments to be processed
+     * @param action - Action type ('deploy' or 'undeploy') that determines input processing logic
+     * @returns Promise resolving to processed input structure ready for CLI command execution
+     */
     async getInput(input: IStruct, action: string = 'deploy'): Promise<IStruct> {
         let result = input;
         input[action] && (result = await this.transformInput({ component: { input: input[action] }, key: 'input' }));
