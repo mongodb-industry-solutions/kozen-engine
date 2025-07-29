@@ -16,13 +16,18 @@ export class CLI extends BaseController {
      */
     async run(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
 
-        const startTime = Date.now();
-        const { cmd, args = [], ...argv } = input || {};
+        let startTime = Date.now();
+        let { cmd, args = [], ...argv } = input || {};
+
+        if (!Array.isArray(args) && typeof args === 'object') {
+            args = Object.values(args);
+        }
+
         for (let i in argv) {
             argv[i] && args.push(argv[i])
         }
 
-        const command = `${cmd} ${args.join(" ")}`;
+        let command = `${cmd} ${args.join(" ")}`;
 
         this.logger?.info({
             flow: pipeline?.id,
@@ -39,9 +44,9 @@ export class CLI extends BaseController {
         });
 
         try {
-            const result = await this.executeCommand(command);
+            let result = await this.executeCommand(command);
 
-            const duration = Date.now() - startTime;
+            let duration = Date.now() - startTime;
             this.logger?.info({
                 flow: pipeline?.id,
                 category: VCategory.cmp.iac,
@@ -50,7 +55,7 @@ export class CLI extends BaseController {
                 data: { duration, result },
             });
 
-            const output = { raw: result, processed: this.processOutput(result) };
+            let output = { raw: result, processed: this.processOutput(result) };
 
             return {
                 templateName: pipeline?.template?.name,
@@ -117,13 +122,7 @@ export class CLI extends BaseController {
      * Deploy logic for CLI component (calls `run` method indirectly)
      */
     async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
-        let inpuTmp = { ...input };
-        inpuTmp.cmd = inpuTmp.cmd ?? inpuTmp.cmdDeploy;
-        inpuTmp.args = inpuTmp.args ?? inpuTmp.argsDeploy;
-        delete inpuTmp['cmdDeploy'];
-        delete inpuTmp["argsDeploy"];
-        delete inpuTmp["cmdUndeploy"];
-        delete inpuTmp["argsUndeploy"];
+        let inpuTmp = await this.getInput(input || {}, 'deploy');
         return await this.run(inpuTmp, pipeline);
     }
 
@@ -132,14 +131,15 @@ export class CLI extends BaseController {
      * (For simplicity, no CLI command execution required here)
      */
     async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
-        let inpuTmp = { ...input };
-        inpuTmp.cmd = inpuTmp.cmd ?? inpuTmp.cmdDeploy;
-        inpuTmp.args = inpuTmp.args ?? inpuTmp.argsDeploy;
-        delete inpuTmp['cmdDeploy'];
-        delete inpuTmp["argsDeploy"];
-        delete inpuTmp["cmdUndeploy"];
-        delete inpuTmp["argsUndeploy"];
+        let inpuTmp = await this.getInput(input || {}, 'undeploy');
         return await this.run(inpuTmp, pipeline);
+    }
+
+    async getInput(input: IStruct, action: string = 'deploy'): Promise<IStruct> {
+        let result = input;
+        input[action] && (result = await this.transformInput({ component: { input: input[action] }, key: 'input' }));
+        result.args && (result.args = await this.transformInput({ component: { input: result.args }, key: 'input' }));
+        return result;
     }
 }
 

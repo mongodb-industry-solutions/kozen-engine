@@ -20,7 +20,7 @@ The Kozen Engine template system enables the creation of reusable, configurable 
 ### Template Lifecycle
 
 1. **Template Loading**: Template retrieved from storage (file system or MongoDB)
-2. **Variable Resolution**: Input variables processed through VarProcessorService
+2. **Variable Resolution**: Input variables processed through ProcessorService
 3. **Component Execution**: Components executed according to orchestration strategy
 4. **Output Collection**: Results gathered and stored
 5. **Data Analytics**: Execution data stored in MongoDB for visualization
@@ -55,26 +55,26 @@ The Kozen Engine template system enables the creation of reusable, configurable 
 
 ### Template Properties
 
-| Property      | Type   | Required | Description                          |
-| ------------- | ------ | -------- | ------------------------------------ |
-| `name`        | string | Yes      | Unique template identifier           |
-| `description` | string | No       | Human-readable description           |
-| `version`     | string | Yes      | Semantic version (e.g., "1.0.0")     |
-| `engine`      | string | Yes      | Engine version compatibility         |
+| Property      | Type   | Required | Description                           |
+| ------------- | ------ | -------- | ------------------------------------- |
+| `name`        | string | Yes      | Unique template identifier            |
+| `description` | string | No       | Human-readable description            |
+| `version`     | string | Yes      | Semantic version (e.g., "1.0.0")      |
+| `engine`      | string | Yes      | Engine version compatibility          |
 | `release`     | string | No       | Release identifier (e.g., "20241201") |
-| `requires`    | array  | No       | Template dependencies (default: [])  |
-| `stack`       | object | Yes      | Stack configuration and components   |
+| `requires`    | array  | No       | Template dependencies (default: [])   |
+| `stack`       | object | Yes      | Stack configuration and components    |
 
 ### Stack Configuration
 
 The stack object contains orchestration settings and component definitions:
 
-| Property       | Type   | Required | Description                        |
-| -------------- | ------ | -------- | ---------------------------------- |
+| Property       | Type   | Required | Description                             |
+| -------------- | ------ | -------- | --------------------------------------- |
 | `orchestrator` | string | Yes      | Orchestration engine ("Node", "Pulumi") |
-| `input`        | array  | No       | Stack-level input variables        |
-| `setup`        | array  | No       | Stack-level setup configuration    |
-| `components`   | array  | Yes      | Component definitions              |
+| `input`        | array  | No       | Stack-level input variables             |
+| `setup`        | array  | No       | Stack-level setup configuration         |
+| `components`   | array  | Yes      | Component definitions                   |
 
 ## Variable Types
 
@@ -610,12 +610,12 @@ Templates stored in MongoDB collections:
 4. **Protected Variables**: Secure values for stack configuration
 5. **Reference Variables**: Resolved from previous component outputs
 
-### VarProcessorService
+### ProcessorService
 
-The VarProcessorService handles variable resolution and interpolation:
+The ProcessorService handles variable resolution and interpolation:
 
 ```typescript
-const processor = new VarProcessorService();
+const processor = new ProcessorService();
 
 // Process input variables
 const resolvedInputs = await processor.transformInput(
@@ -653,6 +653,7 @@ Where `${username}`, `${password}`, etc., are resolved from environment variable
 The system supports different orchestration approaches through composition components:
 
 #### Sequential Execution
+
 Components execute one after another, allowing for output dependencies:
 
 ```json
@@ -660,15 +661,16 @@ Components execute one after another, allowing for output dependencies:
   "stack": {
     "orchestrator": "Node",
     "components": [
-      {"name": "DatabaseComponent"},
-      {"name": "ApplicationComponent"},
-      {"name": "TestingComponent"}
+      { "name": "DatabaseComponent" },
+      { "name": "ApplicationComponent" },
+      { "name": "TestingComponent" }
     ]
   }
 }
 ```
 
 #### Parallel Execution
+
 Composition components can group related components and execute them in parallel:
 
 ```json
@@ -676,9 +678,9 @@ Composition components can group related components and execute them in parallel
   "stack": {
     "orchestrator": "Pulumi",
     "components": [
-      {"name": "InfrastructureComposer"},
-      {"name": "ApplicationComposer"},
-      {"name": "TestingComposer"}
+      { "name": "InfrastructureComposer" },
+      { "name": "ApplicationComposer" },
+      { "name": "TestingComposer" }
     ]
   }
 }
@@ -743,9 +745,7 @@ Each template should have a clear, focused purpose:
   "name": "atlas-deployment",
   "description": "MongoDB Atlas cluster deployment only",
   "stack": {
-    "components": [
-      {"name": "AtlasController"}
-    ]
+    "components": [{ "name": "AtlasController" }]
   }
 }
 ```
@@ -760,8 +760,8 @@ Break complex workflows into smaller, reusable templates:
   "description": "Base infrastructure components",
   "stack": {
     "components": [
-      {"name": "AtlasController"},
-      {"name": "NetworkController"}
+      { "name": "AtlasController" },
+      { "name": "NetworkController" }
     ]
   }
 }
@@ -777,8 +777,8 @@ Design templates to leverage composition components for optimal execution:
   "description": "Optimized deployment using parallel execution",
   "stack": {
     "components": [
-      {"name": "InfrastructureComposer"},
-      {"name": "ApplicationComposer"}
+      { "name": "InfrastructureComposer" },
+      { "name": "ApplicationComposer" }
     ]
   }
 }
@@ -971,14 +971,9 @@ Use the `requires` field to specify dependencies:
 ```json
 {
   "name": "advanced-template",
-  "requires": [
-    "infrastructure-base",
-    "security-baseline"
-  ],
+  "requires": ["infrastructure-base", "security-baseline"],
   "stack": {
-    "components": [
-      {"name": "AdvancedComponent"}
-    ]
+    "components": [{ "name": "AdvancedComponent" }]
   }
 }
 ```
