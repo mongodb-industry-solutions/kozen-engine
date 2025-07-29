@@ -223,7 +223,7 @@ export class PipelineManager extends BaseService {
      * @throws {Error} When component resolution, configuration, or deployment fails
      * 
      * This method acts as a bridge between template definitions and component implementations by:
-     * 1. Resolving the VarProcessorService for variable interpolation
+     * 1. Resolving the ProcessorService for variable interpolation
      * 2. Iterating through all template components
      * 3. Resolving each component controller from the IoC container
      * 4. Configuring components with their specific settings
