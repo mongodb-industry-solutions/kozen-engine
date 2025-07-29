@@ -1,5 +1,27 @@
 # Component System
 
+## Component Documentation Menu
+
+### Generic Components
+These components can be reused across multiple pipelines and are designed for maximum flexibility:
+
+- **[API Component](./API-component.md)** - HTTP REST API client for making web service calls
+- **[CLI Component](./CLI-component.md)** - Command-line interface executor for running shell commands
+
+### Infrastructure Components
+Specialized components for specific infrastructure deployment tasks:
+
+- **[Atlas Component](#atlas-component-srccomponentsatlasts)** - MongoDB Atlas cluster management
+- **[Kubernetes Component](#kubernetes-component-srccomponentskubernetests)** - Kubernetes resource deployment
+- **[Ops Manager Component](#ops-manager-component-srccomponentsopsmanagerts)** - MongoDB Ops Manager deployment
+
+### Testing Components
+Components designed for testing and demonstration purposes:
+
+- **[Demo Components](#demo-components-srccomponentsdemofirstts-srccomponentsdemsecondts)** - Example components for testing pipelines
+
+---
+
 ## Overview
 
 Kozen Engine's component system is the heart of the platform's extensibility. Components are autonomous units that can perform infrastructure deployment, testing execution, API calls, or any custom logic. Each component implements a standardized interface while maintaining complete flexibility in their internal implementation.
