@@ -1,7 +1,8 @@
-import { IComponent } from '../models/Component';
+import { IComponent, ITransformOption } from '../models/Component';
 import { IController } from '../models/Controller';
 import { ILoggerService } from '../models/Logger';
 import { IPipeline } from '../models/Pipeline';
+import { IProcessorService } from '../models/Processor';
 import { IResult, IStruct } from '../models/Types';
 import { IIoC } from '../tools';
 
@@ -188,5 +189,23 @@ export abstract class BaseController implements IController {
         pipeline = pipeline ?? this.pipeline;
         // Get the current project name, which can be used in combination with the stackName as prefix for internal resource deployment (ex. K2025072112202952-dev)
         return pipeline?.id || `${pipeline?.stack?.config?.project}-${pipeline?.stack?.config?.name}`;
+    }
+
+    /**
+     * Transforms component input by processing variables through ProcessorService
+     * @protected
+     * @param {IComponent} component - Component containing input definitions
+     * @param {IStruct} output - Current output scope for variable resolution
+     * @param {string} [key="input"] - Property key to process (default: "input")
+     * @returns {Promise<IStruct>} Promise resolving to processed input variables
+     */
+    public async transformInput(options: ITransformOption): Promise<IStruct> {
+        const { component, output = {}, key = "input", flow } = options;
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
+        }
+        const srvVar = await this.assistant.resolve<IProcessorService>('ProcessorService');
+        const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output, flow));
+        return input || {};
     }
 }
