@@ -171,7 +171,7 @@ export class ProcessorService implements IProcessorService {
     public async process(inputs: IMetadata[], scope?: IStruct, flow?: string): Promise<IStruct> {
         const result: IStruct = {};
         scope = scope || this.scope;
-        await Promise.all(inputs.map(definition => this.transform(definition, scope, result, flow)));
+        await Promise.all(inputs.map((definition, index) => this.transform(definition, scope, result, flow, index)));
         return result;
     }
 
@@ -183,24 +183,25 @@ export class ProcessorService implements IProcessorService {
      * @param {IStruct} [result={}] - Result object to accumulate resolved variables
      * @returns {Promise<IStruct>} Promise resolving to the result object with the resolved variable added
      */
-    public async transform(definition: IMetadata, scope: IStruct = {}, result: IStruct = {}, flow: string = ''): Promise<IStruct> {
-        const { type, value, default: defaultValue, name: key } = definition;
+    public async transform(def: IMetadata | string, scope: IStruct = {}, result: IStruct = {}, flow: string = '', index: number = 0): Promise<IStruct> {
+        const definition: IMetadata = typeof def === 'string' ? { value: def, name: String(index) } : def;
+        const { type, value, default: defaultValue, name: key = 'default' } = definition;
         switch (type) {
             case "protected":
             case "environment":
-                result[key] = process.env[value || key] ?? defaultValue;
+                result[key || index] = process.env[value || key] ?? defaultValue;
                 break;
 
             case "reference":
-                result[key] = scope[value || key] ?? defaultValue;
+                result[key || index] = scope[value || key] ?? defaultValue;
                 break;
 
             case "secret":
-                result[key] = await this.resolveSecret(value || key, defaultValue, flow);
+                result[key || index] = await this.resolveSecret(value || key, defaultValue, flow);
                 break;
 
             default:
-                result[key] = value;
+                result[key || index] = value;
                 break;
         }
         return result;
