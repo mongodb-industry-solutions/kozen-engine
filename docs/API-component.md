@@ -21,15 +21,19 @@ The API component extends the `BaseController` and implements the standard compo
 
 ```typescript
 export class API extends BaseController {
-  async run(input?: IStruct, pipeline?: IPipeline): Promise<IResult>
-  async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>
-  async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>
-  async getInput(input: IStruct, action: string): Promise<IStruct>
-  protected async processResponse<T>(response: Response): Promise<T>
+  async run(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
+  async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
+  async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
+  async getInput(input: IStruct, action: string): Promise<IStruct>;
+  protected async processResponse<T>(response: Response): Promise<T>;
 }
 ```
 
 ## Configuration
+
+### Input Structure Overview
+
+The API component uses an **overloaded input system** that supports separate configurations for `deploy` and `undeploy` actions. Each action contains **IComponentInput metadata structures** that are evaluated at runtime, enabling dynamic and flexible data resolution from various sources including environment variables, secrets, and references to other component outputs.
 
 ### Basic Configuration Structure
 
@@ -46,6 +50,7 @@ export class API extends BaseController {
         },
         {
           "name": "method",
+          "type": "value",
           "value": "GET"
         },
         {
@@ -53,9 +58,25 @@ export class API extends BaseController {
           "value": [
             {
               "name": "Content-Type",
+              "type": "value",
               "value": "application/json"
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "undeploy",
+      "value": [
+        {
+          "name": "url",
+          "type": "reference",
+          "value": "serviceUrl",
+          "default": "https://api.example.com/cleanup"
+        },
+        {
+          "name": "method",
+          "value": "DELETE"
         }
       ]
     }
@@ -63,63 +84,136 @@ export class API extends BaseController {
 }
 ```
 
-### Input Parameters
+### IComponentInput Metadata Structure
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `url` | string | Yes | - | The target URL for the API request |
-| `method` | string | No | "GET" | HTTP method (GET, POST, PUT, DELETE, etc.) |
-| `headers` | object | No | {} | HTTP headers as key-value pairs |
-| `body` | object | No | {} | Request body data (for POST, PUT, PATCH) |
-| `params` | object | No | {} | Query parameters to append to URL |
+Each input parameter follows the **IComponentInput** (IMetadata) structure for runtime evaluation:
 
-### Header Configuration
+```typescript
+interface IComponentInput {
+  name: string; // Parameter identifier
+  type?: IStructType; // Resolution strategy
+  value: any; // Actual value or reference key
+  description?: string; // Documentation
+  default?: any; // Fallback value
+}
+```
 
-Headers can be configured in multiple formats:
+### Input Resolution Types
 
-#### Array Format
+| Type          | Description                             | Example Use Case                |
+| ------------- | --------------------------------------- | ------------------------------- |
+| `value`       | Static value used as-is                 | Fixed URLs, HTTP methods        |
+| `environment` | Environment variable resolution         | `API_BASE_URL`, `NODE_ENV`      |
+| `secret`      | Secret management system (AWS SM, etc.) | API keys, authentication tokens |
+| `reference`   | Reference to previous component output  | Service URLs, deployment IDs    |
+| `protected`   | Protected configuration values          | Sensitive configuration data    |
+
+### Core API Parameters
+
+| Parameter | Type            | Required | Default | Description                                |
+| --------- | --------------- | -------- | ------- | ------------------------------------------ |
+| `url`     | IComponentInput | Yes      | -       | Target URL for the API request             |
+| `method`  | IComponentInput | No       | "GET"   | HTTP method (GET, POST, PUT, DELETE, etc.) |
+| `headers` | IComponentInput | No       | {}      | HTTP headers as metadata array             |
+| `body`    | IComponentInput | No       | {}      | Request body data (POST, PUT, PATCH)       |
+| `params`  | IComponentInput | No       | {}      | Query parameters to append to URL          |
+
+### Advanced Configuration Patterns
+
+#### Headers with Metadata Evaluation
+
 ```json
 {
-  "headers": [
+  "name": "headers",
+  "value": [
     {
       "name": "Content-Type",
       "value": "application/json"
     },
     {
       "name": "Authorization",
-      "value": "Bearer token123"
+      "type": "secret",
+      "value": "API_BEARER_TOKEN",
+      "description": "Bearer token from AWS Secrets Manager"
+    },
+    {
+      "name": "X-Request-ID",
+      "type": "reference",
+      "value": "requestId",
+      "default": "auto-generated"
     }
   ]
 }
 ```
 
-#### Object Format
-```json
-{
-  "headers": {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer token123",
-    "X-API-Version": "v1"
-  }
-}
-```
-
-### Query Parameters
-
-Query parameters are automatically appended to the URL:
+#### Body with Dynamic Content
 
 ```json
 {
-  "url": "https://api.example.com/users",
-  "params": {
-    "page": 1,
-    "limit": 10,
-    "sort": "name"
-  }
+  "name": "body",
+  "type": "value",
+  "value": [
+    {
+      "name": "deploymentId",
+      "type": "reference",
+      "value": "deploymentId",
+      "description": "ID from previous deployment component"
+    },
+    {
+      "name": "environment",
+      "type": "environment",
+      "value": "NODE_ENV",
+      "default": "development"
+    },
+    {
+      "name": "timestamp",
+      "value": "${new Date().toISOString()}"
+    }
+  ]
 }
 ```
 
-Results in: `https://api.example.com/users?page=1&limit=10&sort=name`
+#### Query Parameters with Metadata
+
+```json
+{
+  "name": "params",
+  "value": [
+    {
+      "name": "page",
+      "value": 1
+    },
+    {
+      "name": "limit",
+      "type": "environment",
+      "value": "API_PAGE_LIMIT",
+      "default": 10
+    },
+    {
+      "name": "userId",
+      "type": "reference",
+      "value": "userId",
+      "description": "User ID from authentication component"
+    }
+  ]
+}
+```
+
+This configuration automatically appends evaluated parameters to the URL: `https://api.example.com/users?page=1&limit=10&userId=12345`
+
+## Runtime Metadata Evaluation
+
+The API component performs **deep input evaluation** before executing the `run` method. This process:
+
+1. **Resolves Environment Variables**: `type: "environment"` fetches values from system environment
+2. **Retrieves Secrets**: `type: "secret"` accesses values from Key Management Systems (AWS Secrets Manager, etc.)
+3. **References Component Outputs**: `type: "reference"` gets values from previous pipeline component results
+4. **Applies Default Values**: Uses `default` when resolution fails or returns null
+5. **Passes Static Values**: `type: "value"` uses values as-is without transformation
+
+### Component Output Exposure
+
+API component results are automatically exposed through the pipeline **output system**, making them accessible to all subsequent components in the pipeline sequence. This enables powerful component chaining and data flow patterns.
 
 ## Usage Examples
 
@@ -146,7 +240,7 @@ Results in: `https://api.example.com/users?page=1&limit=10&sort=name`
 }
 ```
 
-### Example 2: POST Request with Body
+### Example 2: POST Request with Metadata-Driven Body
 
 ```json
 {
@@ -174,11 +268,26 @@ Results in: `https://api.example.com/users?page=1&limit=10&sort=name`
         },
         {
           "name": "body",
-          "value": {
-            "title": "foo",
-            "body": "bar",
-            "userId": 1
-          }
+          "value": [
+            {
+              "name": "title",
+              "type": "environment",
+              "value": "POST_TITLE",
+              "default": "Default Title"
+            },
+            {
+              "name": "content",
+              "type": "reference",
+              "value": "generatedContent",
+              "description": "Content from previous component"
+            },
+            {
+              "name": "userId",
+              "type": "secret",
+              "value": "USER_ID_SECRET",
+              "default": 1
+            }
+          ]
         }
       ]
     }
@@ -325,12 +434,13 @@ interface IResult {
   message: string;
   timestamp: Date;
   duration: number;
-  output?: any;           // Parsed response data
+  output?: any; // Parsed response data
   error?: Error;
 }
 ```
 
 ### Success Response Example
+
 ```json
 {
   "templateName": "demo",
@@ -348,6 +458,7 @@ interface IResult {
 ```
 
 ### Error Response Example
+
 ```json
 {
   "templateName": "demo",
@@ -557,21 +668,25 @@ interface IResult {
 ## Common Use Cases
 
 ### 1. Infrastructure Monitoring
+
 - **Health Checks**: Verify service availability
 - **Metrics Collection**: Gather performance metrics
 - **Status Updates**: Report deployment status
 
 ### 2. Service Integration
+
 - **Webhook Notifications**: Send notifications to external services
 - **Data Synchronization**: Sync data between systems
 - **Third-party APIs**: Integrate with external services
 
 ### 3. Testing and Validation
+
 - **API Testing**: Validate API responses
 - **Smoke Tests**: Perform basic functionality checks
 - **Load Testing**: Generate load for performance testing
 
 ### 4. Configuration Management
+
 - **Dynamic Configuration**: Fetch configuration from APIs
 - **Feature Flags**: Check feature enablement
 - **Environment Setup**: Configure services via APIs
@@ -609,9 +724,9 @@ protected async processResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     throw new Error(`API call failed with status ${response.status}: ${response.statusText}`);
   }
-  
+
   const contentType = response.headers.get('content-type');
-  
+
   if (contentType?.includes('application/json')) {
     return await response.json() as T;
   } else if (contentType?.includes('application/xml')) {
@@ -627,14 +742,17 @@ protected async processResponse<T>(response: Response): Promise<T> {
 ### Common Issues
 
 1. **CORS Errors**
+
    - Verify CORS configuration on target API
    - Use server-side requests instead of client-side
 
 2. **Authentication Failures**
+
    - Verify token validity and expiration
    - Check authentication header format
 
 3. **Timeout Errors**
+
    - Increase timeout settings
    - Check network connectivity
 
@@ -688,4 +806,4 @@ protected async processResponse<T>(response: Response): Promise<T> {
 }
 ```
 
-This API component provides a robust and flexible way to integrate HTTP API calls into your infrastructure and deployment pipelines, ensuring reliable communication with external services while maintaining proper error handling and comprehensive logging. 
+This API component provides a robust and flexible way to integrate HTTP API calls into your infrastructure and deployment pipelines, ensuring reliable communication with external services while maintaining proper error handling and comprehensive logging.

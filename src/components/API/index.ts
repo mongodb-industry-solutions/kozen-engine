@@ -15,15 +15,15 @@ export class API extends BaseController {
      */
     public async run(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
         const startTime = Date.now();
-        const { url, method = 'GET', headers = {}, body = {}, params = {} } = input || {};
+        const { url, method = 'GET', headers = {}, body = {}, query = {} } = input || {};
 
         if (!url) {
             throw new Error('No URL provided in input.');
         }
 
         // Formulate query string if queryParams are provided
-        const queryString = params
-            ? '?' + new URLSearchParams(params as Record<string, string>).toString()
+        const queryString = query
+            ? '?' + new URLSearchParams(query as Record<string, string>).toString()
             : '';
 
         const fullUrl = `${url}${queryString}`;
