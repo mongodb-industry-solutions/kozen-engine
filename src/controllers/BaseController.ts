@@ -194,9 +194,7 @@ export abstract class BaseController implements IController {
     /**
      * Transforms component input by processing variables through ProcessorService
      * @protected
-     * @param {IComponent} component - Component containing input definitions
-     * @param {IStruct} output - Current output scope for variable resolution
-     * @param {string} [key="input"] - Property key to process (default: "input")
+     * @param {ITransformOption} options - Component containing input definitions
      * @returns {Promise<IStruct>} Promise resolving to processed input variables
      */
     public async transformInput(options: ITransformOption): Promise<IStruct> {
