@@ -39,6 +39,35 @@
         ],
         "components": [
             {
+                "name": "CLI",
+                "input": [
+                    {
+                        "name": "cmd",
+                        "value": "dir"
+                    },
+                    {
+                        "name": "args",
+                        "value": [
+                            "C:\\Users\\"
+                        ]
+                    }
+                ],
+                "output": [
+                    {
+                        "type": "reference",
+                        "name": "ipAddress",
+                        "value": "ipAddress",
+                        "description": "IP address of the HelloWorld component"
+                    },
+                    {
+                        "type": "value",
+                        "name": "format",
+                        "value": "${message} - ${reference}",
+                        "description": "Formatted message from HelloWorld"
+                    }
+                ]
+            },
+            {
                 "name": "DemoFirst",
                 "input": [
                     {
