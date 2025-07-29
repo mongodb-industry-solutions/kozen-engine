@@ -54,7 +54,7 @@ export interface IMetadata {
      * Value resolution strategy determining how variable is processed
      * @type {IStructType}
      */
-    type: IStructType;
+    type?: IStructType;
 
     /**
      * Variable description for documentation and debugging purposes
