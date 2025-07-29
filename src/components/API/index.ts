@@ -140,6 +140,7 @@ export class API extends BaseController {
         result.headers && (result.headers = await this.transformInput({ component: { input: result.headers }, key: 'input' }));
         result.body && (result.body = await this.transformInput({ component: { input: result.body }, key: 'input' }));
         result.params && (result.params = await this.transformInput({ component: { input: result.params }, key: 'input' }));
+        result.query && (result.query = await this.transformInput({ component: { input: result.query }, key: 'input' }));
         return result;
     }
 }
