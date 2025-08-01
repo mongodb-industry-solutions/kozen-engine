@@ -82,10 +82,6 @@ export class StackManagerPulumi extends StackManager {
             },
             envVars: {
                 PULUMI_CONFIG_PASSPHRASE: inputs?.PULUMI_CONFIG_PASSPHRASE || "K0Z3N-IsSoSecure",
-                AWS_ACCESS_KEY_ID: "***AWS_AKID_REDACTED***",
-                AWS_SECRET_ACCESS_KEY: "***AWS_SECRET_REDACTED***",
-                AWS_REGION: "us-east-1",
-                PATH: process.env.PATH + ":/usr/local/bin",
                 ...inputs
             }
         };

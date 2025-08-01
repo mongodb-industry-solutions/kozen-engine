@@ -6,7 +6,7 @@ const { LocalWorkspace } = require("@pulumi/pulumi/automation");
 (async () => {
   // Configuración del stack
   const stackName = "dev"; // Nombre del stack
-  const projectName = "eks-pod-project"; // Nombre del proyecto
+  const projectName = "eks-pod-project-2"; // Nombre del proyecto
   const kubeconfigPath = `${process.env.HOME}/.kube/config`;
   const kubeconfig = fs.readFileSync(kubeconfigPath).toString();
 
