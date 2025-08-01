@@ -39,6 +39,137 @@
         ],
         "components": [
             {
+                "name": "CLI",
+                "input": [
+                    {
+                        "name": "deploy",
+                        "value": [
+                            {
+                                "name": "cmd",
+                                "value": "dir"
+                            },
+                            {
+                                "name": "args",
+                                "value": [
+                                    "C:\\Users\\"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "undeploy",
+                        "value": [
+                            {
+                                "name": "cmd",
+                                "value": "dir"
+                            },
+                            {
+                                "name": "args",
+                                "value": [
+                                    {
+                                        "name": "path",
+                                        "value": "C:\\Users\\"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "output": [
+                    {
+                        "type": "reference",
+                        "name": "ipAddress",
+                        "value": "ipAddress",
+                        "description": "IP address of the HelloWorld component"
+                    },
+                    {
+                        "type": "value",
+                        "name": "format",
+                        "value": "${message} - ${reference}",
+                        "description": "Formatted message from HelloWorld"
+                    }
+                ]
+            },
+            {
+                "name": "API",
+                "input": [
+                    {
+                        "name": "deploy",
+                        "value": [
+                            {
+                                "name": "url",
+                                "value": "https://rickandmortyapi.com/api/character/5"
+                            },
+                            {
+                                "name": "headers",
+                                "value": [
+                                    {
+                                        "name": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "query",
+                                "value": [
+                                    {
+                                        "name": "page",
+                                        "value": 5
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "undeploy",
+                        "value": [
+                            {
+                                "name": "url",
+                                "value": "https://rickandmortyapi.com/api/character/5"
+                            },
+                            {
+                                "name": "method",
+                                "value": "POST"
+                            },
+                            {
+                                "name": "headers",
+                                "value": [
+                                    {
+                                        "name": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "body",
+                                "value": [
+                                    {
+                                        "type": "reference",
+                                        "name": "ipAddress",
+                                        "value": "ipAddress",
+                                        "description": "IP address of the HelloWorld component"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "output": [
+                    {
+                        "type": "reference",
+                        "name": "ipAddress",
+                        "value": "ipAddress",
+                        "description": "IP address of the HelloWorld component"
+                    },
+                    {
+                        "type": "value",
+                        "name": "format",
+                        "value": "${message} - ${reference}",
+                        "description": "Formatted message from HelloWorld"
+                    }
+                ]
+            },
+            {
                 "name": "DemoFirst",
                 "input": [
                     {

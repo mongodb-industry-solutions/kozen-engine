@@ -289,7 +289,7 @@
       ]
     },
     {
-      "target": "VarProcessorService",
+      "target": "ProcessorService",
       "type": "class",
       "lifetime": "singleton",
       "path": "../../services",
