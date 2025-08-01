@@ -1,6 +1,6 @@
 
 import { ILoggerService } from "../models/Logger";
-import { IVarProcessorService } from "../models/Processor";
+import { IProcessorService } from "../models/Processor";
 import { ISecretManager } from "../models/Secret";
 import { IMetadata, IStruct, VCategory } from "../models/Types";
 import { IIoC } from "../tools";
@@ -11,11 +11,11 @@ import { IIoC } from "../tools";
  * This service abstracts the complexity of variable resolution from different sources including
  * environment variables, reference scopes, secrets, and static values.
  * 
- * The VarProcessorService implements a bridge pattern by providing a unified interface for
+ * The ProcessorService implements a bridge pattern by providing a unified interface for
  * variable resolution regardless of the source type, enabling templates to use variables
  * without knowing their specific resolution mechanisms.
  * 
- * @class VarProcessorService
+ * @class ProcessorService
  * @author MDB SAT
  * @since 1.0.4
  * @version 1.0.5
@@ -23,7 +23,7 @@ import { IIoC } from "../tools";
  * @example
  * ```typescript
  * // Basic usage with environment variables and secrets
- * const processor = new VarProcessorService({
+ * const processor = new ProcessorService({
  *   scope: { deploymentId: 'prod-001' },
  *   srvSecret: secretManager
  * });
@@ -39,7 +39,7 @@ import { IIoC } from "../tools";
  * // Returns: { environment: 'production', deploymentId: 'prod-001', apiKey: '***', region: 'us-east-1' }
  * ```
  */
-export class VarProcessorService implements IVarProcessorService {
+export class ProcessorService implements IProcessorService {
     /**
      * Optional assistant for IoC resolution
      * @public
@@ -74,7 +74,7 @@ export class VarProcessorService implements IVarProcessorService {
     private srvSecret?: ISecretManager;
 
     /**
-     * Creates a new VarProcessorService instance
+     * Creates a new ProcessorService instance
      * @constructor
      * @param {Object} options - Configuration options for the variable processor
      * @param {IStruct} [options.scope={}] - Optional initial scope for reference variable resolution
@@ -87,7 +87,7 @@ export class VarProcessorService implements IVarProcessorService {
      * @example
      * ```typescript
      * // Initialize with custom scope and secret manager
-     * const processor = new VarProcessorService({
+     * const processor = new ProcessorService({
      *   scope: {
      *     projectName: 'my-project',
      *     version: '1.0.0',
@@ -171,7 +171,7 @@ export class VarProcessorService implements IVarProcessorService {
     public async process(inputs: IMetadata[], scope?: IStruct, flow?: string): Promise<IStruct> {
         const result: IStruct = {};
         scope = scope || this.scope;
-        await Promise.all(inputs.map(definition => this.transform(definition, scope, result, flow)));
+        await Promise.all(inputs.map((definition, index) => this.transform(definition, scope, result, flow, index)));
         return result;
     }
 
@@ -183,24 +183,25 @@ export class VarProcessorService implements IVarProcessorService {
      * @param {IStruct} [result={}] - Result object to accumulate resolved variables
      * @returns {Promise<IStruct>} Promise resolving to the result object with the resolved variable added
      */
-    public async transform(definition: IMetadata, scope: IStruct = {}, result: IStruct = {}, flow: string = ''): Promise<IStruct> {
-        const { type, value, default: defaultValue, name: key } = definition;
+    public async transform(def: IMetadata | string, scope: IStruct = {}, result: IStruct = {}, flow: string = '', index: number = 0): Promise<IStruct> {
+        const definition: IMetadata = typeof def === 'string' ? { value: def, name: String(index) } : def;
+        const { type, value, default: defaultValue, name: key = 'default' } = definition;
         switch (type) {
             case "protected":
             case "environment":
-                result[key] = process.env[value || key] ?? defaultValue;
+                result[key || index] = process.env[value || key] ?? defaultValue;
                 break;
 
             case "reference":
-                result[key] = scope[value || key] ?? defaultValue;
+                result[key || index] = scope[value || key] ?? defaultValue;
                 break;
 
             case "secret":
-                result[key] = await this.resolveSecret(value || key, defaultValue, flow);
+                result[key || index] = await this.resolveSecret(value || key, defaultValue, flow);
                 break;
 
             default:
-                result[key] = value;
+                result[key || index] = value;
                 break;
         }
         return result;
@@ -243,4 +244,4 @@ export class VarProcessorService implements IVarProcessorService {
     }
 }
 
-export default VarProcessorService;
+export default ProcessorService;
