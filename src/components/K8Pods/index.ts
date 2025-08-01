@@ -10,10 +10,10 @@ import * as fs from 'fs';
  * Simple demo component controller for testing pipeline functionality
  * This component demonstrates basic deployment, validation, and cleanup operations
  */
-export class DemoFirst extends BaseController {
+export class K8Pods extends BaseController {
 
   /**
-   * Deploys the DemoFirst component with message logging and output generation
+   * Deploys the K8Pods component with message logging and output generation
    * @param input - Optional deployment input parameters with message and timeout
    * @returns Promise resolving to deployment result with success status and IP address output
    */
@@ -22,10 +22,21 @@ export class DemoFirst extends BaseController {
     const kubeconfigPath = `${process.env.HOME}/.kube/config`;
     const kubeconfig = fs.readFileSync(kubeconfigPath).toString();
 
+    // print kubeconfig string for debugging
+    this.logger?.debug({
+      flow: pipeline?.id,
+      category: VCategory.cmp.iac,
+      src: 'component:K8Pods:deploy',
+      message: `Kubeconfig loaded from ${kubeconfigPath}`,
+      data: {
+        kubeconfig
+      }
+    });
+
     this.logger?.info({
       flow: pipeline?.id,
       category: VCategory.cmp.iac,
-      src: 'component:DemoFirst:deploy',
+      src: 'component:K8Pods:deploy',
       message: `Deploying with message: ${input?.message}`,
       data: {
         // Get the current component name
@@ -49,55 +60,65 @@ export class DemoFirst extends BaseController {
       kubeconfig
     });
 
-    const namespaceName = `${resourcePrefix}-namespace`;
-    const namespace = new kubernetes.core.v1.Namespace(
-      namespaceName,
-      {
-        metadata: { name: namespaceName },
-      },
-      { provider: k8sProvider }
-    );
+    // const namespaceName = `${resourcePrefix}-namespace`;
+    // const namespace = new kubernetes.core.v1.Namespace(
+    //   namespaceName,
+    //   {
+    //     metadata: { name: namespaceName },
+    //   },
+    //   { provider: k8sProvider }
+    // );
 
-    const envVars = [
-      {
-        name: "DITTO_WEBSOCKET_URL",
-        value: process.env.DITTO_WEBSOCKET_URL
-      },
-      {
-        name: "DITTO_CUSTOM_AUTH_URL",
-        value: process.env.DITTO_CUSTOM_AUTH_URL
-      },
-      {
-        name: "DITTO_PLAYGROUND_TOKEN",
-        value: process.env.DITTO_PLAYGROUND_TOKEN
-      },
-      {
-        name: "DITTO_APP_ID",
-        value: process.env.DITTO_APP_ID
+    const appLabels = { app: resourcePrefix };
+
+    const envVars = []; // Array to hold environment variables
+
+    const {
+      containerName = "app-container",
+      image,
+      ...inputEnv
+    } = input || {};
+
+    for (let key in inputEnv) {
+      inputEnv[key] && envVars.push({ name: key, value: inputEnv[key] });
+    }
+
+    if (!input?.image) {
+      const srvK8Registry = await this.assistant?.resolve<BaseController>('ECR');
+      if (srvK8Registry) {
+        const registry = await srvK8Registry.deploy(
+          {
+            message: `Deploying ECR registry for ${this.config.name}`,
+            resourcePrefix,
+            // namespace: namespace.metadata.name,
+            containerName
+          },
+          pipeline
+        );
+        console.log(registry.output);
+        // input.image = `${registry.output.registryUrl}/nginx:latest`;
+
       }
-    ];
-
+    }
 
     const podName = `${resourcePrefix}-pod`;
-    const pod = new kubernetes.core.v1.Pod(
-      podName,
-      {
-        metadata: {
-          name: podName,
-          namespace: namespace.metadata.name,
-          labels: { app: podName },
-        },
-        spec: {
-          containers: [
-            {
-              name: input?.containerName || "app-container", // Default container name
-              image: input?.image || "nginx:latest", // Container image to deploy
-              ports: [{ containerPort: 80 }, { containerPort: 8080 }, { containerPort: 3000 }], // Expose port 80 and 8080
-              env: envVars
-            },
-          ],
-        },
+    const pod = new kubernetes.core.v1.Pod(podName, {
+      metadata: {
+        name: podName,
+        // namespace: namespace.metadata.name,
+        labels: appLabels,
       },
+      spec: {
+        containers: [
+          {
+            name: containerName, // Default container name
+            image, // Container image to deploy
+            ports: [{ containerPort: 80 }, { containerPort: 8080 }, { containerPort: 3000 }],
+            env: envVars
+          },
+        ],
+      },
+    },
       { provider: k8sProvider }
     );
 
@@ -105,14 +126,15 @@ export class DemoFirst extends BaseController {
     const service = new kubernetes.core.v1.Service(serviceName, {
       metadata: {
         name: serviceName,
-        namespace: namespace.metadata.name,
+        // namespace: namespace.metadata.name,
+        labels: appLabels,
+        annotations: { // This annotation makes it so that the service is accessible from the internet
+          "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+        }
       },
       spec: {
         type: "LoadBalancer",
-        selector: {
-          // This should match the Pod's label
-          "app": podName,
-        },
+        selector: appLabels,
         ports: [
           { name: "http-3000", port: 3000, targetPort: 3000 }
         ],
@@ -122,7 +144,7 @@ export class DemoFirst extends BaseController {
     // Exporta detalles importantes
     return {
       output: {
-        namespaceName: namespace.metadata.name.apply((n) => n),
+        // namespaceName: namespace.metadata.name.apply((n) => n),
         podName: pod.metadata.name.apply((n) => n),
       }
     };
@@ -176,4 +198,4 @@ export class DemoFirst extends BaseController {
 
 }
 
-export default DemoFirst;
+export default K8Pods;
