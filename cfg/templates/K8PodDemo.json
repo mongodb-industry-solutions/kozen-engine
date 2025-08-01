@@ -1,0 +1,61 @@
+{
+    "name": "DemoK8AwsEks",
+    "description": "Demo template for deploying test Pod in AWS EKS",
+    "version": "1.0.0",
+    "engine": "1.0.0",
+    "release": "20241201",
+    "requires": [],
+    "deploymentMode": "synchronous",
+    "stack": {
+        "orchestrator": "Pulumi",
+        "input": [
+            {
+                "type": "environment",
+                "name": "PULUMI_CONFIG_PASSPHRASE"
+            },
+            {
+                "type": "environment",
+                "name": "PULUMI_BACKEND_URL"
+            }
+        ],
+        "setup": [
+            {
+                "type": "environment",
+                "name": "aws:region",
+                "value": "AWS_REGION",
+                "default": "us-east-1"
+            },
+            {
+                "type": "protected",
+                "name": "aws:accessKey",
+                "value": "AWS_ACCESS_KEY_ID",
+                "default": ""
+            },
+            {
+                "type": "protected",
+                "name": "aws:secretKey",
+                "value": "AWS_SECRET_ACCESS_KEY",
+                "default": ""
+            }
+        ],
+        "components": [
+            {
+                "name": "K8Pods",
+                "input": [
+                    {
+                        "type": "value",
+                        "name": "containerName",
+                        "value": "ditto-demo"
+                    },
+                    {
+                        "type": "value",
+                        "name": "image",
+                        "value": "275662791714.dkr.ecr.us-east-1.amazonaws.com/sa-demo/ditto-vehicle-digital-twin-feedback-loop:latest"
+                    }
+                ],
+                "output": [],
+                "setup": []
+            }
+        ]
+    }
+}
