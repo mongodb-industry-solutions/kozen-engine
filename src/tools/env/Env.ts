@@ -9,7 +9,7 @@ import path from "path";
 export class Env {
     private prefix: string;
 
-    constructor(prefix: string = "KOZEN") {
+    constructor(prefix: string = "KOZEN_PL") {
         this.prefix = prefix.trim().toUpperCase();
     }
 
@@ -19,7 +19,7 @@ export class Env {
      *
      * @param content - An object containing key-value pairs to be exposed as environment variables.
      */
-    public async expose(content: Record<string, any>, prefix: string = "KOZEN"): Promise<void> {
+    public async expose(content: Record<string, any>, prefix: string = "KOZEN_PL"): Promise<void> {
         if (!content || typeof content !== "object") {
             throw new Error("Invalid content provided. Expected an object.");
         }
@@ -27,13 +27,28 @@ export class Env {
         const currentOS = os.type();
 
         try {
-            if (currentOS === "Windows_NT") {
-                await this.setWindowsVariables(content, prefix);
-            } else if (currentOS === "Linux" || currentOS === "Darwin") {
-                await this.setUnixVariables(content, prefix);
-            } else {
-                throw new Error(`Unsupported operating system: ${currentOS}`);
+            // Object.assign(process.env, content);
+            let out = [];
+            for (let prop in content) {
+                if (content[prop]) {
+                    let value = this.sanitizeValue(content[prop]);
+                    let key = this.sanitizeKey(prop, prefix);
+                    process.env[key] = value;
+                    switch (currentOS) {
+                        case "Windows_NT":
+                            out.push(this.setWindowsVariables({ key, value }));
+                            break;
+                        case "Linux":
+                        case "Darwin":
+                            out.push(this.setUnixVariables({ key, value }));
+                            break;
+                        default:
+                            throw new Error(`Unsupported operating system: ${currentOS}`);
+                    }
+                }
             }
+            await Promise.all(out);
+
         } catch (error) {
             console.error("Error while exposing environment variables:", error);
             throw error;
@@ -44,34 +59,20 @@ export class Env {
      * Set environment variables on Windows using `setx`.
      * @param variables - An array of key-value pairs to set.
      */
-    private async setWindowsVariables(variables: Record<string, any>, prefix: string = "KOZEN"): Promise<void> {
-        let out = [];
-        for (const key in variables) {
-            variables[key] && out.push(this.execCommand(`setx ${this.sanitizeKey(key, prefix)} "${this.sanitizeValue(variables[key])}"`))
-        }
-        await Promise.all(out);
-        console.log("Environment variables successfully set globally on Windows.");
+    private setWindowsVariables({ key, value }: { key: string; value: string }): Promise<void> {
+        return this.execCommand(`set ${key}="${value}"`);
     }
 
     /**
      * Set environment variables on Linux/macOS by appending them to the shell profile file.
      * @param variables - An array of key-value pairs to set.
      */
-    private async setUnixVariables(variables: Record<string, any>, prefix: string = "KOZEN"): Promise<void> {
+    private async setUnixVariables({ key, value }: { key: string; value: string }): Promise<void> {
         const shellProfilePath = Env.determineShellProfilePath();
-
         if (!shellProfilePath) {
             throw new Error("Unable to determine your shell profile file.");
         }
-
-        let out = [];
-        for (const key in variables) {
-            variables[key] && out.push(this.execCommand(`echo 'export ${key}="${variables[key]}"' >> ${shellProfilePath}`))
-        }
-        await Promise.all(out);
-
-        console.log(`Environment variables successfully added to ${shellProfilePath}.`);
-        console.log("Please restart your shell or run `source` on your shell profile to apply changes.");
+        return this.execCommand(`echo 'export ${key}="${value}"' >> ${shellProfilePath}`);
     }
 
     /**
