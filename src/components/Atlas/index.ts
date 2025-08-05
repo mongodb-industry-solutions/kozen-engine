@@ -20,15 +20,15 @@ export class Atlas extends BaseController {
    * @returns Promise resolving to deployment result with cluster details
    */
   async deploy(input?: IAtlasConfig, pipeline?: IPipeline): Promise<IResult> {
-    if (!pipeline?.stack) {
-      return {
-        templateName: pipeline?.template?.name,
-        action: 'deploy',
-        success: false,
-        message: `Missing pipeline stack reference`,
-        timestamp: new Date(),
-      }
-    }
+    // if (!pipeline?.stack) {
+    //   return {
+    //     templateName: pipeline?.template?.name,
+    //     action: 'deploy',
+    //     success: false,
+    //     message: `Missing pipeline stack reference`,
+    //     timestamp: new Date(),
+    //   }
+    // }
     try {
       this.logger?.info({
         flow: pipeline?.id,
@@ -51,17 +51,21 @@ export class Atlas extends BaseController {
 
       // Read Atlas credentials from configuration
       const atlasPulumiConfig = new pulumi.Config("mongodb-atlas");
-      const publicKey = atlasPulumiConfig.requireSecret("publicKey");
-      const privateKey = atlasPulumiConfig.requireSecret("privateKey");
-      const projectId = atlasPulumiConfig.requireSecret("projectId");
+      const publicKey = process.env.ATLAS_PUBLIC_KEY; // atlasPulumiConfig.requireSecret("publicKey");
+      const privateKey = process.env.ATLAS_PRIVATE_KEY; // atlasPulumiConfig.requireSecret("privateKey");
+      const projectId = process.env.ATLAS_PROJECT_ID; // atlasPulumiConfig.requireSecret("projectId");
+
+      if (!projectId) {
+        throw new Error("ATLAS_PROJECT_ID environment variable is required");
+      }
 
       // Create a unique resource name with the prefix
       const resourcePrefix = this.getPrefix(pipeline);
 
       // Atlas provider
       this.atlasProvider = new mongodbatlas.Provider(`${resourcePrefix}-atlas-provider`, {
-        publicKey: publicKey,
-        privateKey: privateKey,
+        publicKey: publicKey || process.env.ATLAS_PUBLIC_KEY,
+        privateKey: privateKey || process.env.ATLAS_PRIVATE_KEY,
       });
 
       // Cluster with component config
