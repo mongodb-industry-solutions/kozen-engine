@@ -197,7 +197,19 @@ export class PipelineManager extends BaseService {
             }
         });
         out.results = out.results || [];
-        out.output && await this.envSrv.expose(out.output);
+
+        try {
+            out.output && await this.envSrv.expose(out.output);
+        }
+        catch (error) {
+            this.logger?.warn({
+                flow: id,
+                src: 'Service:Pipeline:Deploy:End',
+                message: 'It was not possible to expose the environmental variables',
+                category: VCategory.core.pipeline,
+                data: { output: out.output, error }
+            });
+        }
 
         stackResult && out.results.push(stackResult);
 
