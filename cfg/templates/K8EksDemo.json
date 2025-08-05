@@ -1,5 +1,5 @@
 {
-    "name": "DemoK8AwsEks",
+    "name": "K8EksDemo",
     "description": "Demo template for AWS EKS deployment",
     "version": "1.0.0",
     "engine": "1.0.0",
@@ -26,13 +26,13 @@
                 "default": "us-east-1"
             },
             {
-                "type": "protected",
+                "type": "environment",
                 "name": "aws:accessKey",
                 "value": "AWS_ACCESS_KEY_ID",
                 "default": ""
             },
             {
-                "type": "protected",
+                "type": "environment",
                 "name": "aws:secretKey",
                 "value": "AWS_SECRET_ACCESS_KEY",
                 "default": ""
@@ -40,7 +40,7 @@
         ],
         "components": [
             {
-                "name": "K8AwsEks",
+                "name": "EKS",
 
                 "input": [],
                 "output": [
@@ -59,49 +59,17 @@
                 ],
                 "setup": [
                     {
-                        "type": "secret",
+                        "type": "environment",
                         "name": "aws:accessKey",
                         "value": "AWS_ACCESS_KEY_ID"
                     },
                     {
-                        "type": "secret",
-                        "name": "aws:secretKey",
-                        "value": "AWS_SECRET_ACCESS_KEY"
-                    }
-                ]
-            },
-            {
-                "name": "K8Pod",
-
-                "input": [],
-                "output": [
-                    {
-                        "type": "reference",
-                        "name": "kubeconfig",
-                        "value": "kubeconfig",
-                        "description": "Kubeconfig file for accessing the EKS cluster"
-                    },
-                    {
-                        "type": "reference",
-                        "name": "kubeconfigJson",
-                        "value": "kubeconfigJson",
-                        "description": "Kubeconfig JSON for accessing the EKS cluster"
-                    }
-                ],
-                "setup": [
-                    {
-                        "type": "secret",
-                        "name": "aws:accessKey",
-                        "value": "AWS_ACCESS_KEY_ID"
-                    },
-                    {
-                        "type": "secret",
+                        "type": "environment",
                         "name": "aws:secretKey",
                         "value": "AWS_SECRET_ACCESS_KEY"
                     }
                 ]
             }
-
         ]
     }
 }
