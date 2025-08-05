@@ -1,4 +1,5 @@
 import { exec } from "child_process";
+import dotenv from "dotenv";
 import os from "os";
 import path from "path";
 
@@ -60,7 +61,8 @@ export class Env {
      * @param variables - An array of key-value pairs to set.
      */
     private setWindowsVariables({ key, value }: { key: string; value: string }): Promise<void> {
-        return this.execCommand(`set ${key}="${value}"`);
+        const exportCommand = `setx ${key} "${value}"` || `set ${key}="${value}"`;
+        return this.execCommand(exportCommand);
     }
 
     /**
@@ -72,7 +74,8 @@ export class Env {
         if (!shellProfilePath) {
             throw new Error("Unable to determine your shell profile file.");
         }
-        return this.execCommand(`echo 'export ${key}="${value}"' >> ${shellProfilePath}`);
+        const exportCommand = `export ${key}="${value}"`;
+        return this.execCommand(`echo '${exportCommand}' >> ${shellProfilePath}`);
     }
 
     /**
@@ -81,7 +84,7 @@ export class Env {
      * @returns The sanitized key.
      */
     private sanitizeKey(key: string, prefix?: string): string {
-        prefix = prefix ?? this.prefix;
+        prefix = prefix?.trim().toUpperCase() ?? this.prefix;
         prefix = prefix ? prefix + "_" : "";
         key = prefix ? key.trim().toUpperCase() : key;
         return `${prefix}${key}`;
@@ -129,5 +132,9 @@ export class Env {
         } else {
             return null; // Unknown shell
         }
+    }
+
+    public load() {
+        dotenv.config();
     }
 }
