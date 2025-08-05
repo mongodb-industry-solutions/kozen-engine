@@ -6,7 +6,7 @@ import { IPipeline, IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
 import { IStackManager } from '../models/Stack';
 import { ITemplate, ITemplateManager } from '../models/Template';
 import { IAction, IResult, IStruct, VCategory } from "../models/Types";
-import { IIoC, IoC } from "../tools";
+import { Env, IIoC, IoC } from "../tools";
 import { BaseService } from './BaseService';
 
 /**
@@ -54,6 +54,8 @@ export class PipelineManager extends BaseService {
      */
     protected config: IPipelineConfig | null;
 
+    protected envSrv: Env;
+
     /**
      * Creates a new PipelineManager instance
      * 
@@ -83,6 +85,7 @@ export class PipelineManager extends BaseService {
         }
         super(dependency as { assistant: IIoC, logger: ILoggerService } | undefined);
         this.config = config || null;
+        this.envSrv = new Env();
     }
 
     /**
@@ -194,7 +197,8 @@ export class PipelineManager extends BaseService {
             }
         });
         out.results = out.results || [];
-        out.output && Object.assign(process.env, out.output);
+        out.output && await this.envSrv.expose(out.output);
+
         stackResult && out.results.push(stackResult);
 
         this.logger?.debug({
