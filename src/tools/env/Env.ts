@@ -10,8 +10,8 @@ import path from "path";
 export class Env {
     private prefix: string;
 
-    constructor(prefix: string = "KOZEN_PL") {
-        this.prefix = prefix.trim().toUpperCase();
+    constructor(prefix?: string) {
+        this.prefix = prefix?.trim().toUpperCase() ?? process.env["KOZEN_ENV_PREFIX"] ?? "KOZEN_PL";
     }
 
     /**
@@ -20,7 +20,7 @@ export class Env {
      *
      * @param content - An object containing key-value pairs to be exposed as environment variables.
      */
-    public async expose(content: Record<string, any>, prefix: string = "KOZEN_PL"): Promise<void> {
+    public async expose(content: Record<string, any>, prefix?: string): Promise<void> {
         if (!content || typeof content !== "object") {
             throw new Error("Invalid content provided. Expected an object.");
         }
@@ -61,7 +61,8 @@ export class Env {
      * @param variables - An array of key-value pairs to set.
      */
     private setWindowsVariables({ key, value }: { key: string; value: string }): Promise<void> {
-        const exportCommand = `setx ${key} "${value}"` || `set ${key}="${value}"`;
+        const winEnv = process.env["KOZEN_ENV_WIN_TYPE"] || "NEW"
+        const exportCommand = winEnv === "NEW" ? `setx ${key} "${value}"` : `set ${key}="${value}"`;
         return this.execCommand(exportCommand);
     }
 
@@ -70,12 +71,11 @@ export class Env {
      * @param variables - An array of key-value pairs to set.
      */
     private async setUnixVariables({ key, value }: { key: string; value: string }): Promise<void> {
-        const shellProfilePath = Env.determineShellProfilePath();
-        if (!shellProfilePath) {
-            throw new Error("Unable to determine your shell profile file.");
-        }
+        const prof = process.env["KOZEN_ENV_PROFILE"] || "CHECK"
+        const shellProfilePath = prof === "CHECK" && Env.determineShellProfilePath();
         const exportCommand = `export ${key}="${value}"`;
-        return this.execCommand(`echo '${exportCommand}' >> ${shellProfilePath}`);
+        const command = !shellProfilePath ? exportCommand : `echo '${exportCommand}' >> ${shellProfilePath}`;
+        return this.execCommand(command);
     }
 
     /**
