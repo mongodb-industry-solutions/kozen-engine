@@ -1,5 +1,5 @@
 {
-    "name": "DemoK8AwsEks",
+    "name": "K8PodDemo",
     "description": "Demo template for deploying test Pod in AWS EKS",
     "version": "1.0.0",
     "engine": "1.0.0",
