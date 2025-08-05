@@ -194,7 +194,8 @@ export class PipelineManager extends BaseService {
             }
         });
         out.results = out.results || [];
-        stackResult && out.results.push(stackResult)
+        out.output && Object.assign(process.env, out.output);
+        stackResult && out.results.push(stackResult);
 
         this.logger?.debug({
             flow: id,
