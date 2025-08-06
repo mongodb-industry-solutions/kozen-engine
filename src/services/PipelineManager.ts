@@ -54,7 +54,7 @@ export class PipelineManager extends BaseService {
      */
     protected config: IPipelineConfig | null;
 
-    protected envSrv: Env;
+    protected envSrv?: Env;
 
     /**
      * Creates a new PipelineManager instance
@@ -85,7 +85,6 @@ export class PipelineManager extends BaseService {
         }
         super(dependency as { assistant: IIoC, logger: ILoggerService } | undefined);
         this.config = config || null;
-        this.envSrv = new Env();
     }
 
     /**
@@ -112,6 +111,7 @@ export class PipelineManager extends BaseService {
             this.config.dependencies && await this.assistant.register(this.config.dependencies);
             // TODO: move this to the config
             this.logger = await this.assistant.resolve<ILoggerService>('LoggerService');
+            this.envSrv = new Env({ logger: this.logger as unknown as Console });
             return this;
         } catch (error) {
             throw new Error(`Failed to configure pipeline: ${error instanceof Error ? error.message : String(error)}`);
@@ -199,7 +199,7 @@ export class PipelineManager extends BaseService {
         out.results = out.results || [];
 
         try {
-            out.output && await this.envSrv.expose(out.output);
+            out.output && await this.envSrv?.expose(out.output);
         }
         catch (error) {
             this.logger?.warn({
@@ -207,7 +207,7 @@ export class PipelineManager extends BaseService {
                 src: 'Service:Pipeline:Deploy:End',
                 message: 'It was not possible to expose the environmental variables',
                 category: VCategory.core.pipeline,
-                data: { output: out.output, error }
+                data: { output: out.output, error: (error as Error).message }
             });
         }
 
