@@ -15,7 +15,7 @@ export class API extends BaseController {
      */
     public async run(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
         const startTime = Date.now();
-        const { url, method = 'GET', headers = {}, body = {}, query = {} } = input || {};
+        const { url, method = 'GET', headers = {}, body, query = {} } = input || {};
 
         if (!url) {
             throw new Error('No URL provided in input.');
@@ -47,7 +47,6 @@ export class API extends BaseController {
         try {
             const response = await fetch(fullUrl, { method, headers, body: body ? JSON.stringify(body) : undefined });
             const result = await this.processResponse(response);
-
             const duration = Date.now() - startTime;
 
             this.logger?.info({
@@ -74,7 +73,7 @@ export class API extends BaseController {
                 category: VCategory.cmp.api,
                 src: 'Component:API:run',
                 message: `API call failed: ${method} ${fullUrl}`,
-                data: { duration, error },
+                data: { duration, error: (error as Error).message },
             });
 
             return {
