@@ -78,16 +78,17 @@ Each component autonomously decides its execution behavior and can:
 
 ## 📚 Documentation
 
-| Topic             | Description                                       | Link                                           |
-| ----------------- | ------------------------------------------------- | ---------------------------------------------- |
-| **Architecture**  | Detailed system architecture and component design | [docs/architecture.md](docs/architecture.md)   |
-| **Components**    | Component system and extensibility guide          | [docs/components.md](docs/components.md)       |
-| **Configuration** | Configuration files and environment setup         | [docs/configuration.md](docs/configuration.md) |
-| **Templates**     | Template system and creation guide                | [docs/templates.md](docs/templates.md)         |
-| **Testing**       | Testing capabilities and execution patterns       | [docs/testing.md](docs/testing.md)             |
-| **API Reference** | Complete API documentation                        | [docs/api-reference.md](docs/api-reference.md) |
-| **Deployment**    | Production deployment and NPM integration         | [docs/deployment.md](docs/deployment.md)       |
-| **Contributing**  | Development, extension, and contribution guide    | [docs/contributing.md](docs/contributing.md)   |
+| Topic                      | Description                                       | Link                                                               |
+| -------------------------- | ------------------------------------------------- | ------------------------------------------------------------------ |
+| **Architecture**           | Detailed system architecture and component design | [docs/architecture.md](docs/architecture.md)                       |
+| **Components**             | Component system and extensibility guide          | [docs/components.md](docs/components.md)                           |
+| **Configuration**          | Configuration files and environment setup         | [docs/configuration.md](docs/configuration.md)                     |
+| **Environment Variables**  | Complete environment variables reference guide    | [docs/environment-variables.md](docs/environment-variables.md)     |
+| **Templates**              | Template system and creation guide                | [docs/templates.md](docs/templates.md)                             |
+| **Testing**                | Testing capabilities and execution patterns       | [docs/testing.md](docs/testing.md)                                 |
+| **API Reference**          | Complete API documentation                        | [docs/api-reference.md](docs/api-reference.md)                     |
+| **Deployment**             | Production deployment and NPM integration         | [docs/deployment.md](docs/deployment.md)                           |
+| **Contributing**           | Development, extension, and contribution guide    | [docs/contributing.md](docs/contributing.md)                       |
 
 ### Template System Architecture
 
