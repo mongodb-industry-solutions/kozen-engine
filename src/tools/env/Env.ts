@@ -30,11 +30,12 @@ export class Env {
      *
      * @param content - An object containing key-value pairs to be exposed as environment variables.
      */
-    public async expose(content: Record<string, any>, prefix?: string): Promise<void> {
+    public async expose(content: Record<string, any>, opts?: { prefix?: string, flow?: string }): Promise<void> {
         if (!content || typeof content !== "object") {
             throw new Error("Invalid content provided. Expected an object.");
         }
 
+        const { prefix, flow } = opts || {};
         const currentOS = os.type();
 
         try {
@@ -46,6 +47,7 @@ export class Env {
                     let key = this.sanitizeKey(prop, prefix);
                     process.env[key] = value;
                     this.logger?.info({
+                        flow,
                         src: "Tool:Env:expose",
                         message: "exposing environment variables",
                         data: { key, value, os: currentOS }
@@ -67,6 +69,7 @@ export class Env {
             await Promise.all(out);
         } catch (error) {
             this.logger?.error({
+                flow,
                 src: "Tool:Env:expose",
                 message: "Error while exposing environment variables",
                 data: { os: currentOS, content, error: (error as Error).message }

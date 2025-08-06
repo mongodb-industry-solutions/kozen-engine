@@ -199,7 +199,7 @@ export class PipelineManager extends BaseService {
         out.results = out.results || [];
 
         try {
-            out.output && await this.envSrv?.expose(out.output);
+            out.output && (process.env['KOZEN_ENV_ACTION'] === undefined || process.env['KOZEN_ENV_ACTION'] === 'EXPOSE') && await this.envSrv?.expose(out.output, { flow: id });
         }
         catch (error) {
             this.logger?.warn({
