@@ -2,16 +2,26 @@ import { exec } from "child_process";
 import dotenv from "dotenv";
 import os from "os";
 import path from "path";
+import { JSONT } from "..";
 
 /**
  * A class to expose environment variables globally across processes and different operating systems.
  * Supports Windows, Linux, and macOS.
  */
 export class Env {
+
+    /**
+     * Logger service instance for recording service operations and errors
+     * @type {ILoggerService | null}
+     */
+    public logger?: Console | null;
+
     private prefix: string;
 
-    constructor(prefix?: string) {
+    constructor(opts?: { prefix?: string, logger?: Console }) {
+        const { prefix, logger } = opts || {};
         this.prefix = prefix?.trim().toUpperCase() ?? process.env["KOZEN_ENV_PREFIX"] ?? "KOZEN_PL";
+        this.logger = logger;
     }
 
     /**
@@ -35,7 +45,13 @@ export class Env {
                     let value = this.sanitizeValue(content[prop]);
                     let key = this.sanitizeKey(prop, prefix);
                     process.env[key] = value;
+                    this.logger?.info({
+                        src: "Tool:Env:expose",
+                        message: "exposing environment variables",
+                        data: { key, value, os: currentOS }
+                    });
                     switch (currentOS) {
+                        case "Windows":
                         case "Windows_NT":
                             out.push(this.setWindowsVariables({ key, value }));
                             break;
@@ -49,9 +65,12 @@ export class Env {
                 }
             }
             await Promise.all(out);
-
         } catch (error) {
-            console.error("Error while exposing environment variables:", error);
+            this.logger?.error({
+                src: "Tool:Env:expose",
+                message: "Error while exposing environment variables",
+                data: { os: currentOS, content, error: (error as Error).message }
+            });
             throw error;
         }
     }
@@ -61,9 +80,9 @@ export class Env {
      * @param variables - An array of key-value pairs to set.
      */
     private setWindowsVariables({ key, value }: { key: string; value: string }): Promise<void> {
-        const winEnv = process.env["KOZEN_ENV_WIN_TYPE"] || "NEW"
-        const exportCommand = winEnv === "NEW" ? `setx ${key} "${value}"` : `set ${key}="${value}"`;
-        return this.execCommand(exportCommand);
+        const scope = process.env["KOZEN_ENV_SCOPE"] || "GLOBAL"
+        const command = scope === "GLOBAL" ? `setx ${key} "${value}"` : `set ${key}="${value}"`;
+        return this.execCommand(command);
     }
 
     /**
@@ -71,8 +90,8 @@ export class Env {
      * @param variables - An array of key-value pairs to set.
      */
     private async setUnixVariables({ key, value }: { key: string; value: string }): Promise<void> {
-        const prof = process.env["KOZEN_ENV_PROFILE"] || "CHECK"
-        const shellProfilePath = prof === "CHECK" && Env.determineShellProfilePath();
+        const scope = process.env["KOZEN_ENV_SCOPE"] || "GLOBAL"
+        const shellProfilePath = scope === "GLOBAL" && Env.determineShellProfilePath();
         const exportCommand = `export ${key}="${value}"`;
         const command = !shellProfilePath ? exportCommand : `echo '${exportCommand}' >> ${shellProfilePath}`;
         return this.execCommand(command);
@@ -96,7 +115,12 @@ export class Env {
      * @returns The sanitized value.
      */
     private sanitizeValue(value: any): string {
-        return String(value).trim();
+        let limit = (process.env['KOZEN_ENV_LIMIT'] && parseInt(process.env['KOZEN_ENV_LIMIT'])) || 1024;
+        let quote = process.env['KOZEN_ENV_QUOTE'] ?? '§';
+        let val = JSONT.encode(value);
+        val = val.replace(/(\r\n|\\r\\n|\r|\n|\\r|\\n|\t|\\t)/g, " ").replace(/\s+/g, " ");
+        val = val.replace(/"/g, quote).trim();
+        return val.length > limit ? val.slice(0, limit) : val;
     }
 
     /**
