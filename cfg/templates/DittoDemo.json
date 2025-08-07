@@ -39,6 +39,89 @@
         ],
         "components": [
             {
+                "name": "Atlas",
+                "input": [
+                    {
+                        "type": "value",
+                        "name": "clusterType",
+                        "value": "REPLICASET"
+                    },
+                    {
+                        "type": "value",
+                        "name": "replicationSpecs",
+                        "value": [
+                            {
+                                "numShards": 1,
+                                "regionsConfigs": [
+                                    {
+                                        "regionName": "US_EAST_1",
+                                        "electableNodes": 3,
+                                        "priority": 7,
+                                        "readOnlyNodes": 0
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "value",
+                        "name": "cloudBackup",
+                        "value": true
+                    },
+                    {
+                        "type": "value",
+                        "name": "autoScalingDiskGbEnabled",
+                        "value": true
+                    },
+                    {
+                        "type": "value",
+                        "name": "mongoDbMajorVersion",
+                        "value": "8.0"
+                    },
+                    {
+                        "type": "value",
+                        "name": "providerName",
+                        "value": "AWS"
+                    },
+                    {
+                        "type": "value",
+                        "name": "providerInstanceSizeName",
+                        "value": "M20"
+                    }
+                ],
+                "output": [
+                    {
+                        "type": "reference",
+                        "name": "connectionString",
+                        "value": "connectionString",
+                        "description": "Connection string of the HelloWorld component"
+                    },
+                    {
+                        "type": "reference",
+                        "name": "clusterId",
+                        "value": "clusterId",
+                        "description": "ID of the Atlas cluster"
+                    }
+                ],
+                "setup": [
+                    {
+                        "type": "secret",
+                        "name": "mongodb-atlas:publicKey",
+                        "value": "ATLAS_PUBLIC_KEY"
+                    },
+                    {
+                        "type": "secret",
+                        "name": "mongodb-atlas:privateKey",
+                        "value": "ATLAS_PRIVATE_KEY"
+                    },
+                    {
+                        "type": "secret",
+                        "name": "mongodb-atlas:projectId",
+                        "value": "ATLAS_PROJECT_ID"
+                    }
+                ]
+            },
+            {
                 "name": "K8Pods",
                 "input": [
                     {
@@ -72,7 +155,20 @@
                         "value": "DITTO_APP_ID"
                     }
                 ],
-                "output": [],
+                "output": [
+                    {
+                        "type": "reference",
+                        "name": "ipAddress",
+                        "value": "ipAddress",
+                        "description": "IP address of the K8Pods component"
+                    },
+                    {
+                        "type": "value",
+                        "name": "message",
+                        "value": "${ipAddress} - Pod is running",
+                        "description": "Message indicating the Pod is running"
+                    }
+                ],
                 "setup": []
             }
         ]
