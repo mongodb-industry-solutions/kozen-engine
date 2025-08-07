@@ -1,5 +1,5 @@
 
-import { IDependency, IIoC } from "../tools";
+import { IDependency, IIoC, ILogEntry } from "../tools";
 import { IStackManager } from "./Stack";
 import { ITemplate } from "./Template";
 
@@ -79,6 +79,19 @@ export interface ISecretArgs extends ICLIArgs {
    * @type {string}
    */
   value?: string;
+}
+
+/**
+ * Secret management CLI arguments interface
+ * @interface ILogArgs
+ * @extends ICLIArgs
+ */
+export interface ILogArgs extends ICLIArgs, ILogEntry {
+  /**
+   * 
+   * @type {string}
+   */
+  dataFromPath?: string;
 }
 
 /**
