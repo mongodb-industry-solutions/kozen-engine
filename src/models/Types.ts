@@ -152,3 +152,28 @@ export interface IResult {
      */
     output?: IStruct;
 }
+
+/**
+ * Base CLI arguments interface for pipeline operations
+ * @interface ICLIArgs
+ */
+export interface ICLIArgs {
+    /**
+     * Help action entry flag for displaying usage information
+     * @type {string}
+     */
+    help?: string;
+
+    /**
+     * Configuration file path for pipeline settings
+     * @type {string}
+     */
+    config?: string;
+
+    /**
+     * Pipeline operation type to execute
+     * @type {string}
+     * Supported actions: deploy, undeploy, validate, status
+     */
+    action: string;
+}

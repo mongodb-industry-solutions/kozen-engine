@@ -7,9 +7,7 @@
  * @since 1.0.0
  * @version 1.1.0
  */
-
-import { ISecretArgs } from '../models/Pipeline';
-import { ISecretManager } from '../models/Secret';
+import { ISecretArgs, ISecretManager } from '../models/Secret';
 import { IAction } from '../models/Types';
 import { CLIController } from './CLIController';
 
