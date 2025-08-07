@@ -4,6 +4,11 @@
         "exe": "cmp:exe",
         "api": "cmp:api"
     },
+    "cli": {
+        "logger": "cli:logger",
+        "pipeline": "cli:pipeline",
+        "secret": "cli:secret"
+    },
     "test": {
         "e2e": "test:e2e",
         "integration": "test:integration",
