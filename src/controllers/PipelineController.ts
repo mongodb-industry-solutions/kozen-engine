@@ -155,7 +155,7 @@ export class PipelineController {
       this.validateArguments(args);
       this.pipeline.logger?.info({
         flow: this.getId(args),
-        category: VCategory.core.pipeline,
+        category: VCategory.cli.pipeline,
         src: 'Controller:Pipeline:Init',
         message: `Executing ${args.action} operation for template: ${args.template}`
       });
@@ -188,7 +188,7 @@ export class PipelineController {
       if (result.success) {
         this.pipeline.logger?.debug({
           flow: config.id,
-          category: VCategory.core.pipeline,
+          category: VCategory.cli.pipeline,
           src: 'Controller:Pipeline:End',
           message: `✅ ${result.action} operation completed successfully in ${duration} ms`,
           data: {
@@ -203,7 +203,7 @@ export class PipelineController {
       } else {
         this.pipeline.logger?.error({
           flow: this.getId(args),
-          category: VCategory.core.pipeline,
+          category: VCategory.cli.pipeline,
           src: 'Controller:Pipeline:End',
           message: `❌ ${result.action} operation failed after ${duration} ms`,
           data: {
@@ -227,7 +227,7 @@ export class PipelineController {
 
       this.pipeline.logger?.error({
         flow: this.getId(args),
-        category: VCategory.core.pipeline,
+        category: VCategory.cli.pipeline,
         src: 'Controller:Pipeline:Execute',
         message: `Pipeline execution failed: ${errorMessage} in ${duration} ms`,
         data: {
@@ -252,7 +252,7 @@ export class PipelineController {
    * Displays CLI usage information and command examples
    * @public
    */
-  public displayUsage(): void {
+  public displayHelp(): void {
     console.log(`
 Kozen Pipeline CLI
 =============================================================================
@@ -321,7 +321,7 @@ Examples:
    */
   public log(input: ILogInput, level: ILogLevel = ILogLevel.INFO) {
     if (typeof input === 'object') {
-      input.category = VCategory.core.pipeline;
+      input.category = VCategory.cli.pipeline;
     }
     return this.pipeline.logger?.log(input, level);
   }
