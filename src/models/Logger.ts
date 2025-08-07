@@ -1,5 +1,6 @@
 import { ILogInput, ILogLevel, ILogProcessor, ILoggerConfig } from "../tools";
-import { ILoggerConfigMDB } from "../tools/log/types";
+import { ILogEntry, ILoggerConfigMDB } from "../tools/log/types";
+import { ICLIArgs } from "./Types";
 
 /**
  * Configuration interface for LoggerService with MongoDB and console settings
@@ -91,4 +92,18 @@ export interface ILoggerService {
      * @param {ILogProcessor} processor - LogProcessor implementation for custom log handling
      */
     add(processor: ILogProcessor): void;
-}  
+}
+
+
+/**
+ * Secret management CLI arguments interface
+ * @interface ILogArgs
+ * @extends ICLIArgs
+ */
+export interface ILogArgs extends ICLIArgs, ILogEntry {
+    /**
+     * 
+     * @type {string}
+     */
+    dataFromPath?: string;
+}

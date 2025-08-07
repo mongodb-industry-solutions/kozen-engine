@@ -9,7 +9,7 @@
 
 import dotenv from 'dotenv';
 import { SecretController } from '../src/controllers/SecretController';
-import { ISecretArgs } from '../src/models/Pipeline';
+import { ISecretArgs } from '../src/models/Secret';
 import { VCategory } from '../src/models/Types';
 
 /**

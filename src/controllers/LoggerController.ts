@@ -7,8 +7,7 @@
  * @since 1.0.0
  * @version 1.1.0
  */
-
-import { ILogArgs } from '../models/Pipeline';
+import { ILogArgs } from '../models/Logger';
 import { VCategory } from '../models/Types';
 import { JSONT, readFrom } from '../tools';
 import { CLIController } from './CLIController';
