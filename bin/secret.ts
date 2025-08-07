@@ -9,6 +9,8 @@
 
 import dotenv from 'dotenv';
 import { SecretController } from '../src/controllers/SecretController';
+import { ISecretArgs } from '../src/models/Pipeline';
+import { VCategory } from '../src/models/Types';
 
 /**
  * Main CLI entry point for secret management operations
@@ -21,12 +23,11 @@ import { SecretController } from '../src/controllers/SecretController';
 
         // Create controller and parse arguments
         const controller = new SecretController();
-        const args = controller.parseArguments(process.argv);
-        await controller.configure(args);
+        const args = await controller.init<ISecretArgs>(process.argv);
 
         // Handle help flag
         if (args.help) {
-            SecretController.displayUsage();
+            SecretController.displayHelp();
             process.exit(0);
         }
 
@@ -38,6 +39,7 @@ import { SecretController } from '../src/controllers/SecretController';
         if (!action || !key) {
             controller.logger?.error({
                 src: 'bin:Secret',
+                category: VCategory.cli.secret,
                 message: '❌ Missing required parameters. Use --help for usage information.'
             });
             process.exit(1);
@@ -67,6 +69,7 @@ import { SecretController } from '../src/controllers/SecretController';
             default:
                 controller.logger?.error({
                     src: 'bin:Secret',
+                    category: VCategory.cli.secret,
                     message: `❌ Unsupported action: ${action}. Use --help for usage information.`
                 });
                 process.exit(1);
@@ -74,6 +77,7 @@ import { SecretController } from '../src/controllers/SecretController';
     } catch (error) {
         console.error({
             src: 'bin:Secret',
+            category: VCategory.cli.secret,
             message: `❌ CLI execution failed:` + (error as Error).message || error
         });
         process.exit(1);
