@@ -10,8 +10,8 @@
 
 import * as fs from 'fs';
 import { ILoggerService } from '../models/Logger';
-import { ICLIArgs, IPipelineConfig } from '../models/Pipeline';
-import { VCategory } from '../models/Types';
+import { IPipelineConfig } from '../models/Pipeline';
+import { ICLIArgs, VCategory } from '../models/Types';
 import { IIoC, ILogInput, ILogLevel, IoC } from '../tools';
 
 export class CLIController {
