@@ -41,7 +41,7 @@ import { VCategory } from "../src/models/Types";
 
     // Check for help flag
     if (process.argv.includes('--help') || process.argv.includes('-h')) {
-      controller.displayUsage();
+      controller.displayHelp();
       process.exit(0);
     }
 
@@ -60,6 +60,7 @@ import { VCategory } from "../src/models/Types";
     controller.log({
       flow: controller.getId(args),
       src: 'bin:Pipeline',
+      category: VCategory.cli.pipeline,
       message: resultMessage,
       data: {
         state: result.action,
@@ -70,7 +71,7 @@ import { VCategory } from "../src/models/Types";
   } catch (error) {
     console.error({
       src: 'bin:Pipeline',
-      category: VCategory.core.pipeline,
+      category: VCategory.cli.pipeline,
       message: 'Pipeline execution failed:' + (error instanceof Error ? error.message : String(error))
     });
     resultCode = 1;
