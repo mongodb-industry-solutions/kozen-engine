@@ -14,3 +14,14 @@ export function getID(): string {
     const random = Math.floor(Math.random() * 100).toString().padStart(2, '0');
     return `K${year}${month}${day}${hours}${minutes}${seconds}${random}`;
 }
+
+const fs = require('fs').promises;
+
+export async function readFrom(path: string, opts?: { format?: string, error?: { message?: string } }) {
+    const { format = 'utf8', error = {} } = opts || {};
+    try {
+        return await fs.readFile(path, format);;
+    } catch (err) {
+        Object.assign(error, err);
+    }
+}
