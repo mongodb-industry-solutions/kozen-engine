@@ -40,7 +40,7 @@ export { IoC } from './tools/ioc/IoC';
 export { ILogLevel, Logger } from './tools/log';
 
 // Configuration Models
-export { IPipelineArgs, IPipelineConfig } from './models/Pipeline';
+export { IConfig, IPipelineArgs } from './models/Pipeline';
 export { IResult } from './models/Types';
 
 // Infrastructure Components
