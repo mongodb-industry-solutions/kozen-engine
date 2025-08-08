@@ -33,7 +33,7 @@ export class SecretController extends CLIController {
             });
             return result;
         } catch (error) {
-            this.logger?.debug({
+            this.logger?.error({
                 flow: this.getId(options as unknown as IConfig),
                 src: 'Controller:Secret:set',
                 message: `❌ Failed to resolve secret '${options.key}': ${(error as Error).message}`
@@ -68,7 +68,7 @@ export class SecretController extends CLIController {
             }
             return String(value) || null;
         } catch (error) {
-            this.logger?.debug({
+            this.logger?.error({
                 flow: this.getId(options as unknown as IConfig),
                 src: 'Controller:Secret:get',
                 message: `❌ Failed to resolve secret '${options.key}': ${(error as Error).message}`
@@ -82,7 +82,7 @@ export class SecretController extends CLIController {
             const srvSecret = await this.assistant?.resolve<ISecretManager>('SecretManager');
             return srvSecret?.options;
         } catch (error) {
-            this.logger?.debug({
+            this.logger?.error({
                 flow: this.getId(options as unknown as IConfig),
                 src: 'Controller:Secret:metadata',
                 message: `❌ Failed to resolve secret manager metadata: ${(error as Error).message}`
