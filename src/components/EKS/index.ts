@@ -1,7 +1,7 @@
 import { BaseController } from '../../controllers/BaseController';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct } from '../../models/Types';
-import { IEksConfig } from "./IEKSConfig";
+import { IEksConfig } from "./IEksConfig";
 
 import * as aws from "@pulumi/aws";
 import * as eks from "@pulumi/eks";
@@ -153,15 +153,20 @@ export class K8AwsEks extends BaseController {
         provider: this.awsProvider,
       });
 
-      // Create a node group
-      const nodegroup = new eks.NodeGroup(`${resourcePrefix}-ng`, {
+
+      const instanceProfile = new aws.iam.InstanceProfile("ng-instance-profile", {
+        role: nodeRole.name,
+      });
+
+
+      // Create a node group using NodeGroupV2 (recommended)
+      const nodegroup = new eks.NodeGroupV2(`${resourcePrefix}-ng`, {
         cluster: cluster,
-        nodeRole: nodeRole,
+        instanceProfile: instanceProfile, // Use .arn, not the Role object itself
         desiredCapacity: input?.desiredCapacity || 2,
         minSize: input?.minSize || 1,
         maxSize: input?.maxSize || 3,
         instanceType: input?.instanceType || "t3.medium",
-        subnetIds: input?.privateSubnetIds,
       }, { provider: this.awsProvider });
 
       // Add this after your cluster creation
