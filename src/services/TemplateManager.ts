@@ -233,5 +233,135 @@ export class TemplateManager extends BaseService implements TemplateManager {
 
         return result;
     }
+
+    /**
+     * Deletes a template from the configured storage backend by delegating to the appropriate
+     * storage-specific implementation (TemplateManagerFile, TemplateManagerMDB, etc.).
+     * This method implements the bridge pattern by providing a unified interface regardless
+     * of the underlying storage mechanism.
+     * 
+     * The deletion process:
+     * 1. Validates that storage type is configured
+     * 2. Resolves the appropriate storage-specific manager from IoC container
+     * 3. Delegates the deletion operation to the specific implementation
+     * 4. Logs the operation result and returns success status
+     * 
+     * @public
+     * @param {string} templateName - Name/identifier of the template to delete
+     * @param {ITemplateConfig} [options] - Optional configuration override for this operation
+     * @returns {Promise<boolean>} Promise resolving to true if delete operation succeeds, false otherwise
+     * @throws {Error} When template deletion fails due to configuration issues, network problems, or storage errors
+     * 
+     * @example
+     * ```typescript
+     * // Delete a template
+     * const success = await templateManager.delete('atlas.basic');
+     * 
+     * // Delete with custom configuration override
+     * const success = await templateManager.delete('custom.template', {
+     *   type: 'MDB',
+     *   mdb: { 
+     *     database: 'templates', 
+     *     collection: 'infrastructure',
+     *     uri: 'MONGODB_URI_KEY'
+     *   }
+     * });
+     * ```
+     */
+    async delete(templateName: string, options?: ITemplateConfig): Promise<boolean> {
+        if (!this.options?.type) {
+            throw new Error("TemplateManager options or type is not defined.");
+        }
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
+        }
+
+        options = { ...this.options, ...options };
+        const controllerName = this.prefix || '' + options.type;
+        const controller = await this.getDelegate<ITemplateManager>(options.type || 'File');
+
+        this.logger?.info({
+            flow: options.flow,
+            category: VCategory.core.template,
+            src: 'Service:TemplateManager:delete',
+            message: 'Deleting template',
+            data: { controllerName, templateName }
+        });
+
+        const result = await controller.delete(templateName, options);
+
+        this.logger?.info({
+            flow: options.flow,
+            category: VCategory.core.template,
+            src: 'Service:TemplateManager:delete',
+            message: result ? 'Template deleted successfully' : 'Template deletion failed',
+            data: { controllerName, templateName, success: result }
+        });
+
+        return result;
+    }
+
+    /**
+     * Lists available templates from the configured storage backend by delegating to the appropriate
+     * storage-specific implementation (TemplateManagerFile, TemplateManagerMDB, etc.).
+     * This method implements the bridge pattern by providing a unified interface regardless
+     * of the underlying storage mechanism.
+     * 
+     * The listing process:
+     * 1. Validates that storage type is configured
+     * 2. Resolves the appropriate storage-specific manager from IoC container
+     * 3. Delegates the listing operation to the specific implementation
+     * 4. Returns the list of available template names
+     * 
+     * @public
+     * @param {ITemplateConfig} [options] - Optional configuration override for this operation
+     * @returns {Promise<string[]>} Promise resolving to array of template names
+     * @throws {Error} When template listing fails due to configuration issues, network problems, or storage errors
+     * 
+     * @example
+     * ```typescript
+     * // List all templates
+     * const templates = await templateManager.list();
+     * console.log('Available templates:', templates);
+     * 
+     * // List with custom configuration override
+     * const templates = await templateManager.list({
+     *   type: 'File',
+     *   file: { path: '/custom/template/path' }
+     * });
+     * ```
+     */
+    async list(options?: ITemplateConfig): Promise<string[]> {
+        if (!this.options?.type) {
+            throw new Error("TemplateManager options or type is not defined.");
+        }
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
+        }
+
+        options = { ...this.options, ...options };
+        const controllerName = this.prefix || '' + options.type;
+        const controller = await this.getDelegate<ITemplateManager>(options.type || 'File');
+
+        this.logger?.info({
+            flow: options.flow,
+            category: VCategory.core.template,
+            src: 'Service:TemplateManager:list',
+            message: 'Listing templates',
+            data: { controllerName }
+        });
+
+        const templates = await controller.list(options);
+
+        this.logger?.info({
+            flow: options.flow,
+            category: VCategory.core.template,
+            src: 'Service:TemplateManager:list',
+            message: 'Templates listed successfully',
+            data: { controllerName, count: templates.length, templates: templates.slice(0, 10) } // Log first 10 for brevity
+        });
+
+        return templates;
+    }
 }
 export default TemplateManager;
