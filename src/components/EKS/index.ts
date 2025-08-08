@@ -1,7 +1,7 @@
 import { BaseController } from '../../controllers/BaseController';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct } from '../../models/Types';
-import { IEksConfig } from "./IEKSConfig";
+import { IEksConfig } from "./IEksConfig";
 
 import * as aws from "@pulumi/aws";
 import * as eks from "@pulumi/eks";
