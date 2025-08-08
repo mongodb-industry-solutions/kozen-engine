@@ -46,7 +46,11 @@ import { VCategory } from "../src/models/Types";
     }
 
     // Get arguments
-    const args = controller.parseArguments(process.argv.slice(2));
+    const { args } = await controller.init(process.argv);
+
+    if (!args) {
+      throw new Error('Bad request');
+    }
 
     // Execute pipeline operation
     const result = await controller.execute(args);
@@ -77,7 +81,7 @@ import { VCategory } from "../src/models/Types";
     resultCode = 1;
   }
   finally {
-    await controller?.await();
+    await controller?.wait();
     process.exit(resultCode);
   }
 })();
