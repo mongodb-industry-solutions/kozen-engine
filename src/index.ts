@@ -1,57 +1,75 @@
 /**
- * @fileoverview Infrastructure as Code (IaC) Pipeline - Main Entry Point
- * @description Entry point for the IaC Pipeline package, exporting main classes
- * for distribution as an npm package and CLI usage.
+ * @fileoverview Kozen Engine - Main Entry Point for Dynamic Infrastructure & Testing Platform
+ * @description Main entry point for the Kozen Engine package, providing comprehensive exports
+ * for infrastructure deployment, testing automation, and pipeline management.
  * 
- * @author MDB SAT
- * @version 1.0.5
+ * The Kozen Engine is a mono-stack pipeline platform that transforms JSON configuration
+ * files into powerful, automated infrastructure and testing workflows, supporting
+ * Infrastructure as a Service (IaaS) and Testing as a Service (TaaS) platforms.
+ * 
+ * @author MongoDB Solution Assurance Team (SAT)
+ * @version 1.1.0
  * @since 2024-01-01
  * 
  * @example
  * ```typescript
- * import { PipelineManager, IoC } from 'iac-pipeline';
+ * import { PipelineManager, IoC, CLIController } from 'kozen-engine';
  * 
+ * // Initialize IoC container and pipeline manager
  * const ioc = new IoC();
  * const pipeline = new PipelineManager(ioc);
  * 
- * // Deploy a template
- * await pipeline.deploy('my-template');
+ * // Deploy infrastructure template
+ * await pipeline.deploy({
+ *   template: 'atlas.basic',
+ *   action: 'deploy',
+ *   stack: 'production'
+ * });
  * 
- * // Validate a template
- * await pipeline.validate('my-template');
+ * // Run validation and tests
+ * await pipeline.validate({
+ *   template: 'demo',
+ *   action: 'validate',
+ *   stack: 'test'
+ * });
  * 
- * // Undeploy a template
- * await pipeline.undeploy('my-template');
+ * // CLI usage
+ * const cli = new CLIController();
+ * const { args, config } = await cli.init();
  * ```
  */
 
-// Core Components
+// Core Pipeline Management
 export { PipelineManager } from './services/PipelineManager';
 export { StackManager } from './services/StackManager';
 
-// Core Services
+// Service Layer
 export { LoggerService } from './services/LoggerService';
+export { SecretManager } from './services/SecretManager';
+export { TemplateManager } from './services/TemplateManager';
 
 // Controllers
+export { BaseController } from './controllers/BaseController';
+export { CLIController } from './controllers/CLIController';
+export { LoggerController } from './controllers/LoggerController';
 export { PipelineController } from './controllers/PipelineController';
+export { SecretController } from './controllers/SecretController';
 
-// IoC Container and Tools
+// IoC Container and Utilities
+export { Env } from './tools/env/Env';
 export { IoC } from './tools/ioc/IoC';
 export { ILogLevel, Logger } from './tools/log';
+export { EnumUtl, getID, readFrom } from './tools/util';
 
-// Configuration Models
+// Models and Interfaces
+export { IComponent, IComponentInput, IComponentOutput, ITransformFn } from './models/Component';
+export { ILogArgs, ILoggerService } from './models/Logger';
 export { IConfig, IPipelineArgs } from './models/Pipeline';
-export { IResult } from './models/Types';
-
-// Infrastructure Components
-// export { AtlasController } from './components/Atlas';
-// export { KubernetesController } from './components/Kubernetes';
-// export { OpsManagerController } from './components/OpsManager';
-
-// Base Controller
-export { BaseController } from './controllers/BaseController';
+export { ISecretArgs, ISecretManager } from './models/Secret';
+export { IAction, ICLIArgs, IMetadata, IResult } from './models/Types';
 
 // Type definitions
+export * from './tools/env/types';
 export * from './tools/ioc/types';
 export * from './tools/log/types';
 
