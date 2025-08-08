@@ -91,6 +91,10 @@ export class LoggerService implements ILoggerService {
         });
     }
 
+    toLevel(level: string) {
+        return ILogLevel[level.toUpperCase() as keyof typeof ILogLevel] ?? ILogLevel.INFO;
+    }
+
     /**
      * Logs error message with highest priority for critical issues
      * @param input - Error message string or structured log options object
@@ -128,7 +132,10 @@ export class LoggerService implements ILoggerService {
      * @param input - Info message string or structured log options object
      * @param level - The log level to use
      */
-    public log(input: ILogInput, level: ILogLevel = ILogLevel.INFO): void {
+    public log(input: ILogInput, level?: ILogLevel): void {
+        if (typeof input === 'object' && typeof input.level === 'string') {
+            level = this.toLevel(input.level);
+        }
         this.stack.push(this.logger.log(input, level));
     }
 

@@ -2,6 +2,7 @@
 import { IDependency, IIoC } from "../tools";
 import { IStackManager } from "./Stack";
 import { ITemplate } from "./Template";
+import { ICLIArgs } from "./Types";
 
 /**
  * @fileoverview Pipeline configuration models for CLI arguments and deployment settings
@@ -12,81 +13,24 @@ import { ITemplate } from "./Template";
  */
 
 /**
- * Base CLI arguments interface for pipeline operations
- * @interface ICLIArgs
- */
-export interface ICLIArgs {
-  /**
-   * Help action entry flag for displaying usage information
-   * @type {string}
-   */
-  help?: string;
-
-  /**
-   * Configuration file path for pipeline settings
-   * @type {string}
-   */
-  config?: string;
-
-  /**
-   * Pipeline operation type to execute
-   * @type {string}
-   * Supported actions: deploy, undeploy, validate, status
-   */
-  action: string;
-}
-
-/**
  * Extended pipeline arguments interface with template and deployment options
  * @interface IPipelineArgs
  * @extends ICLIArgs
  */
 export interface IPipelineArgs extends ICLIArgs {
-
   /**
    * Infrastructure template name for deployment operations
    * @type {string}
    */
   template?: string;
-
-  /**
-   * Optional unique stack identifier for environment isolation
-   * @type {string}
-   */
-  stack?: string;
-
-  /**
-   * Optional project organization name for resource grouping
-   * @type {string}
-   */
-  project?: string;
 }
 
 /**
- * Secret management CLI arguments interface
- * @interface ISecretArgs
- * @extends ICLIArgs
- */
-export interface ISecretArgs extends ICLIArgs {
-  /**
-   * Secret key identifier for storage and retrieval operations
-   * @type {string}
-   */
-  key?: string;
-
-  /**
-   * Secret value content for storage operations
-   * @type {string}
-   */
-  value?: string;
-}
-
-/**
- * Pipeline configuration interface for deployment management
- * @interface IPipelineConfig
+ * Kozen configuration interface for deployment management
+ * @interface IConfig
  * @extends IPipelineArgs
  */
-export interface IPipelineConfig extends IPipelineArgs {
+export interface IConfig extends IPipelineArgs {
 
   /**
    * Unique pipeline instance identifier for tracking and logging
