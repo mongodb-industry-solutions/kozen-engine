@@ -225,6 +225,7 @@ export class StackManagerPulumi extends StackManager {
                     message: `Stack output: ${output}`
                 })
             });
+            await this.output(config, upRes?.outputs);
             return {
                 success: !!upRes,
                 stackName: config.name,
