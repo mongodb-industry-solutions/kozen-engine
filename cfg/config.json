@@ -151,7 +151,7 @@
       "path": "../../services",
       "args": [
         {
-          "type": "AWS",
+          "type": "MDB",
           "cloud": {
             "region": "us-east-1",
             "accessKeyId": "AWS_ACCESS_KEY_ID",
@@ -302,6 +302,60 @@
           "target": "SecretManager",
           "type": "ref"
         },
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "LoggerController",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../controllers",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "PipelineController",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../controllers",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "SecretController",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../controllers",
+      "dependencies": [
         {
           "key": "assistant",
           "target": "IoC",

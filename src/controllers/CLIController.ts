@@ -21,6 +21,10 @@ export class CLIController {
      */
     protected assistant?: IIoC | null;
 
+    public get helper() {
+        return this.assistant;
+    }
+
     /**
      * Logger service instance for recording secret management operations
      * @type {ILoggerService | null}
@@ -33,8 +37,9 @@ export class CLIController {
      * @constructor
      * @param {ISecretManagerOptions} [options] - Configuration options for MongoDB and encryption
      */
-    constructor() {
-        this.assistant = new IoC();
+    constructor(dependency?: { assistant: IIoC, logger: ILoggerService }) {
+        this.assistant = dependency?.assistant ?? new IoC();
+        this.logger = dependency?.logger ?? null;
     }
 
     /**
@@ -42,24 +47,25 @@ export class CLIController {
      * @public
      * @static
      */
-    public static displayHelp(): void {
+    public help(): void {
         console.log(`
-            MongoDB Tool CLI
-            ===============================================================================
-            
-            Usage:
-            secrets --action=save --key=<key> --value=<value>
-            secrets --action=resolve --key=<key>
-            
-            Options:
-            --action=<action>   Action to perform: save, resolve
-            --key=<key>         Secret key (required)
-            --value=<value>     Secret value (required for save action)
-            
-            Examples:
-            secrets --action=save --key=API_KEY --value=my_super_secret
-            secrets --action=resolve --key=API_KEY
-            ===============================================================================
+===============================================================================
+Kozen Engine Tool
+===============================================================================
+
+Usage:
+kozen --action=save --key=<key> --value=<value>
+kozen --action=resolve --key=<key>
+
+Options:
+--action=<action>   Action to perform: save, resolve
+--key=<key>         Secret key (required)
+--value=<value>     Secret value (required for save action)
+
+Examples:
+kozen --action=save --key=API_KEY --value=my_super_secret
+kozen --action=resolve --key=API_KEY
+===============================================================================
         `);
     }
 
@@ -120,9 +126,18 @@ export class CLIController {
      * @param {string[]} args - Command line arguments array
      * @returns {ICLIArgs} Parsed CLI arguments with defaults applied
      */
-    public async parseArguments(args: string[]): Promise<ICLIArgs> {
+    public async fillout(args: string[] | ICLIArgs): Promise<ICLIArgs> {
         let parsed: Partial<ICLIArgs> = this.extract(args);
+        parsed.action = parsed.action || process.env['KOZEN_ACTION'] || 'deploy';
+        let option = parsed.action?.split(":") || [];
+        parsed.action = option?.length > 1 ? option[1] : option[0];
+        parsed.controller = this.capitalizeFirstLetter(option?.length > 1 ? option[0] : (parsed.controller || process.env['KOZEN_CONTROLLER'] || '')) + 'Controller';
+        parsed.config = parsed.config || process.env.KOZEN_CONFIG || 'cfg/config.json';
         return parsed as ICLIArgs;
+    }
+
+    protected capitalizeFirstLetter(str: string): string {
+        return str ? str[0].toUpperCase() + str.slice(1) : '';
     }
 
     /**
@@ -131,7 +146,10 @@ export class CLIController {
      * @param {string[]} [argv] - Command line arguments array, defaults to process.argv
      * @returns {Record<string, string>} Object containing parsed argument key-value pairs
      */
-    extract(argv?: string[]) {
+    protected extract(argv?: string[] | ICLIArgs): Record<string, any> {
+        if (!Array.isArray(argv) && typeof argv === 'object') {
+            return argv;
+        }
         argv = argv || process.argv;
         return argv.slice(2).reduce((acc: Record<string, string>, arg: string) => {
             const [key, value] = arg.split('=');
@@ -141,9 +159,20 @@ export class CLIController {
     }
 
     public async init<T = ICLIArgs>(argv?: string[]): Promise<T> {
-        const args = await this.parseArguments(process.argv);
+        const args = await this.fillout(argv ?? process.argv);
         await this.configure(args);
         return args as T;
+    }
+
+    /**
+     * Waits for all pending logger operations to complete
+     * @public
+     * @returns {Promise<void>} Promise that resolves when all log operations complete
+     */
+    public async wait(): Promise<void> {
+        if (this.logger?.stack) {
+            await Promise.all(this.logger.stack)
+        }
     }
 
     /**
@@ -155,19 +184,8 @@ export class CLIController {
      */
     public async log(input: ILogInput, level: ILogLevel = ILogLevel.INFO) {
         if (typeof input === 'object') {
-            input.category = VCategory.core.pipeline;
+            input.category = input.category || VCategory.cli.tool;
         }
         this.logger?.log(input, level);
-    }
-
-    /**
-     * Waits for all pending logger operations to complete
-     * @public
-     * @returns {Promise<void>} Promise that resolves when all log operations complete
-     */
-    public async await(): Promise<void> {
-        if (this.logger?.stack) {
-            await Promise.all(this.logger.stack)
-        }
     }
 }
