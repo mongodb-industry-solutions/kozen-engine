@@ -101,11 +101,11 @@ Usage:
     kozen --action=get --controller=secret --key=<key>
 
 Options:
+    --controller=secret             Set controller name as secret (required if not specified in the action)
     --action=<[controller:]action>  Action to be performed within the Secret Manager tool. The possible values are:
                                     - set: Insert or update the value of a secret
                                     - get: Obtain the value of a secret
                                     - metadata: Obtain data about the secret manager configuration
-    --controller=secret             Set controller name as secret (required if not specified in the action)
 
     --key=<key>                     Secret key (required)
     --value=<value>                 Secret value (required for save action)
