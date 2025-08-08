@@ -64,6 +64,12 @@ export interface IStackOptions extends IComponent {
     init?: ISetupFn;
 
     /**
+     * Configuration setup function
+     * @type {IProgramFn}
+     */
+    end?: IProgramFn;
+
+    /**
      * Workspace backend configuration
      * @type {Object}
      */
@@ -174,7 +180,9 @@ export interface IStackConfig<T = any, H = any> {
  * @description Interface for StackManager, exposing public properties and methods
  */
 export interface IStackManager {
-
+    /**
+     * Optional configuration options for stack management.
+     */
     readonly config?: IStackOptions;
 
     /**
@@ -212,7 +220,7 @@ export interface IStackManager {
     /**
      * Transforms component input configuration through variable processing
      * @param component - Component configuration containing input definitions
-     * @param output - Output context for variable resolution  
+     * @param output - Output context for variable resolution
      * @param key - Property key to process for input configuration
      * @returns Promise resolving to transformed input configuration object
      */
@@ -222,10 +230,20 @@ export interface IStackManager {
      * Transforms component setup configuration for stack initialization
      * @param component - Component configuration containing setup definitions
      * @param output - Output context for variable resolution
-     * @param key - Property key to process for setup configuration  
+     * @param key - Property key to process for setup configuration
      * @returns Promise resolving to transformed setup configuration object
      */
     transformSetup(options: ITransformOption): Promise<IStruct>;
+
+    /**
+     * Transforms component output configuration for resolving variables.
+     * @param {ITransformOption} options - Options containing output definitions, output context, and property key.
+     * @returns {Promise<{ items?: IStruct, warns?: IStruct }>} Promise resolving to an object containing:
+     * - `items`: Transformed output data.
+     * - `warns`: Warnings related to transformation, if applicable.
+     * @throws {Error} When transformation fails.
+     */
+    transformOutput(options: ITransformOption): Promise<{ items?: IStruct, warns?: IStruct }>;
 }
 
 /**
