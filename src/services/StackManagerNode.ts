@@ -28,6 +28,8 @@ export class StackManagerNode extends StackManager {
         try {
             config?.program instanceof Function && await config.program();
 
+            await this.output(config);
+
             this.logger?.debug({
                 flow: config.id,
                 category: VCategory.core.stack,
