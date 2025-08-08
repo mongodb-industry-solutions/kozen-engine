@@ -100,7 +100,7 @@ export class K8AwsEks extends BaseController {
         // This is handled by the eks.Cluster automatically
 
         // Node group configuration to match "Built-in node pools"
-        skipDefaultNodeGroup: false, // Create default node group
+        skipDefaultNodeGroup: true, // Create default node group
         instanceType: input?.instanceType || "t3.medium",
         desiredCapacity: input?.desiredCapacity || 2,
         minSize: input?.minSize || 1,
@@ -152,6 +152,17 @@ export class K8AwsEks extends BaseController {
       }, {
         provider: this.awsProvider,
       });
+
+      // Create a node group
+      const nodegroup = new eks.NodeGroup(`${resourcePrefix}-ng`, {
+        cluster: cluster,
+        nodeRole: nodeRole,
+        desiredCapacity: input?.desiredCapacity || 2,
+        minSize: input?.minSize || 1,
+        maxSize: input?.maxSize || 3,
+        instanceType: input?.instanceType || "t3.medium",
+        subnetIds: input?.privateSubnetIds,
+      }, { provider: this.awsProvider });
 
       // Add this after your cluster creation
       const accessEntry = new aws.eks.AccessEntry(`${resourcePrefix}-user-access`, {
