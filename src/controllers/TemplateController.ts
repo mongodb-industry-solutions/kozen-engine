@@ -213,34 +213,16 @@ export class TemplateController extends CLIController {
             const templates = await templateManager.list();
 
             this.logger?.info({
-                flow: this.getId({} as IConfig),
+                flow: this.getId(options as IConfig),
                 src: 'Controller:Template:list',
                 message: `📋 Retrieved ${templates.length} templates successfully.`,
                 data: { count: templates.length, format }
             });
 
-            // Format output based on requested format
-            if (format === 'json') {
-                console.log(JSON.stringify(templates, null, 2));
-            } else if (format === 'table') {
-                console.log('\nAvailable Templates:');
-                console.log('==================');
-                if (templates.length === 0) {
-                    console.log('No templates found.');
-                } else {
-                    templates.forEach((template, index) => {
-                        console.log(`${index + 1}. ${template}`);
-                    });
-                }
-                console.log(`\nTotal: ${templates.length} template(s)\n`);
-            } else {
-                templates.forEach(template => console.log(template));
-            }
-
             return templates;
         } catch (error) {
             this.logger?.error({
-                flow: this.getId({} as IConfig),
+                flow: this.getId(options as IConfig),
                 src: 'Controller:Template:list',
                 message: `❌ Failed to list templates: ${(error as Error).message}`
             });
