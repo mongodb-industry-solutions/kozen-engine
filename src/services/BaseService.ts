@@ -1,4 +1,4 @@
-import { ITransformOption } from "../models/Component";
+import { IOutputResult, ITransformOption } from "../models/Component";
 import { ILoggerService } from "../models/Logger";
 import { IProcessorService } from "../models/Processor";
 import { IStruct } from "../models/Types";
@@ -91,15 +91,17 @@ export class BaseService {
      * Transforms component input by processing variables through ProcessorService
      * @protected
      * @param {ITransformOption} options - Component containing input definitions
-     * @returns {Promise<{ items: IStruct, warns: IStruct }>} Promise resolving to processed input variables
+     * @returns {Promise<IOutputResult>} Promise resolving to processed input variables
      */
-    public async transformOutput(options: ITransformOption): Promise<{ items?: IStruct, warns?: IStruct }> {
-        const { component, key = "output", flow } = options;
+    public async transformOutput(options: ITransformOption): Promise<IOutputResult> {
+        let { component, key = "output", flow, output = {} } = options;
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
         const srvVar = await this.assistant.resolve<IProcessorService>('ProcessorService');
-        const meta = (srvVar && Array.isArray(component[key]) && await srvVar.map(component[key], flow));
+        const meta = (srvVar && Array.isArray(component[key]) && await srvVar.map(component[key], flow)) as IOutputResult;
+        output.items = { ...output.items, ...meta?.items };
+        output.warns = { ...output.warns, ...meta?.warns };
         return meta || {};
     }
 
