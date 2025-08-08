@@ -70,6 +70,7 @@ export class PipelineController extends CLIController {
    */
   public async fillout(args: string[] | ICLIArgs): Promise<IPipelineArgs> {
     let parsed: Partial<IPipelineArgs> = this.extract(args);
+    Array.isArray(args) && (parsed = { ...(await super.fillout(args)), ...parsed });
     parsed.template = parsed.template || process.env.KOZEN_TEMPLATE || '';
     return parsed as IPipelineArgs;
   }
@@ -90,6 +91,7 @@ export class PipelineController extends CLIController {
         data: {
           output: result?.output,
           action: result?.action,
+          errors: result?.errors || [],
           duration: Date.now() - startTime,
           template: result?.templateName,
           components: (result?.results?.length || 1) - 1
@@ -116,6 +118,7 @@ export class PipelineController extends CLIController {
         data: {
           output: result?.output,
           action: result?.action,
+          errors: result?.errors || [],
           duration: Date.now() - startTime,
           template: result?.templateName,
           components: (result?.results?.length || 1) - 1
@@ -142,6 +145,7 @@ export class PipelineController extends CLIController {
         data: {
           output: result?.output,
           action: result?.action,
+          errors: result?.errors || [],
           duration: Date.now() - startTime,
           template: result?.templateName,
           components: (result?.results?.length || 1) - 1
@@ -168,6 +172,7 @@ export class PipelineController extends CLIController {
         data: {
           output: result?.output,
           action: result?.action,
+          errors: result?.errors || [],
           duration: Date.now() - startTime,
           template: result?.templateName,
           components: (result?.results?.length || 1) - 1
