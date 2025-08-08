@@ -194,7 +194,19 @@ export class PipelineManager extends BaseService {
                     });
                 }
                 return configs?.output || {};
-            }
+            },
+            end: async () => {
+                let configs = null;
+                if (template.stack?.components) {
+                    configs = await this.process({
+                        pipeline,
+                        action: 'out',
+                        components: template.stack?.components,
+                        transform: (component, output) => stackAdm.transformOutput({ component, output, key: "output", flow: id })
+                    });
+                }
+                return configs?.output || {};
+            },
         });
         out.results = out.results || [];
 
