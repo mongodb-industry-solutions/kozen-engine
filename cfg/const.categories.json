@@ -7,7 +7,8 @@
     "cli": {
         "logger": "cli:logger",
         "pipeline": "cli:pipeline",
-        "secret": "cli:secret"
+        "secret": "cli:secret",
+        "tool": "cli:tool"
     },
     "test": {
         "e2e": "test:e2e",
