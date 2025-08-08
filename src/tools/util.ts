@@ -46,4 +46,4 @@ export class EnumUtl {
     static getValueFromName(target: any, name: string): number | undefined {
         return target[name as keyof typeof target]; // Type-safe lookup for numeric value
     }
-}  
+}
