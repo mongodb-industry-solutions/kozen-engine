@@ -19,24 +19,32 @@ export class LoggerController extends CLIController {
      * @public
      * @static
      */
-    public static displayHelp(): void {
+    public help(): void {
         console.log(`
-            MongoDB Secrets CLI
-            ===============================================================================
-            
-            Usage:
-            logger --type=<value> --flow=<value> --category=<value> --message=<value> --data=<key>
-            logger --type=<value> --flow=<value> --category=<value> --message=<value> --dataFromFIle=<path>
-            
-            Options:
-            --action=<action>   Action to perform: save, resolve
-            --key=<key>         Secret key (required)
-            --value=<value>     Secret value (required for save action)
-            
-            Examples:
-            secrets --action=save --key=API_KEY --value=my_super_secret
-            secrets --action=resolve --key=API_KEY
-            ===============================================================================
+===============================================================================
+Kozen Engine (Logger Manager Tool)
+===============================================================================
+
+Usage:
+    kozen --action=logger:log --type=<value> --flow=<value> --category=<value> --message=<value> --data=<key>
+    kozen --action=logger:log --type=<value> --flow=<value> --category=<value> --message=<value> --dataFromFIle=<path>
+
+Options:
+    --controller=logger             Set controller name as logger (required if not specified in the action)
+    --action=<[controller:]action>  Action to be performed within the Logger Manager tool. The possible values are:
+                                    - log: Insert or update the value of a logger
+
+    --flow=<key>                    Flow ID tracker (optional)
+    --message=<value>               Text message to log (required if data property not specified)
+    --data=<value>                  Data content (required if message property not specified)
+    --file=<value>                  Data content from file (required if message and data property not specified)
+    --category=<value>              Tag for classification purpose (optional)
+    --src=<value>                   Locator tag mainly use in the source code (optional)
+
+Examples:
+    kozen --action=logger:log --type=debug --flow=K2025080509533 --message="Checking data" --data=2345
+    kozen --action=log --controller=logger --type=error --file=/tmp/data.playwright.output.json
+===============================================================================
         `);
     }
 
@@ -46,13 +54,16 @@ export class LoggerController extends CLIController {
      * @param {string[]} args - Command line arguments array
      * @returns {ILogArgs} Parsed CLI arguments with defaults applied
      */
-    public async parseArguments(args: string[]): Promise<ILogArgs> {
+    public async fillout(args: string[]): Promise<ILogArgs> {
         let parsed: Partial<ILogArgs> = this.extract(args);
         parsed.level = parsed.level || 'debug';
         parsed.category = parsed.category || VCategory.cli.logger;
-        if (!parsed.data && parsed?.dataFromPath) {
-            let content = await readFrom(parsed.dataFromPath);
+        parsed.file = parsed?.file || process.env['KOZEN_LOG_FILE'];
+        parsed.level = parsed?.level || process.env['KOZEN_LOG_LEVEL'];
+        if (!parsed.data && parsed?.file) {
+            let content = await readFrom(parsed.file);
             parsed.data = JSONT.decode(content);
+            delete parsed['file'];
         }
         return parsed as ILogArgs;
     }
