@@ -143,15 +143,65 @@ export class TemplateController extends CLIController {
     }
 
     /**
+     * Deletes a template from the configured template storage backend
+     * Removes the template using the TemplateManager service with comprehensive error handling
+     * 
+     * @param {Object} options - Template deletion options
+     * @param {string} options.name - Unique identifier of the template to delete
+     * @returns {Promise<boolean>} Promise resolving to true if delete operation succeeds, false otherwise
+     * @throws {Error} When template manager resolution fails or deletion operation encounters errors
+     * @public
+     */
+    public async delete(options: { name: string }): Promise<boolean> {
+        try {
+            const { name } = options;
+
+            if (!name) {
+                throw new Error('Template name is required for delete operation');
+            }
+
+            const templateManager = await this.assistant?.resolve<ITemplateManager>('TemplateManager');
+            if (!templateManager) {
+                throw new Error('Failed to resolve TemplateManager service');
+            }
+
+            const result = await templateManager.delete(name);
+
+            if (result) {
+                this.logger?.info({
+                    flow: this.getId(options as unknown as IConfig),
+                    src: 'Controller:Template:delete',
+                    message: `✅ Template '${name}' deleted successfully.`
+                });
+            } else {
+                this.logger?.info({
+                    flow: this.getId(options as unknown as IConfig),
+                    src: 'Controller:Template:delete',
+                    message: `🔍 Template '${name}' not found or could not be deleted.`
+                });
+            }
+
+            return result;
+        } catch (error) {
+            this.logger?.error({
+                flow: this.getId(options as unknown as IConfig),
+                src: 'Controller:Template:delete',
+                message: `❌ Failed to delete template '${options.name}': ${(error as Error).message}`
+            });
+            return false;
+        }
+    }
+
+    /**
      * Lists available templates from the configured storage backend
-     * Retrieves template metadata and information for discovery purposes
+     * Retrieves template names and displays them in the requested format
      * 
      * @param {Object} [options] - Template listing options
      * @param {string} [options.format] - Output format (json, table, etc.)
-     * @returns {Promise<any[] | null>} Promise resolving to array of template metadata or null if operation fails
+     * @returns {Promise<string[] | null>} Promise resolving to array of template names or null if operation fails
      * @public
      */
-    public async list(options?: { format?: string }): Promise<any[] | null> {
+    public async list(options?: { format?: string }): Promise<string[] | null> {
         try {
             const { format = 'table' } = options || {};
 
@@ -160,15 +210,34 @@ export class TemplateController extends CLIController {
                 throw new Error('Failed to resolve TemplateManager service');
             }
 
-            // Note: This is a placeholder implementation as the current TemplateManager interface
-            // doesn't include a list method. In a real implementation, you would extend the interface.
+            const templates = await templateManager.list();
+
             this.logger?.info({
                 flow: this.getId({} as IConfig),
                 src: 'Controller:Template:list',
-                message: '📋 Template listing feature is not yet implemented in the current TemplateManager interface.'
+                message: `📋 Retrieved ${templates.length} templates successfully.`,
+                data: { count: templates.length, format }
             });
 
-            return [];
+            // Format output based on requested format
+            if (format === 'json') {
+                console.log(JSON.stringify(templates, null, 2));
+            } else if (format === 'table') {
+                console.log('\nAvailable Templates:');
+                console.log('==================');
+                if (templates.length === 0) {
+                    console.log('No templates found.');
+                } else {
+                    templates.forEach((template, index) => {
+                        console.log(`${index + 1}. ${template}`);
+                    });
+                }
+                console.log(`\nTotal: ${templates.length} template(s)\n`);
+            } else {
+                templates.forEach(template => console.log(template));
+            }
+
+            return templates;
         } catch (error) {
             this.logger?.error({
                 flow: this.getId({} as IConfig),
@@ -256,10 +325,15 @@ Available Actions:
                                     - Returns null if template not found
                                     - Requires --name parameter
     
-    list                            Display available templates (implementation pending)
-                                    - Shows template metadata and information
-                                    - Supports different output formats
-                                    - Useful for template discovery
+    delete                          Remove a template from storage backend
+                                    - Permanently deletes template data
+                                    - Cannot be undone once executed
+                                    - Requires --name parameter
+    
+    list                            Display available templates from storage
+                                    - Shows all template names in storage
+                                    - Supports different output formats (table, json)
+                                    - Useful for template discovery and management
     
     metadata                        Display template manager configuration
                                     - Shows current backend provider details
@@ -312,17 +386,26 @@ Examples:
     # Retrieve with specific format
     kozen --action=template:get --name=atlas.basic --format=json
     
+    # Delete a template permanently
+    kozen --action=template:delete --name=atlas.basic
+    
+    # List available templates in table format
+    kozen --action=template:list --format=table
+    
+    # List available templates in JSON format
+    kozen --action=template:list --format=json
+    
     # Alternative syntax with explicit controller
     kozen --controller=template --action=get --name=demo.template
     
     # Get template manager configuration details
     kozen --action=template:metadata
     
-    # List available templates
-    kozen --action=template:list --format=table
-    
     # Save template with environment separation
     kozen --action=template:save --name=prod.atlas --file=./prod-atlas.json --stack=production
+    
+    # Delete template with explicit controller syntax
+    kozen --controller=template --action=delete --name=old.template
     
     # Using environment variables for convenience
     export KOZEN_TM_NAME=my.template
