@@ -102,8 +102,8 @@ export interface ILoggerService {
  */
 export interface ILogArgs extends ICLIArgs, ILogEntry {
     /**
-     * 
+     * The path of the file containing the content of the data property
      * @type {string}
      */
-    dataFromPath?: string;
+    file?: string;
 }

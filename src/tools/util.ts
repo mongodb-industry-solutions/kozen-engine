@@ -25,3 +25,25 @@ export async function readFrom(path: string, opts?: { format?: string, error?: {
         Object.assign(error, err);
     }
 }
+
+export class EnumUtl {
+    /**
+     * Method to get the string name (key) from the numeric value
+     * @param {any} target
+     * @param {number} value
+     * @returns {string}
+     */
+    static getNameFromValue(target: any, value: number): string | undefined {
+        return target[value]; // Reverse mapping efficiently retrieves the name
+    }
+
+    /**
+     * Method to get the numeric value from the string name (key)
+     * @param {any} target
+     * @param {number} value
+     * @returns {string}
+     */
+    static getValueFromName(target: any, name: string): number | undefined {
+        return target[name as keyof typeof target]; // Type-safe lookup for numeric value
+    }
+}  
