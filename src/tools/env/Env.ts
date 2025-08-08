@@ -5,8 +5,36 @@ import path from "path";
 import { IEnvOptions, IShellVariables, JSONT } from "..";
 
 /**
- * A class to expose environment variables globally across processes and different operating systems.
- * Supports Windows, Linux, and macOS.
+ * @class Env
+ * @description Cross-platform environment variable management system for global inter-process communication.
+ * 
+ * The Env class provides a unified interface for exposing environment variables globally across
+ * different operating systems (Windows, Linux, macOS), ensuring persistence beyond the Node.js
+ * runtime and making variables accessible to other applications and processes.
+ * 
+ * Key features:
+ * - Cross-platform environment variable persistence
+ * - Automatic variable name and value sanitization
+ * - Configurable prefixing for namespace management
+ * - Support for both global and local variable scopes
+ * - Integration with shell profiles for Unix systems
+ * - Comprehensive logging and error handling
+ * 
+ * @example
+ * ```typescript
+ * const env = new Env({ prefix: 'MYAPP', logger: console });
+ * 
+ * // Expose variables globally
+ * await env.expose({
+ *   DATABASE_URL: 'mongodb://localhost:27017/mydb',
+ *   API_VERSION: '1.2.0'
+ * }, { flow: 'deployment-001' });
+ * 
+ * // Load from .env file
+ * env.load();
+ * ```
+ * 
+ * @implements {IEnv}
  */
 export class Env {
 
@@ -18,6 +46,26 @@ export class Env {
 
     private prefix: string;
 
+    /**
+     * Creates a new Env instance with configurable prefix and logging
+     * 
+     * @constructor
+     * @param {Object} [opts] - Configuration options for the environment manager
+     * @param {string} [opts.prefix] - Custom prefix for environment variables (defaults to KOZEN_ENV_PREFIX or 'KOZEN_PL')
+     * @param {Console} [opts.logger] - Logger instance for operation tracking
+     * 
+     * @example
+     * ```typescript
+     * // With default settings
+     * const env = new Env();
+     * 
+     * // With custom configuration
+     * const env = new Env({
+     *   prefix: 'MYAPP',
+     *   logger: console
+     * });
+     * ```
+     */
     constructor(opts?: { prefix?: string, logger?: Console }) {
         const { prefix, logger } = opts || {};
         this.prefix = prefix?.trim().toUpperCase() ?? process.env["KOZEN_ENV_PREFIX"] ?? "KOZEN_PL";
