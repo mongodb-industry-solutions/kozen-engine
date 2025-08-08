@@ -1,19 +1,31 @@
 /**
  * @fileoverview MongoDB Template Manager Service - MongoDB Implementation
- * MongoDB-specific implementation for loading infrastructure templates from MongoDB collections
- * @author MDB SAT
+ * MongoDB-specific implementation for loading and saving infrastructure templates 
+ * from MongoDB collections with secure connections and metadata management.
+ * 
+ * @author MongoDB Solution Assurance Team (SAT)
  * @since 1.0.4
- * @version 1.0.5
+ * @version 1.1.0
  */
 import { MongoClient } from "mongodb";
 import { ISecretManager } from "../models/Secret";
 import { ITemplateConfig } from "../models/Template";
+import { VCategory } from "../models/Types";
 import TemplateManager from "./TemplateManager";
 
 /**
  * @class TemplateManagerMDB
  * @extends TemplateManager
- * MongoDB implementation for template loading with secure URI resolution and connection management
+ * @description MongoDB implementation for template operations with secure URI resolution, 
+ * connection management, and comprehensive upsert operations.
+ * 
+ * This implementation provides:
+ * - Secure MongoDB connection with URI resolution through SecretManager
+ * - Template loading with document queries
+ * - Upsert operations for template persistence
+ * - Automatic metadata enrichment (timestamps, versioning)
+ * - Connection pooling and cleanup
+ * - Comprehensive error handling and logging
  */
 export class TemplateManagerMDB extends TemplateManager {
 
@@ -97,6 +109,99 @@ export class TemplateManagerMDB extends TemplateManager {
         if (this.client) {
             await this.client.close();
             this.client = null;
+        }
+    }
+
+    /**
+     * Saves a template to MongoDB collection with upsert operation and metadata enrichment
+     * @public
+     * @template T - The type of the template content to save
+     * @param {string} templateName - The name of the template document to save/update
+     * @param {T} content - Template content to persist in MongoDB
+     * @param {ITemplateConfig} [options] - Optional configuration override
+     * @returns {Promise<boolean>} Promise resolving to true if save operation succeeds, false otherwise
+     * @throws {Error} When template saving fails due to configuration, connection, or database errors
+     */
+    public async save<T = any>(templateName: string, content: T, options?: ITemplateConfig): Promise<boolean> {
+        try {
+            if (!this.assistant) {
+                throw new Error("Incorrect dependency injection configuration.");
+            }
+
+            const secret = await this.assistant.resolve<ISecretManager>(`SecretManager`) || null;
+            // Use provided options or fallback to the default options
+            options = options || this.options;
+
+            if (!options?.mdb || !secret) {
+                throw new Error("MongoDB configuration is missing or the secret manager is invalid.");
+            }
+
+            const { uri: uriKey, database, collection } = options.mdb;
+            const uri = await secret.resolve(uriKey, { flow: options.flow }) as string;
+
+            // Ensure MongoClient is initialized
+            await this.initializeClient(uri);
+
+            if (!this.client) {
+                throw new Error("Failed to connect to MongoDB.");
+            }
+
+            const db = this.client.db(database);
+            const templateCollection = db.collection(collection);
+
+            // Prepare template document with metadata
+            const templateDocument = {
+                ...content,
+                name: templateName,
+                lastModified: new Date(),
+                version: (content as any)?.version || '1.0.0',
+                createdAt: new Date() // Will be ignored on update due to $setOnInsert
+            };
+
+            // Use upsert with $set for updates and $setOnInsert for creation-only fields
+            const result = await templateCollection.updateOne(
+                { name: templateName },
+                {
+                    $set: {
+                        ...content,
+                        name: templateName,
+                        lastModified: new Date(),
+                        version: (content as any)?.version || '1.0.0'
+                    },
+                    $setOnInsert: {
+                        createdAt: new Date()
+                    }
+                },
+                { upsert: true }
+            );
+
+            this.logger?.info({
+                flow: options?.flow,
+                category: VCategory.core.template,
+                src: 'Service:TemplateManagerMDB:save',
+                message: result.upsertedCount > 0
+                    ? `Template '${templateName}' created successfully in MongoDB`
+                    : `Template '${templateName}' updated successfully in MongoDB`,
+                data: {
+                    templateName,
+                    matchedCount: result.matchedCount,
+                    modifiedCount: result.modifiedCount,
+                    upsertedCount: result.upsertedCount,
+                    acknowledged: result.acknowledged
+                }
+            });
+
+            return result.acknowledged;
+
+        } catch (error) {
+            this.logger?.error({
+                flow: options?.flow,
+                category: VCategory.core.template,
+                src: 'Service:TemplateManagerMDB:save',
+                message: `Failed to save template '${templateName}' in MongoDB: ${(error as Error).message}`,
+                data: { templateName, error: (error as Error).message }
+            });
+            throw new Error(`Failed to save template '${templateName}' to MongoDB: ${(error as Error).message}`);
         }
     }
 }

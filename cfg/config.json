@@ -161,8 +161,7 @@
             "enabled": true,
             "database": "kozen",
             "collection": "secrets",
-            "uri": "MDB_URI",
-            "level": "DEBUG"
+            "uri": "MDB_URI"
           }
         }
       ],
@@ -371,6 +370,24 @@
     },
     {
       "target": "SecretController",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../controllers",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "TemplateController",
       "type": "class",
       "lifetime": "transient",
       "path": "../../controllers",

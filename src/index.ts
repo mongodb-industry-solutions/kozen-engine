@@ -54,6 +54,7 @@ export { CLIController } from './controllers/CLIController';
 export { LoggerController } from './controllers/LoggerController';
 export { PipelineController } from './controllers/PipelineController';
 export { SecretController } from './controllers/SecretController';
+export { TemplateController } from './controllers/TemplateController';
 
 // IoC Container and Utilities
 export { Env } from './tools/env/Env';
@@ -66,6 +67,7 @@ export { IComponent, IComponentInput, IComponentOutput, ITransformFn } from './m
 export { ILogArgs, ILoggerService } from './models/Logger';
 export { IConfig, IPipelineArgs } from './models/Pipeline';
 export { ISecretArgs, ISecretManager } from './models/Secret';
+export { ITemplate, ITemplateArgs, ITemplateConfig, ITemplateManager } from './models/Template';
 export { IAction, ICLIArgs, IMetadata, IResult } from './models/Types';
 
 // Type definitions
