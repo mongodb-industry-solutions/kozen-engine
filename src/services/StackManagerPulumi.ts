@@ -187,14 +187,14 @@ export class StackManagerPulumi extends StackManager {
             this.driver = stack;
 
             await this.setup(stack, config);
-            await stack.refresh({
-                onOutput: (message: string) => this.logger?.info({
-                    flow: config.id,
-                    category: VCategory.core.stack,
-                    src: 'Service:Stack:Pulumi:load',
-                    message
-                })
-            })
+            // await stack.refresh({
+            //     onOutput: (message: string) => this.logger?.info({
+            //         flow: config.id,
+            //         category: VCategory.core.stack,
+            //         src: 'Service:Stack:Pulumi:load',
+            //         message
+            //     })
+            // })
             return stack;
 
         } catch (error) {
