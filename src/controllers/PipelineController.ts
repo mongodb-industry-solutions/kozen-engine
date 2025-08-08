@@ -14,7 +14,7 @@
  */
 import * as fs from 'fs';
 import { ILoggerService } from '../models/Logger';
-import { IPipelineArgs } from '../models/Pipeline';
+import { IConfig, IPipelineArgs } from '../models/Pipeline';
 import { IAction, ICLIArgs, IResult, VCategory } from '../models/Types';
 import { PipelineManager } from '../services/PipelineManager';
 import { IIoC } from '../tools';
@@ -74,10 +74,140 @@ export class PipelineController extends CLIController {
     return parsed as IPipelineArgs;
   }
 
-  public async init<T = ICLIArgs>(argv?: string[] | ICLIArgs): Promise<T> {
-    const args = await super.init<T>(argv);
+  public async init<T = ICLIArgs>(argv?: string[] | ICLIArgs): Promise<{ args?: T, config?: IConfig | null }> {
+    const { args, config } = await super.init<T>(argv);
     this.pipeline = await this.assistant?.resolve<PipelineManager>('PipelineManager');
-    return args as T;
+    return { args: args as T, config };
+  }
+
+  public async deploy(args: IPipelineArgs) {
+    try {
+      const startTime = Date.now();
+      const result = await this.pipeline?.deploy(args);
+      this.logger?.debug({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Deploy',
+        data: {
+          output: result?.output,
+          action: result?.action,
+          duration: Date.now() - startTime,
+          template: result?.templateName,
+          components: (result?.results?.length || 1) - 1
+        }
+      });
+      return result;
+    } catch (error) {
+      this.logger?.error({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:deploy',
+        message: `❌ Failed to perform action deploy: ${(error as Error).message}`
+      });
+      return null;
+    }
+  }
+
+  public async undeploy(args: IPipelineArgs) {
+    try {
+      const startTime = Date.now();
+      const result = await this.pipeline?.undeploy(args);
+      this.logger?.debug({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Undeploy',
+        data: {
+          output: result?.output,
+          action: result?.action,
+          duration: Date.now() - startTime,
+          template: result?.templateName,
+          components: (result?.results?.length || 1) - 1
+        }
+      });
+      return result;
+    } catch (error) {
+      this.logger?.error({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:undeploy',
+        message: `❌ Failed to perform action undeploy: ${(error as Error).message}`
+      });
+      return null;
+    }
+  }
+
+  public async destroy(args: IPipelineArgs) {
+    try {
+      const startTime = Date.now();
+      const result = await this.pipeline?.destroy(args);
+      this.logger?.debug({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Destroy',
+        data: {
+          output: result?.output,
+          action: result?.action,
+          duration: Date.now() - startTime,
+          template: result?.templateName,
+          components: (result?.results?.length || 1) - 1
+        }
+      });
+      return result;
+    } catch (error) {
+      this.logger?.error({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Destroy',
+        message: `❌ Failed to perform action destroy: ${(error as Error).message}`
+      });
+      return null;
+    }
+  }
+
+  public async status(args: IPipelineArgs) {
+    try {
+      const startTime = Date.now();
+      const result = await this.pipeline?.status(args);
+      this.logger?.debug({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Status',
+        data: {
+          output: result?.output,
+          action: result?.action,
+          duration: Date.now() - startTime,
+          template: result?.templateName,
+          components: (result?.results?.length || 1) - 1
+        }
+      });
+      return result;
+    } catch (error) {
+      this.logger?.error({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Status',
+        message: `❌ Failed to perform action status: ${(error as Error).message}`
+      });
+      return null;
+    }
+  }
+
+  public async validate(args: IPipelineArgs) {
+    try {
+      const startTime = Date.now();
+      const result = await this.pipeline?.validate(args);
+      this.logger?.debug({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Validate',
+        data: {
+          output: result?.output,
+          action: result?.action,
+          duration: Date.now() - startTime,
+          template: result?.templateName,
+          components: (result?.results?.length || 1) - 1
+        }
+      });
+      return result;
+    } catch (error) {
+      this.logger?.error({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Validate',
+        message: `❌ Failed to perform action validate: ${(error as Error).message}`
+      });
+      return null;
+    }
   }
 
   /**
