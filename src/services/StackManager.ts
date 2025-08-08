@@ -213,6 +213,24 @@ export class StackManager extends BaseService implements IStackManager {
         const { component, output = {}, key = "input", flow } = options;
         return await this.execute(this.config, "transformSetup", [{ component, output, key, flow }]);
     }
+
+    /**
+     * Sets up and configures a Pulumi stack with custom configuration
+     * @protected
+     * @param {Stack} stack - The Pulumi stack instance to configure
+     * @param {IStackOptions} config - Configuration options containing setup function and parameters
+     * @returns {Promise<Stack>} Promise resolving to the configured stack instance
+     * @throws {Error} When stack configuration fails or setup function encounters errors
+     */
+    protected async output(opts: IStackOptions, result?: IStruct): Promise<IStruct> {
+        // Configure the stack with the provided configuration
+        let { items, warns } = await this.transformOutput({ component: { setup: opts.output }, key: 'output', flow: opts.id });
+        let cmpOutput = {};
+        if (opts.end instanceof Function) {
+            cmpOutput = await opts.end();
+        }
+        return { items: { ...items }, warns: { ...warns } };
+    }
 }
 
 export default StackManager;
