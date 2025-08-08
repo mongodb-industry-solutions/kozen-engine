@@ -43,13 +43,9 @@ export class TemplateController extends CLIController {
      * @throws {Error} When template manager resolution fails or storage operation encounters errors
      * @public
      */
-    public async save(options: { name: string, content?: string, file?: string }): Promise<boolean> {
+    public async set(options: { name: string, content?: string, file?: string }): Promise<boolean> {
         try {
-            const { name, content, file } = options;
-
-            if (!name) {
-                throw new Error('Template name is required for save operation');
-            }
+            let { name, content, file } = options;
 
             let templateContent: any;
 
@@ -64,6 +60,14 @@ export class TemplateController extends CLIController {
                 templateContent = typeof content === 'string' ? JSON.parse(content) : content;
             } else {
                 throw new Error('Either content or file parameter is required for save operation');
+            }
+
+            if (!name && templateContent.name) {
+                name = templateContent.name;
+            }
+
+            if (!name) {
+                throw new Error('Template name is required for save operation');
             }
 
             const templateManager = await this.assistant?.resolve<ITemplateManager>('TemplateManager');
@@ -297,7 +301,7 @@ Core Options:
     --action=<[controller:]action>  Template management operation to perform:
 
 Available Actions:
-    save                            Store a new template or update existing one
+    set                             Store a new template or update existing one
                                     - Serializes template content automatically
                                     - Supports multiple backend providers
                                     - Requires --name and (--content or --file) parameters
