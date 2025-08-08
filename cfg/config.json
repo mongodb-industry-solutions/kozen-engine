@@ -151,7 +151,7 @@
       "path": "../../services",
       "args": [
         {
-          "type": "AWS",
+          "type": "MDB",
           "cloud": {
             "region": "us-east-1",
             "accessKeyId": "AWS_ACCESS_KEY_ID",
@@ -161,8 +161,7 @@
             "enabled": true,
             "database": "kozen",
             "collection": "secrets",
-            "uri": "MDB_URI",
-            "level": "DEBUG"
+            "uri": "MDB_URI"
           }
         }
       ],
@@ -226,6 +225,9 @@
       "type": "class",
       "lifetime": "singleton",
       "path": "../../services",
+      "args": [
+        null
+      ],
       "dependencies": [
         {
           "key": "assistant",
@@ -236,6 +238,17 @@
           "key": "logger",
           "target": "LoggerService",
           "type": "ref"
+        },
+        {
+          "key": "envSrv",
+          "target": "Env",
+          "type": "class",
+          "path": "../../tools/env",
+          "args": [
+            {
+              "prefix": ""
+            }
+          ]
         }
       ]
     },
@@ -302,6 +315,83 @@
           "target": "SecretManager",
           "type": "ref"
         },
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "LoggerController",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../controllers",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "PipelineController",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../controllers",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        },
+        {
+          "key": "pipeline",
+          "target": "PipelineManager",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "SecretController",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../controllers",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "TemplateController",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../controllers",
+      "dependencies": [
         {
           "key": "assistant",
           "target": "IoC",

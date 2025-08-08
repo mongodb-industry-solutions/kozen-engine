@@ -41,12 +41,16 @@ import { VCategory } from "../src/models/Types";
 
     // Check for help flag
     if (process.argv.includes('--help') || process.argv.includes('-h')) {
-      controller.displayUsage();
+      controller.help();
       process.exit(0);
     }
 
     // Get arguments
-    const args = controller.parseArguments(process.argv.slice(2));
+    const { args } = await controller.init(process.argv);
+
+    if (!args) {
+      throw new Error('Bad request');
+    }
 
     // Execute pipeline operation
     const result = await controller.execute(args);
@@ -60,6 +64,7 @@ import { VCategory } from "../src/models/Types";
     controller.log({
       flow: controller.getId(args),
       src: 'bin:Pipeline',
+      category: VCategory.cli.pipeline,
       message: resultMessage,
       data: {
         state: result.action,
@@ -70,13 +75,13 @@ import { VCategory } from "../src/models/Types";
   } catch (error) {
     console.error({
       src: 'bin:Pipeline',
-      category: VCategory.core.pipeline,
+      category: VCategory.cli.pipeline,
       message: 'Pipeline execution failed:' + (error instanceof Error ? error.message : String(error))
     });
     resultCode = 1;
   }
   finally {
-    await controller?.await();
+    await controller?.wait();
     process.exit(resultCode);
   }
 })();

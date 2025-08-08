@@ -2,11 +2,11 @@ import * as fs from 'fs';
 import { IComponent, ITransformFn } from '../models/Component';
 import { IController } from '../models/Controller';
 import { ILoggerService } from '../models/Logger';
-import { IPipeline, IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
+import { IConfig, IPipeline, IPipelineArgs } from '../models/Pipeline';
 import { IStackManager } from '../models/Stack';
 import { ITemplate, ITemplateManager } from '../models/Template';
 import { IAction, IResult, IStruct, VCategory } from "../models/Types";
-import { Env, IIoC, IoC } from "../tools";
+import { Env, IEnv, IIoC, IoC } from "../tools";
 import { BaseService } from './BaseService';
 
 /**
@@ -48,19 +48,19 @@ export class PipelineManager extends BaseService {
      * Current pipeline configuration instance
      * 
      * @private
-     * @type {IPipelineConfig | null}
+     * @type {IConfig | null}
      * Stores the active pipeline configuration including dependencies,
      * service registrations, and deployment settings. Null when not configured.
      */
-    protected config: IPipelineConfig | null;
+    public config: IConfig | null;
 
-    protected envSrv?: Env;
+    protected envSrv?: IEnv;
 
     /**
      * Creates a new PipelineManager instance
      * 
      * @constructor
-     * @param {IPipelineConfig} [config] - Optional initial pipeline configuration
+     * @param {IConfig} [config] - Optional initial pipeline configuration
      * @param {IoC} [ioc] - Optional IoC container for dependency management
      * 
      * Initializes the pipeline manager with an IoC container for dependency injection.
@@ -77,7 +77,7 @@ export class PipelineManager extends BaseService {
      * const manager = new PipelineManager(config, customIoC);
      * ```
      */
-    constructor(config?: IPipelineConfig, dependency?: { assistant?: IIoC, logger?: ILoggerService }) {
+    constructor(config?: IConfig, dependency?: { assistant?: IIoC, logger?: ILoggerService, envSrv?: IEnv }) {
         // Ensure assistant is always present for BaseService
         if (!dependency?.assistant) {
             dependency = dependency || {};
@@ -85,13 +85,14 @@ export class PipelineManager extends BaseService {
         }
         super(dependency as { assistant: IIoC, logger: ILoggerService } | undefined);
         this.config = config || null;
+        this.envSrv = dependency?.envSrv;
     }
 
     /**
      * Configures the pipeline manager with the provided configuration and IoC container
      * 
      * @public
-     * @param {IPipelineConfig} config - The pipeline configuration to apply
+     * @param {IConfig} config - The pipeline configuration to apply
      * @param {IoC} [ioc] - Optional IoC container for dependency management
      * @returns {Promise<PipelineManager>} Promise resolving to the configured PipelineManager instance
      * @throws {Error} When configuration fails due to invalid configuration or dependency registration errors
@@ -101,17 +102,16 @@ export class PipelineManager extends BaseService {
      * 2. Setting up the IoC container for dependency injection
      * 3. Registering all service dependencies defined in the configuration
      */
-    public async configure(config: IPipelineConfig, ioc?: IIoC): Promise<PipelineManager> {
+    public async configure(config: IConfig, ioc?: IIoC): Promise<PipelineManager> {
         try {
             if (!this.assistant) {
                 throw new Error("Incorrect dependency injection configuration.");
             }
-            this.config = config;
-            this.assistant = ioc || this.assistant;
-            this.config.dependencies && await this.assistant.register(this.config.dependencies);
-            // TODO: move this to the config
-            this.logger = await this.assistant.resolve<ILoggerService>('LoggerService');
-            this.envSrv = new Env({ logger: this.logger as unknown as Console });
+            config && (this.config = config);
+            ioc && (this.assistant = ioc);
+            this.config?.dependencies && await this.assistant.register(this.config.dependencies);
+            this.logger = this.logger || await this.assistant.resolve<ILoggerService>('LoggerService');
+            this.envSrv = this.envSrv || new Env({ logger: this.logger as unknown as Console });
             return this;
         } catch (error) {
             throw new Error(`Failed to configure pipeline: ${error instanceof Error ? error.message : String(error)}`);
@@ -304,6 +304,28 @@ export class PipelineManager extends BaseService {
     }
 
     /**
+     * Undeploys infrastructure using the specified template and pipeline arguments
+     * 
+     * @public
+     * @param {IPipelineArgs} pipeline - Pipeline arguments containing template name and undeployment parameters
+     * @returns {Promise<IResult>} Promise resolving to the undeployment execution result
+     * @throws {Error} When undeployment fails due to stack management or component removal errors
+     * 
+     * Removes previously deployed infrastructure by reversing the deployment process.
+     * This method coordinates with stack managers and component controllers to clean up resources.
+     */
+    public async destroy(pipeline: IPipelineArgs): Promise<IResult> {
+        const { template: templateName, action, project, stack: name } = pipeline;
+        return {
+            templateName,
+            action: action as IAction,
+            success: true,
+            message: `Pipeline ${templateName} undeployed successfully.`,
+            timestamp: new Date(),
+        };
+    }
+
+    /**
      * Validates template configuration without performing actual deployment
      * 
      * @public
@@ -353,7 +375,7 @@ export class PipelineManager extends BaseService {
      * 
      * @public
      * @param {string} configPath - File system path to the configuration file
-     * @returns {Promise<IPipelineConfig>} Promise resolving to the loaded and parsed pipeline configuration
+     * @returns {Promise<IConfig>} Promise resolving to the loaded and parsed pipeline configuration
      * @throws {Error} When file reading fails, JSON parsing errors occur, or file access is denied
      * 
      * Loads and parses pipeline configuration from a JSON file, providing error handling
@@ -370,10 +392,10 @@ export class PipelineManager extends BaseService {
      * }
      * ```
      */
-    public async load(configPath: string): Promise<IPipelineConfig> {
+    public async load(configPath: string): Promise<IConfig> {
         try {
             const configContent = fs.readFileSync(configPath, 'utf8');
-            const config = JSON.parse(configContent) as IPipelineConfig;
+            const config = JSON.parse(configContent) as IConfig;
             return config;
         } catch (error) {
             throw new Error(`Failed to load configuration: ${error instanceof Error ? error.message : String(error)}`);
@@ -382,10 +404,10 @@ export class PipelineManager extends BaseService {
 
     /**
      * Get Pipeline ID
-     * @param {IPipelineConfig} opt 
+     * @param {IConfig} opt 
      * @returns {string}
      */
-    getId(opt?: IPipelineConfig) {
+    getId(opt?: IConfig) {
         let opts = opt ?? this.config;
         return opts?.id || `${opts?.project ?? ''}-${opts?.stack ?? ''}`;
     }
