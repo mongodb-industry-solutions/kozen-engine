@@ -154,7 +154,7 @@ export interface IResult {
 }
 
 /**
- * Base CLI arguments interface for pipeline operations
+ * Base CLI arguments interface for CLI operations
  * @interface ICLIArgs
  */
 export interface ICLIArgs {
@@ -165,15 +165,22 @@ export interface ICLIArgs {
     help?: string;
 
     /**
-     * Configuration file path for pipeline settings
+     * Configuration file path for CLI settings
      * @type {string}
      */
     config?: string;
 
     /**
-     * Pipeline operation type to execute
+     * CLI operation type to execute. Supported actions: deploy, undeploy, validate, status
      * @type {string}
-     * Supported actions: deploy, undeploy, validate, status
      */
     action: string;
+
+    /**
+     * CLI controller to execute
+     * @type {string}
+     */
+    controller?: string;
+
+    [key: string]: any;
 }
