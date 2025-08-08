@@ -23,9 +23,9 @@ export type IStruct = Record<string, any>;
 
 /**
  * Pipeline action type definition for operation classification
- * @typedef {"deploy" | "undeploy" | "destroy" | "validate" | "status" | "save" | "resolve"} IAction
+ * @typedef {"deploy" | "undeploy" | "destroy" | "validate" | "status" } IAction
  */
-export type IAction = "deploy" | "undeploy" | "destroy" | "validate" | "status" | "save" | "resolve";
+export type IAction = "deploy" | "undeploy" | "destroy" | "validate" | "status";
 
 /**
  * Variable source type definition for value resolution strategies
@@ -151,4 +151,52 @@ export interface IResult {
      * @type {IStruct}
      */
     output?: IStruct;
+}
+
+/**
+ * Base CLI arguments interface for CLI operations
+ * @interface ICLIArgs
+ */
+export interface ICLIArgs {
+    /**
+     * Help action entry flag for displaying usage information
+     * @type {string}
+     */
+    help?: string;
+
+    /**
+     * Configuration file path for CLI settings
+     * @type {string}
+     */
+    config?: string;
+
+    /**
+     * CLI operation type to execute. Supported actions: deploy, undeploy, validate, status
+     * @type {string}
+     */
+    action: string;
+
+    /**
+     * CLI controller to execute
+     * @type {string}
+     */
+    controller?: string;
+
+    /**
+     * Optional unique stack identifier for environment isolation
+     * @type {string}
+     */
+    stack?: string;
+
+    /**
+     * Optional project organization name for resource grouping
+     * @type {string}
+     */
+    project?: string;
+
+    /**
+     * Optional extra properties
+     * @type {any}
+     */
+    [key: string]: any;
 }

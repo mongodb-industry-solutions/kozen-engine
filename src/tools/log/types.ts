@@ -20,7 +20,7 @@ export type ILogOutputType = 'json' | 'object';
  */
 export interface ILogEntry {
   level?: string | ILogLevel;  // Log level as string (ERROR, WARN, DEBUG, INFO, VERBOSE)
-  message: string;          // The main log message
+  message?: string;          // The main log message
   date?: string;            // ISO timestamp when the log was created (renamed from timestamp for readability)
   flow?: string;            // Unique workflow/process identifier in format YYYYMMDDDHHMMSSXX
   category?: string;        // Optional category/module name to identify the source of the log

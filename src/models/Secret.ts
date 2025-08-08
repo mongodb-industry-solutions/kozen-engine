@@ -7,6 +7,7 @@
  */
 
 import { Binary } from "mongodb";
+import { ICLIArgs } from "./Types";
 
 /**
  * Configuration interface for secret management backend
@@ -136,4 +137,23 @@ export interface ISecretManager {
      * @throws {Error} When secret storage fails
      */
     save(key: string, value: string | Binary, options?: ISecretManagerOptions): Promise<boolean>;
-}  
+}
+
+/**
+ * Secret management CLI arguments interface
+ * @interface ISecretArgs
+ * @extends ICLIArgs
+ */
+export interface ISecretArgs extends ICLIArgs {
+    /**
+     * Secret key identifier for storage and retrieval operations
+     * @type {string}
+     */
+    key?: string;
+
+    /**
+     * Secret value content for storage operations
+     * @type {string}
+     */
+    value?: string;
+}

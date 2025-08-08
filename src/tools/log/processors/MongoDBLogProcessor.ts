@@ -51,10 +51,10 @@ export class MongoDBLogProcessor extends LogProcessor {
     // For this demo, we'll simulate the operation
     const mongoDocument = {
       ...entry,
+      // database: this.database,
+      // collection: this.collection,
       levelNumeric: level,
-      database: this.database,
-      collection: this.collection,
-      storedAt: new Date().toISOString()
+      createdAt: new Date().toISOString()
     };
 
     try {
