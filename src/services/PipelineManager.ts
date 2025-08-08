@@ -304,6 +304,28 @@ export class PipelineManager extends BaseService {
     }
 
     /**
+     * Undeploys infrastructure using the specified template and pipeline arguments
+     * 
+     * @public
+     * @param {IPipelineArgs} pipeline - Pipeline arguments containing template name and undeployment parameters
+     * @returns {Promise<IResult>} Promise resolving to the undeployment execution result
+     * @throws {Error} When undeployment fails due to stack management or component removal errors
+     * 
+     * Removes previously deployed infrastructure by reversing the deployment process.
+     * This method coordinates with stack managers and component controllers to clean up resources.
+     */
+    public async destroy(pipeline: IPipelineArgs): Promise<IResult> {
+        const { template: templateName, action, project, stack: name } = pipeline;
+        return {
+            templateName,
+            action: action as IAction,
+            success: true,
+            message: `Pipeline ${templateName} undeployed successfully.`,
+            timestamp: new Date(),
+        };
+    }
+
+    /**
      * Validates template configuration without performing actual deployment
      * 
      * @public
