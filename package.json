@@ -9,7 +9,7 @@
     "scripts": {
         "build": "tsc",
         "start": "node dist/bin/pipeline.js",
-        "help": "ts-node bin/pipeline.ts --help",
+        "help": "ts-node bin/kozen.ts --action=help",
         "dev": "ts-node bin/pipeline.ts",
         "kozen": "ts-node bin/kozen.ts",
         "secret": "ts-node bin/kozen.ts --controller=secret",

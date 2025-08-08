@@ -18,32 +18,19 @@ import { ICLIArgs } from "./Types";
  * @extends ICLIArgs
  */
 export interface IPipelineArgs extends ICLIArgs {
-
   /**
    * Infrastructure template name for deployment operations
    * @type {string}
    */
   template?: string;
-
-  /**
-   * Optional unique stack identifier for environment isolation
-   * @type {string}
-   */
-  stack?: string;
-
-  /**
-   * Optional project organization name for resource grouping
-   * @type {string}
-   */
-  project?: string;
 }
 
 /**
- * Pipeline configuration interface for deployment management
- * @interface IPipelineConfig
+ * Kozen configuration interface for deployment management
+ * @interface IConfig
  * @extends IPipelineArgs
  */
-export interface IPipelineConfig extends IPipelineArgs {
+export interface IConfig extends IPipelineArgs {
 
   /**
    * Unique pipeline instance identifier for tracking and logging
