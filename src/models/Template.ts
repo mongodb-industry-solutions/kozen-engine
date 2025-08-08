@@ -213,4 +213,21 @@ export interface ITemplateManager {
      * @throws {Error} When template saving fails due to configuration issues, network problems, or storage errors
      */
     save<T = any>(templateName: string, content: T, options?: ITemplateConfig): Promise<boolean>;
+
+    /**
+     * Deletes a template from the configured storage backend
+     * @param {string} templateName - Name of the template to delete
+     * @param {ITemplateConfig} [options] - Optional configuration override for this operation
+     * @returns {Promise<boolean>} Promise resolving to true if delete operation succeeds, false otherwise
+     * @throws {Error} When template deletion fails due to configuration issues, network problems, or storage errors
+     */
+    delete(templateName: string, options?: ITemplateConfig): Promise<boolean>;
+
+    /**
+     * Lists available templates from the configured storage backend
+     * @param {ITemplateConfig} [options] - Optional configuration override for this operation
+     * @returns {Promise<string[]>} Promise resolving to array of template names
+     * @throws {Error} When template listing fails due to configuration issues, network problems, or storage errors
+     */
+    list(options?: ITemplateConfig): Promise<string[]>;
 }  

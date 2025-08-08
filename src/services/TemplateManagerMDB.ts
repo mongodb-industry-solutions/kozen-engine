@@ -204,6 +204,141 @@ export class TemplateManagerMDB extends TemplateManager {
             throw new Error(`Failed to save template '${templateName}' to MongoDB: ${(error as Error).message}`);
         }
     }
+
+    /**
+     * Deletes a template from MongoDB collection by name
+     * @public
+     * @param {string} templateName - The name of the template document to delete
+     * @param {ITemplateConfig} [options] - Optional configuration override
+     * @returns {Promise<boolean>} Promise resolving to true if delete operation succeeds, false otherwise
+     * @throws {Error} When template deletion fails due to configuration, connection, or database errors
+     */
+    public async delete(templateName: string, options?: ITemplateConfig): Promise<boolean> {
+        try {
+            if (!this.assistant) {
+                throw new Error("Incorrect dependency injection configuration.");
+            }
+
+            const secret = await this.assistant.resolve<ISecretManager>(`SecretManager`) || null;
+            // Use provided options or fallback to the default options
+            options = options || this.options;
+
+            if (!options?.mdb || !secret) {
+                throw new Error("MongoDB configuration is missing or the secret manager is invalid.");
+            }
+
+            const { uri: uriKey, database, collection } = options.mdb;
+            const uri = await secret.resolve(uriKey, { flow: options.flow }) as string;
+
+            // Ensure MongoClient is initialized
+            await this.initializeClient(uri);
+
+            if (!this.client) {
+                throw new Error("Failed to connect to MongoDB.");
+            }
+
+            const db = this.client.db(database);
+            const templateCollection = db.collection(collection);
+
+            // Delete the template document
+            const result = await templateCollection.deleteOne({ name: templateName });
+
+            this.logger?.info({
+                flow: options?.flow,
+                category: VCategory.core.template,
+                src: 'Service:TemplateManagerMDB:delete',
+                message: result.deletedCount > 0 
+                    ? `Template '${templateName}' deleted successfully from MongoDB`
+                    : `Template '${templateName}' not found in MongoDB`,
+                data: {
+                    templateName,
+                    deletedCount: result.deletedCount,
+                    acknowledged: result.acknowledged
+                }
+            });
+
+            return result.acknowledged && result.deletedCount > 0;
+
+        } catch (error) {
+            this.logger?.error({
+                flow: options?.flow,
+                category: VCategory.core.template,
+                src: 'Service:TemplateManagerMDB:delete',
+                message: `Failed to delete template '${templateName}' from MongoDB: ${(error as Error).message}`,
+                data: { templateName, error: (error as Error).message }
+            });
+            throw new Error(`Failed to delete template '${templateName}' from MongoDB: ${(error as Error).message}`);
+        }
+    }
+
+    /**
+     * Lists all available templates from MongoDB collection
+     * @public
+     * @param {ITemplateConfig} [options] - Optional configuration override
+     * @returns {Promise<string[]>} Promise resolving to array of template names
+     * @throws {Error} When template listing fails due to configuration, connection, or database errors
+     */
+    public async list(options?: ITemplateConfig): Promise<string[]> {
+        try {
+            if (!this.assistant) {
+                throw new Error("Incorrect dependency injection configuration.");
+            }
+
+            const secret = await this.assistant.resolve<ISecretManager>(`SecretManager`) || null;
+            // Use provided options or fallback to the default options
+            options = options || this.options;
+
+            if (!options?.mdb || !secret) {
+                throw new Error("MongoDB configuration is missing or the secret manager is invalid.");
+            }
+
+            const { uri: uriKey, database, collection } = options.mdb;
+            const uri = await secret.resolve(uriKey, { flow: options.flow }) as string;
+
+            // Ensure MongoClient is initialized
+            await this.initializeClient(uri);
+
+            if (!this.client) {
+                throw new Error("Failed to connect to MongoDB.");
+            }
+
+            const db = this.client.db(database);
+            const templateCollection = db.collection(collection);
+
+            // Query all templates and return only the names
+            const templates = await templateCollection
+                .find({}, { projection: { name: 1, _id: 0 } })
+                .sort({ name: 1 })
+                .toArray();
+
+            const templateNames = templates
+                .map(template => template.name)
+                .filter(name => name); // Filter out any null/undefined names
+
+            this.logger?.info({
+                flow: options?.flow,
+                category: VCategory.core.template,
+                src: 'Service:TemplateManagerMDB:list',
+                message: `Retrieved ${templateNames.length} templates from MongoDB`,
+                data: {
+                    count: templateNames.length,
+                    templates: templateNames.slice(0, 10) // Log first 10 for brevity
+                }
+            });
+
+            return templateNames;
+
+        } catch (error) {
+            this.logger?.error({
+                flow: options?.flow,
+                category: VCategory.core.template,
+                src: 'Service:TemplateManagerMDB:list',
+                message: `Failed to list templates from MongoDB: ${(error as Error).message}`,
+                data: { error: (error as Error).message }
+            });
+            throw new Error(`Failed to list templates from MongoDB: ${(error as Error).message}`);
+        }
+    }
 }
 
 export default TemplateManagerMDB;
