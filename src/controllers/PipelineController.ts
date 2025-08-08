@@ -11,32 +11,14 @@
  * @author IaC Pipeline Team
  * @since 1.0.4
  * @version 1.0.5
- * 
- * @example
- * ```typescript
- * // Basic CLI bridge usage
- * const controller = new PipelineController();
- * 
- * // Parse command line arguments
- * const args = controller.parseArguments(process.argv.slice(2));
- * 
- * // Execute pipeline operation
- * const result = await controller.execute(args);
- * 
- * if (result.success) {
- *   console.log('✅ Operation completed successfully');
- *   process.exit(0);
- * } else {
- *   console.error('❌ Operation failed:', result.errors);
- *   process.exit(1);
- * }
- * ```
  */
 import * as fs from 'fs';
-import { IPipelineArgs, IPipelineConfig } from '../models/Pipeline';
-import { IAction, IResult, VCategory } from '../models/Types';
+import { ILoggerService } from '../models/Logger';
+import { IConfig, IPipelineArgs } from '../models/Pipeline';
+import { IAction, ICLIArgs, IResult, VCategory } from '../models/Types';
 import { PipelineManager } from '../services/PipelineManager';
-import { getID, ILogInput, ILogLevel } from '../tools';
+import { IIoC } from '../tools';
+import { CLIController } from './CLIController';
 
 /**
  * @class PipelineController
@@ -47,77 +29,242 @@ import { getID, ILogInput, ILogLevel } from '../tools';
  * The controller abstracts the complexity of CLI argument parsing, configuration loading,
  * and service coordination, enabling clean separation between user interface concerns and
  * business logic implementation.
- * 
+ *
  * @example
  * ```typescript
  * // Initialize with custom pipeline manager
  * const customPipeline = new PipelineManager(config, customIoC);
  * const controller = new PipelineController(customPipeline);
- * 
+ *
  * // Process CLI arguments and execute
  * const args = controller.parseArguments(['--template=atlas.basic', '--action=deploy']);
  * const result = await controller.execute(args);
  * ```
  */
-export class PipelineController {
+export class PipelineController extends CLIController {
 
   /**
    * Pipeline manager service instance
-   * 
+   *
    * @private
    * @type {PipelineManager}
    */
-  private pipeline: PipelineManager;
+  public pipeline?: PipelineManager;
 
   /**
    * Creates a new PipelineController instance
-   * 
+   *
    * @constructor
    * @param {PipelineManager} pipeline - Optional pipeline manager instance
    */
-  constructor(pipeline?: PipelineManager) {
-    this.pipeline = pipeline || new PipelineManager();
+  constructor(dependency?: { assistant: IIoC, logger: ILoggerService, pipeline?: PipelineManager }) {
+    super(dependency);
+    this.pipeline = dependency?.pipeline;
   }
 
   /**
-   * Extracts key-value pairs from CLI argument string
-   * @protected
-   * @param {string} arg - Single CLI argument in --key=value format
-   * @returns {{ key: string, value: string } | null} Parsed key-value pair or null if invalid format
+   * Parses and processes command line arguments specific to pipeline operations
+   * Extends base argument parsing with pipeline-specific defaults like template configuration
+   * 
+   * @param {string[] | ICLIArgs} args - Raw command line arguments array or pre-parsed arguments
+   * @returns {Promise<IPipelineArgs>} Promise resolving to structured pipeline arguments with defaults applied
+   * @public
    */
-  protected extract(arg: string): { key: string, value: string } | null {
-    // Define a regular expression to match "--key=value"
-    const argRegex = /^--([a-zA-Z0-9]+)=(.*)$/;
-    const match = arg.match(argRegex);
-    if (!match) {
+  public async fillout(args: string[] | ICLIArgs): Promise<IPipelineArgs> {
+    let parsed: Partial<IPipelineArgs> = this.extract(args);
+    Array.isArray(args) && (parsed = { ...(await super.fillout(args)), ...parsed });
+    parsed.template = parsed.template || process.env.KOZEN_TEMPLATE || '';
+    return parsed as IPipelineArgs;
+  }
+
+  /**
+   * Initializes the pipeline controller by parsing arguments, loading configuration, and resolving the pipeline manager
+   * Extends base initialization to include pipeline manager service resolution
+   * 
+   * @template T - Type of arguments to return, defaults to ICLIArgs
+   * @param {string[] | ICLIArgs} [argv] - Command line arguments or pre-parsed arguments
+   * @returns {Promise<{args?: T, config?: IConfig | null}>} Promise resolving to parsed arguments and loaded configuration
+   * @throws {Error} When pipeline manager resolution fails or configuration loading errors occur
+   * @public
+   */
+  public async init<T = ICLIArgs>(argv?: string[] | ICLIArgs): Promise<{ args?: T, config?: IConfig | null }> {
+    const { args, config } = await super.init<T>(argv);
+    this.pipeline = await this.assistant?.resolve<PipelineManager>('PipelineManager');
+    return { args: args as T, config };
+  }
+
+  /**
+   * Executes infrastructure deployment using the specified pipeline template
+   * Deploys all components defined in the template and tracks execution metrics
+   * 
+   * @param {IPipelineArgs} args - Pipeline deployment arguments including template and configuration
+   * @returns {Promise<IResult | null>} Promise resolving to deployment result or null if deployment fails
+   * @public
+   */
+  public async deploy(args: IPipelineArgs) {
+    try {
+      const startTime = Date.now();
+      const result = await this.pipeline?.deploy(args);
+      this.logger?.debug({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Deploy',
+        data: {
+          output: result?.output,
+          action: result?.action,
+          errors: result?.errors || [],
+          duration: Date.now() - startTime,
+          template: result?.templateName,
+          components: (result?.results?.length || 1) - 1
+        }
+      });
+      return result;
+    } catch (error) {
+      this.logger?.error({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:deploy',
+        message: `❌ Failed to perform action deploy: ${(error as Error).message}`
+      });
       return null;
     }
-    // Destructure the captured groups
-    const [, key, value] = match;
-    return { key, value };
   }
 
   /**
-   * Parses command line arguments into structured format
+   * Stops and removes active pipeline resources without deleting their definitions
+   * Gracefully shuts down deployed components while preserving configuration
+   * 
+   * @param {IPipelineArgs} args - Pipeline undeployment arguments including template and configuration
+   * @returns {Promise<IResult | null>} Promise resolving to undeployment result or null if operation fails
    * @public
-   * @param {string[]} args - Command line arguments array
-   * @returns {IPipelineArgs} Parsed CLI arguments with defaults applied
    */
-  public parseArguments(args: string[]): IPipelineArgs {
-    const parsed: Partial<IPipelineArgs> = {};
-
-    for (const arg of args) {
-      let meta = this.extract(arg);
-      meta && (parsed[meta?.key as keyof IPipelineArgs] = meta?.value);
+  public async undeploy(args: IPipelineArgs) {
+    try {
+      const startTime = Date.now();
+      const result = await this.pipeline?.undeploy(args);
+      this.logger?.debug({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Undeploy',
+        data: {
+          output: result?.output,
+          action: result?.action,
+          errors: result?.errors || [],
+          duration: Date.now() - startTime,
+          template: result?.templateName,
+          components: (result?.results?.length || 1) - 1
+        }
+      });
+      return result;
+    } catch (error) {
+      this.logger?.error({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:undeploy',
+        message: `❌ Failed to perform action undeploy: ${(error as Error).message}`
+      });
+      return null;
     }
+  }
 
-    return {
-      stack: (parsed.stack || process.env.KOZEN_STACK || process.env["NODE_ENV"] || 'dev').toUpperCase(),
-      project: parsed.project || process.env.KOZEN_PROJECT || getID(),
-      template: parsed.template || process.env.KOZEN_TEMPLATE || '',
-      config: parsed.config || process.env.KOZEN_CONFIG || 'cfg/config.json',
-      action: parsed.action || (process.env.KOZEN_ACTION as IAction) || 'deploy'
-    };
+  /**
+   * Permanently destroys pipeline resources and their definitions
+   * Completely removes all components, data, and configuration from the deployment
+   * 
+   * @param {IPipelineArgs} args - Pipeline destruction arguments including template and configuration
+   * @returns {Promise<IResult | null>} Promise resolving to destruction result or null if operation fails
+   * @public
+   */
+  public async destroy(args: IPipelineArgs) {
+    try {
+      const startTime = Date.now();
+      const result = await this.pipeline?.destroy(args);
+      this.logger?.debug({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Destroy',
+        data: {
+          output: result?.output,
+          action: result?.action,
+          errors: result?.errors || [],
+          duration: Date.now() - startTime,
+          template: result?.templateName,
+          components: (result?.results?.length || 1) - 1
+        }
+      });
+      return result;
+    } catch (error) {
+      this.logger?.error({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Destroy',
+        message: `❌ Failed to perform action destroy: ${(error as Error).message}`
+      });
+      return null;
+    }
+  }
+
+  /**
+   * Checks the current operational status and health of pipeline resources
+   * Provides detailed information about component states and system health
+   * 
+   * @param {IPipelineArgs} args - Pipeline status check arguments including template and configuration
+   * @returns {Promise<IResult | null>} Promise resolving to status information or null if check fails
+   * @public
+   */
+  public async status(args: IPipelineArgs) {
+    try {
+      const startTime = Date.now();
+      const result = await this.pipeline?.status(args);
+      this.logger?.debug({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Status',
+        data: {
+          output: result?.output,
+          action: result?.action,
+          errors: result?.errors || [],
+          duration: Date.now() - startTime,
+          template: result?.templateName,
+          components: (result?.results?.length || 1) - 1
+        }
+      });
+      return result;
+    } catch (error) {
+      this.logger?.error({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Status',
+        message: `❌ Failed to perform action status: ${(error as Error).message}`
+      });
+      return null;
+    }
+  }
+
+  /**
+   * Validates pipeline configuration and ensures resources are correctly defined
+   * Performs comprehensive checks without deploying actual infrastructure
+   * 
+   * @param {IPipelineArgs} args - Pipeline validation arguments including template and configuration
+   * @returns {Promise<IResult | null>} Promise resolving to validation result or null if validation fails
+   * @public
+   */
+  public async validate(args: IPipelineArgs) {
+    try {
+      const startTime = Date.now();
+      const result = await this.pipeline?.validate(args);
+      this.logger?.debug({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Validate',
+        data: {
+          output: result?.output,
+          action: result?.action,
+          duration: Date.now() - startTime,
+          template: result?.templateName,
+          components: (result?.results?.length || 1) - 1
+        }
+      });
+      return result;
+    } catch (error) {
+      this.logger?.error({
+        flow: this.getId(args as unknown as IConfig),
+        src: 'Controller:Pipeline:Validate',
+        message: `❌ Failed to perform action validate: ${(error as Error).message}`
+      });
+      return null;
+    }
   }
 
   /**
@@ -153,27 +300,21 @@ export class PipelineController {
     try {
       // Validate arguments
       this.validateArguments(args);
-      this.pipeline.logger?.info({
+      this.pipeline?.logger?.info({
         flow: this.getId(args),
-        category: VCategory.core.pipeline,
+        category: VCategory.cli.pipeline,
         src: 'Controller:Pipeline:Init',
         message: `Executing ${args.action} operation for template: ${args.template}`
       });
 
       // Load configuration
-      const config = args?.config && await this.pipeline.load(args.config);
+      const config = args?.config && await this.pipeline?.load(args.config);
       if (!config) {
         throw new Error(`Configuration file not found: ${args.config}`);
       }
 
-      // Apply default values if not specified
-      this.applyConfigDefaults(config, args);
-
-      // Validate configuration structure
-      this.validateConfiguration(config);
-
       // Configure pipeline manager
-      await this.pipeline.configure(config);
+      await this.pipeline?.configure(config);
 
       // Execute the requested action
       const method = (this.pipeline as any)[args.action];
@@ -186,9 +327,9 @@ export class PipelineController {
 
       // Log execution result
       if (result.success) {
-        this.pipeline.logger?.debug({
+        this.pipeline?.logger?.debug({
           flow: config.id,
-          category: VCategory.core.pipeline,
+          category: VCategory.cli.pipeline,
           src: 'Controller:Pipeline:End',
           message: `✅ ${result.action} operation completed successfully in ${duration} ms`,
           data: {
@@ -201,9 +342,9 @@ export class PipelineController {
           }
         })
       } else {
-        this.pipeline.logger?.error({
+        this.pipeline?.logger?.error({
           flow: this.getId(args),
-          category: VCategory.core.pipeline,
+          category: VCategory.cli.pipeline,
           src: 'Controller:Pipeline:End',
           message: `❌ ${result.action} operation failed after ${duration} ms`,
           data: {
@@ -225,9 +366,9 @@ export class PipelineController {
       const exeEnd = performance.now();
       const duration = (exeEnd - exeStart).toFixed(3);
 
-      this.pipeline.logger?.error({
+      this.pipeline?.logger?.error({
         flow: this.getId(args),
-        category: VCategory.core.pipeline,
+        category: VCategory.cli.pipeline,
         src: 'Controller:Pipeline:Execute',
         message: `Pipeline execution failed: ${errorMessage} in ${duration} ms`,
         data: {
@@ -249,101 +390,98 @@ export class PipelineController {
   }
 
   /**
-   * Displays CLI usage information and command examples
+   * Displays comprehensive CLI usage information and command examples for pipeline operations
+   * Shows available templates, actions, and detailed usage patterns for infrastructure management
+   * 
+   * @returns {void}
    * @public
    */
-  public displayUsage(): void {
+  public help(): void {
     console.log(`
-Kozen Pipeline CLI
-=============================================================================
+===============================================================================
+Kozen Engine (Pipeline Manager Tool)
+===============================================================================
+
+Description:
+    Deploy, manage, and orchestrate dynamic infrastructure and testing pipelines.
+    Execute Infrastructure as Code (IaC) operations with automated testing,
+    data collection, and comprehensive monitoring across multiple cloud providers.
 
 Usage:
-  pipeline --template=<template-name> --config=<config-file> --action=<action> --project=<id> --stack=<id>
+    kozen --action=pipeline:<action> --template=<name> [options]
+    kozen --controller=pipeline --action=<action> --template=<name> [options]
 
-Options:
-  --template=<n>    Template name to use (required)
-  --stack=<id>         Environment identifier (optional) (default: autogenerated, e.g., 'dev')
-  --project=<id>       Project identifier (optional) (default: autogenerated, e.g., 'K2025071525')
-  --config=<file>      Configuration file path (optional) (default: cfg/config.json)
-  --action=<action>    Action to perform: deploy, undeploy, validate, status (optional) (default: deploy)
+Core Options:
+    --stack=<id>                    Environment identifier (dev, test, staging, prod)
+                                    (default: from NODE_ENV or 'dev')
+    --project=<id>                  Project identifier for resource organization
+                                    (default: auto-generated timestamp ID)
+    --config=<file>                 Configuration file path containing service definitions
+                                    (default: cfg/config.json)
+    --controller=pipeline           Explicitly set controller to pipeline
+    --template=<name>               Template name for pipeline execution (REQUIRED)
+                                    Examples: atlas.basic, k8s.standard, demo
+    --action=<[controller:]action>  Pipeline operation to perform:
+
+Available Actions:
+    deploy                          Provision and launch all pipeline resources
+                                    - Creates infrastructure components
+                                    - Executes testing workflows
+                                    - Collects deployment metrics
+    
+    undeploy                        Gracefully stop active resources
+                                    - Stops running services
+                                    - Preserves data and configuration
+                                    - Maintains resource definitions
+    
+    destroy                         Permanently remove all pipeline resources
+                                    - Deletes infrastructure components
+                                    - Removes all data and configurations
+                                    - Cleans up cloud provider resources
+    
+    validate                        Verify pipeline configuration and readiness
+                                    - Checks template syntax and dependencies
+                                    - Validates cloud provider credentials
+                                    - Ensures all prerequisites are met
+    
+    status                          Check current pipeline and resource health
+                                    - Reports component operational status
+                                    - Shows resource utilization metrics
+                                    - Identifies configuration drift
 
 Environment Variables:
-  TEMPLATE             Template name
-  CONFIG               Configuration file path
-  ACTION               Action to perform
+    KOZEN_CONFIG                    Default value assigned to the --config property
+    KOZEN_ACTION                    Default value assigned to the --action property
+    KOZEN_STACK                     Default value assigned to the --stack property
+    KOZEN_PROJECT                   Default value assigned to the --project property
+
+    KOZEN_TEMPLATE                  Default value assigned to the --stack property
+
+Common Templates:
+    atlas.basic                     MongoDB Atlas cluster deployment
+    k8s.standard                    Standard Kubernetes application deployment
+    demo                            Demo pipeline with testing components
+    ops.manager                     MongoDB Ops Manager deployment
 
 Examples:
-  pipeline --template=atlas.basic --config=cfg/config.json --action=deploy --project=K2025071525  --stack=production
-  pipeline --template=ops.manager --config=cfg/production.json --action=undeploy --project=K2025071525
-  pipeline --template=k8s.standard --action=validate
-  pipeline --template=k8s.standard --action=status
-=============================================================================
-`);
-  }
-
-  /**
-   * Applies default values to configuration if not specified
-   * @private
-   * @param {IPipelineConfig} config - Configuration object to apply defaults to
-   * @param {IPipelineArgs} [arg] - Optional CLI arguments for context
-   */
-  private applyConfigDefaults(config: IPipelineConfig, arg?: IPipelineArgs): void {
-    // Apply stack defaults
-    config.id = this.getId(arg);
-    config.name = config.name || 'DefaultPipeline';
-    config.engine = config.engine || 'default';
-    config.version = config.version || '1.0.0';
-    config.description = config.description || 'Infrastructure as Code Pipeline';
-    // Ensure dependencies is an array
-    if (!Array.isArray(config.dependencies)) {
-      config.dependencies = [];
-    }
-  }
-
-  /**
-   * Validates configuration structure and required fields
-   * @private
-   * @param {IPipelineConfig} config - Configuration to validate
-   * @throws {Error} When configuration is invalid or missing required fields
-   */
-  private validateConfiguration(config: IPipelineConfig): void {
-    if (!config.engine) {
-      throw new Error('Invalid configuration: Engine is required');
-    }
-  }
-
-  /**
-   * Logs a message using the pipeline logger with specified level
-   * @public
-   * @param {ILogInput} input - Log input message or structured log object
-   * @param {ILogLevel} [level] - Log level, defaults to INFO
-   * @returns {void | Promise<void>} Log operation result
-   */
-  public log(input: ILogInput, level: ILogLevel = ILogLevel.INFO) {
-    if (typeof input === 'object') {
-      input.category = VCategory.core.pipeline;
-    }
-    return this.pipeline.logger?.log(input, level);
-  }
-
-  /**
-   * Waits for all pending logger operations to complete
-   * @public
-   * @returns {Promise<void>} Promise that resolves when all log operations complete
-   */
-  public async await(): Promise<void> {
-    if (this.pipeline.logger?.stack) {
-      await Promise.all(this.pipeline.logger?.stack)
-    }
-  }
-
-  /**
-   * Generates unique pipeline identifier from configuration options
-   * @public
-   * @param {IPipelineConfig} [opt] - Optional pipeline configuration for ID generation
-   * @returns {string} Generated pipeline identifier
-   */
-  public getId(opt?: IPipelineConfig) {
-    return this.pipeline.getId(opt);
+    # Deploy MongoDB Atlas cluster in production
+    kozen --action=pipeline:deploy --template=atlas.basic --stack=production --config=cfg/prod-config.json
+    
+    # Validate Kubernetes deployment configuration
+    kozen --action=pipeline:validate --template=k8s.standard
+    
+    # Check status of demo pipeline
+    kozen --controller=pipeline --action=status --template=demo --stack=dev
+    
+    # Undeploy development environment
+    kozen --action=pipeline:undeploy --template=atlas.basic --stack=dev
+    
+    # Completely destroy test resources
+    kozen --action=pipeline:destroy --template=k8s.standard --stack=test
+    
+    # Deploy with custom project identifier
+    kozen --action=pipeline:deploy --template=atlas.basic --project=MyApp-v2.1 --stack=staging
+===============================================================================
+    `);
   }
 } 
