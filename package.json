@@ -8,18 +8,17 @@
     },
     "scripts": {
         "build": "tsc",
-        "start": "node dist/bin/pipeline.js",
+        "start": "node dist/bin/kozen.js",
         "help": "ts-node bin/kozen.ts --action=help",
-        "dev": "ts-node bin/pipeline.ts",
-        "kozen": "ts-node bin/kozen.ts",
-        "secret": "ts-node bin/kozen.ts --controller=secret",
+        "dev": "ts-node bin/kozen.ts",
         "log": "ts-node bin/kozen.ts --action=logger:log",
+        "secret": "ts-node bin/kozen.ts --controller=secret",
+        "lint": "tslint -p tsconfig.json",
+        "clean": "rm -rf dist",
         "test:deploy": "ts-node bin/pipeline.ts --action=deploy",
         "test:validate": "ts-node bin/pipeline.ts --action=validate",
         "test:undeploy": "ts-node bin/pipeline.ts --action=undeploy",
-        "test:status": "ts-node bin/pipeline.ts --action=status",
-        "lint": "tslint -p tsconfig.json",
-        "clean": "rm -rf dist"
+        "test:status": "ts-node bin/pipeline.ts --action=status"
     },
     "keywords": [
         "iac",
