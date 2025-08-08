@@ -128,6 +128,7 @@ export interface IComponent {
  */
 export type ITransformFn = (component: IComponent, output: IStruct) => Promise<IStruct>;
 
+export type IOutputResult = { items?: IStruct, warns?: IStruct };
 /**
  * @interface ITransformOption
  * @description Configuration options for data transformation operations between pipeline components.
