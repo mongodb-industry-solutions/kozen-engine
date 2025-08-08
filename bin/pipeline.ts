@@ -41,7 +41,7 @@ import { VCategory } from "../src/models/Types";
 
     // Check for help flag
     if (process.argv.includes('--help') || process.argv.includes('-h')) {
-      controller.displayHelp();
+      controller.help();
       process.exit(0);
     }
 

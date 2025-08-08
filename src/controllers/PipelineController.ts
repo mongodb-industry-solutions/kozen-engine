@@ -252,9 +252,10 @@ export class PipelineController {
    * Displays CLI usage information and command examples
    * @public
    */
-  public displayHelp(): void {
+  public help(): void {
     console.log(`
-Kozen Pipeline CLI
+===============================================================================
+Kozen Engine (Pipeline Manager Tool)
 =============================================================================
 
 Usage:
