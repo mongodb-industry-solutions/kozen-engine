@@ -187,5 +187,51 @@ export class TemplateManager extends BaseService implements TemplateManager {
         const data = await controller.load<T>(templateName, options);
         return data;
     }
+
+    /**
+     * Saves a template to the configured storage backend by delegating to the appropriate
+     * storage-specific implementation (TemplateManagerFile, TemplateManagerMDB, etc.).
+     * This method implements the bridge pattern by providing a unified interface regardless
+     * of the underlying storage mechanism.
+     * @public
+     * @template T - The type of the template content to save
+     * @param {string} templateName - Name/identifier of the template to save
+     * @param {T} content - Template content/data to persist (will be serialized appropriately)
+     * @param {ITemplateConfig} [options] - Optional configuration override for this operation
+     * @returns {Promise<boolean>} Promise resolving to true if save operation succeeds, false otherwise
+     * @throws {Error} When template saving fails due to configuration issues, network problems, or storage errors
+     */
+    async save<T = any>(templateName: string, content: T, options?: ITemplateConfig): Promise<boolean> {
+        if (!this.options?.type) {
+            throw new Error("TemplateManager options or type is not defined.");
+        }
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
+        }
+
+        options = { ...this.options, ...options };
+        const controllerName = this.prefix || '' + options.type;
+        const controller = await this.getDelegate<ITemplateManager>(options.type || 'File');
+
+        this.logger?.info({
+            flow: options.flow,
+            category: VCategory.core.template,
+            src: 'Service:TemplateManager:save',
+            message: 'Saving template',
+            data: { controllerName, templateName, contentSize: JSON.stringify(content).length }
+        });
+
+        const result = await controller.save(templateName, content, options);
+
+        this.logger?.info({
+            flow: options.flow,
+            category: VCategory.core.template,
+            src: 'Service:TemplateManager:save',
+            message: result ? 'Template saved successfully' : 'Template save failed',
+            data: { controllerName, templateName, success: result }
+        });
+
+        return result;
+    }
 }
 export default TemplateManager;

@@ -120,20 +120,97 @@ export interface ITemplateConfig {
     };
 }
 
+/**
+ * @interface ITemplateArgs
+ * @description Command line arguments interface for template management operations.
+ * Extends base CLI arguments with template-specific options for operations like load, save, and list.
+ */
+export interface ITemplateArgs {
+    /**
+     * Action to perform on templates
+     * @type {string}
+     */
+    action: string;
+
+    /**
+     * Template name/identifier
+     * @type {string}
+     */
+    name?: string;
+
+    /**
+     * Template content for save operations (JSON string or file path)
+     * @type {string}
+     */
+    content?: string;
+
+    /**
+     * File path to read template content from
+     * @type {string}
+     */
+    file?: string;
+
+    /**
+     * Template storage configuration override
+     * @type {string}
+     */
+    storage?: string;
+
+    /**
+     * Output format for template operations (json, yaml, etc.)
+     * @type {string}
+     */
+    format?: string;
+
+    /**
+     * Stack/environment identifier
+     * @type {string}
+     */
+    stack?: string;
+
+    /**
+     * Project identifier
+     * @type {string}
+     */
+    project?: string;
+
+    /**
+     * Configuration file path
+     * @type {string}
+     */
+    config?: string;
+}
+
+/**
+ * @interface ITemplateManager
+ * @description Template manager interface defining operations for template storage and retrieval.
+ * Provides a unified interface for different template storage backends (file system, MongoDB, etc.).
+ */
 export interface ITemplateManager {
     /**
-     * Sets the template configuration options.
-     * @param {ITemplateConfig} value - Template configuration to set.
+     * Template configuration options for storage backend settings
+     * @type {ITemplateConfig}
      */
     options: ITemplateConfig;
 
     /**
-     * Loads a template from the configured storage backend.
-     * @template T - The expected type of the loaded template.
-     * @param {string} templateName - Name of the template to load.
-     * @param {ITemplateConfig} [options] - Optional configuration override for this operation.
-     * @returns {Promise<T>} Promise resolving to the loaded template data.
-     * @throws {Error} When template loading fails due to configuration issues, network problems, or missing templates.
+     * Loads a template from the configured storage backend
+     * @template T - The expected type of the loaded template
+     * @param {string} templateName - Name of the template to load
+     * @param {ITemplateConfig} [options] - Optional configuration override for this operation
+     * @returns {Promise<T>} Promise resolving to the loaded template data
+     * @throws {Error} When template loading fails due to configuration issues, network problems, or missing templates
      */
     load<T = any>(templateName: string, options?: ITemplateConfig): Promise<T>;
+
+    /**
+     * Saves a template to the configured storage backend
+     * @template T - The type of the template content to save
+     * @param {string} templateName - Name of the template to save
+     * @param {T} content - Template content to persist
+     * @param {ITemplateConfig} [options] - Optional configuration override for this operation
+     * @returns {Promise<boolean>} Promise resolving to true if save operation succeeds, false otherwise
+     * @throws {Error} When template saving fails due to configuration issues, network problems, or storage errors
+     */
+    save<T = any>(templateName: string, content: T, options?: ITemplateConfig): Promise<boolean>;
 }  
