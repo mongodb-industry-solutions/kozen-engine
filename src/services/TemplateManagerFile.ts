@@ -118,6 +118,73 @@ export class TemplateManagerFile extends TemplateManager {
     }
 
     /**
+     * Deletes a template file from the file system
+     * @public
+     * @param {string} templateName - The name of the template file to delete (without .json extension)
+     * @param {ITemplateConfig} [options] - Optional configuration override
+     * @returns {Promise<boolean>} Promise resolving to true if delete operation succeeds, false otherwise
+     * @throws {Error} When template file doesn't exist or deletion operation fails
+     */
+    async delete(templateName: string, options?: ITemplateConfig): Promise<boolean> {
+        try {
+            this.options = options || this.options;
+            const templatePath = this.getTemplatePath(templateName, this.options.file?.path || '');
+
+            // Check if file exists before attempting deletion
+            if (!fs.existsSync(templatePath)) {
+                throw new Error(`Template file not found: ${templatePath}`);
+            }
+
+            // Delete the template file
+            await fs.promises.unlink(templatePath);
+
+            return true;
+
+        } catch (error) {
+            if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+                throw new Error(`Template ${templateName} not found`);
+            }
+            throw new Error(`Failed to delete template ${templateName}: ${(error as Error).message}`);
+        }
+    }
+
+    /**
+     * Lists all available template files in the configured directory
+     * @public
+     * @param {ITemplateConfig} [options] - Optional configuration override
+     * @returns {Promise<string[]>} Promise resolving to array of template names (without .json extension)
+     * @throws {Error} When directory reading fails or directory doesn't exist
+     */
+    async list(options?: ITemplateConfig): Promise<string[]> {
+        try {
+            this.options = options || this.options;
+            const templateDir = this.options.file?.path || '';
+
+            // Check if directory exists
+            if (!fs.existsSync(templateDir)) {
+                throw new Error(`Template directory not found: ${templateDir}`);
+            }
+
+            // Read directory contents
+            const files = await fs.promises.readdir(templateDir);
+            
+            // Filter for JSON files and remove the .json extension
+            const templateFiles = files
+                .filter(file => file.endsWith('.json'))
+                .map(file => path.basename(file, '.json'))
+                .sort();
+
+            return templateFiles;
+
+        } catch (error) {
+            if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+                throw new Error(`Template directory not found: ${this.options.file?.path || ''}`);
+            }
+            throw new Error(`Failed to list templates: ${(error as Error).message}`);
+        }
+    }
+
+    /**
      * Constructs the full file system path to a template file
      * @private
      * @param {string} templateName - The name of the template (without file extension)
