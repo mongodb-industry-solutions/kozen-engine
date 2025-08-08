@@ -21,15 +21,14 @@ import { VCategory } from '../src/models/Types';
 
     // Create controller and parse arguments
     const cli = new CLIController();
+    const { args } = await cli.init(process.argv);
+
     try {
-
-        const args = await cli.init(process.argv);
-
-        if (!args.controller) {
+        if (!args?.controller) {
             throw new Error('No valid controller was specified');
         }
 
-        if (!args.action) {
+        if (!args?.action) {
             throw new Error('No valid action was specified');
         }
 
@@ -48,6 +47,7 @@ import { VCategory } from '../src/models/Types';
         const result = await action.apply(controller, [options]);
 
         args.action !== 'help' && cli.log({
+            flow: cli.getId(args),
             src: 'bin:Kozen',
             data: {
                 params: options,
@@ -59,6 +59,7 @@ import { VCategory } from '../src/models/Types';
         process.exit(0);
     } catch (error) {
         console.error({
+            flow: cli.getId(args),
             src: 'bin:Kozen',
             category: VCategory.cli.secret,
             message: `❌ CLI execution failed:` + (error as Error).message || error

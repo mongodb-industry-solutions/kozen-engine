@@ -2,7 +2,7 @@ import { exec } from "child_process";
 import dotenv from "dotenv";
 import os from "os";
 import path from "path";
-import { JSONT } from "..";
+import { IEnvOptions, IShellVariables, JSONT } from "..";
 
 /**
  * A class to expose environment variables globally across processes and different operating systems.
@@ -21,7 +21,7 @@ export class Env {
     constructor(opts?: { prefix?: string, logger?: Console }) {
         const { prefix, logger } = opts || {};
         this.prefix = prefix?.trim().toUpperCase() ?? process.env["KOZEN_ENV_PREFIX"] ?? "KOZEN_PL";
-        this.logger = logger;
+        this.logger = logger as Console;
     }
 
     /**
@@ -30,7 +30,7 @@ export class Env {
      *
      * @param content - An object containing key-value pairs to be exposed as environment variables.
      */
-    public async expose(content: Record<string, any>, opts?: { prefix?: string, flow?: string }): Promise<void> {
+    public async expose(content: Record<string, any>, opts?: IEnvOptions): Promise<void> {
         if (!content || typeof content !== "object") {
             throw new Error("Invalid content provided. Expected an object.");
         }
@@ -82,7 +82,7 @@ export class Env {
      * Set environment variables on Windows using `setx`.
      * @param variables - An array of key-value pairs to set.
      */
-    private setWindowsVariables({ key, value }: { key: string; value: string }): Promise<void> {
+    private setWindowsVariables({ key, value }: IShellVariables): Promise<void> {
         const scope = process.env["KOZEN_ENV_SCOPE"] || "GLOBAL"
         const command = scope === "GLOBAL" ? `setx ${key} "${value}"` : `set ${key}="${value}"`;
         return this.execCommand(command);
@@ -92,7 +92,7 @@ export class Env {
      * Set environment variables on Linux/macOS by appending them to the shell profile file.
      * @param variables - An array of key-value pairs to set.
      */
-    private async setUnixVariables({ key, value }: { key: string; value: string }): Promise<void> {
+    private async setUnixVariables({ key, value }: IShellVariables): Promise<void> {
         const scope = process.env["KOZEN_ENV_SCOPE"] || "GLOBAL"
         const shellProfilePath = scope === "GLOBAL" && Env.determineShellProfilePath();
         const exportCommand = `export ${key}="${value}"`;
@@ -165,3 +165,5 @@ export class Env {
         dotenv.config();
     }
 }
+
+export default Env;

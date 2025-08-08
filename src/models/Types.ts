@@ -23,9 +23,9 @@ export type IStruct = Record<string, any>;
 
 /**
  * Pipeline action type definition for operation classification
- * @typedef {"deploy" | "undeploy" | "destroy" | "validate" | "status" | "save" | "resolve"} IAction
+ * @typedef {"deploy" | "undeploy" | "destroy" | "validate" | "status" } IAction
  */
-export type IAction = "deploy" | "undeploy" | "destroy" | "validate" | "status" | "save" | "resolve" | "log";
+export type IAction = "deploy" | "undeploy" | "destroy" | "validate" | "status";
 
 /**
  * Variable source type definition for value resolution strategies
@@ -182,5 +182,21 @@ export interface ICLIArgs {
      */
     controller?: string;
 
+    /**
+     * Optional unique stack identifier for environment isolation
+     * @type {string}
+     */
+    stack?: string;
+
+    /**
+     * Optional project organization name for resource grouping
+     * @type {string}
+     */
+    project?: string;
+
+    /**
+     * Optional extra properties
+     * @type {any}
+     */
     [key: string]: any;
 }
