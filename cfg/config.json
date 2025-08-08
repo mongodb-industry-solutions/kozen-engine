@@ -226,6 +226,9 @@
       "type": "class",
       "lifetime": "singleton",
       "path": "../../services",
+      "args": [
+        null
+      ],
       "dependencies": [
         {
           "key": "assistant",
@@ -236,6 +239,17 @@
           "key": "logger",
           "target": "LoggerService",
           "type": "ref"
+        },
+        {
+          "key": "envSrv",
+          "target": "Env",
+          "type": "class",
+          "path": "../../tools/env",
+          "args": [
+            {
+              "prefix": ""
+            }
+          ]
         }
       ]
     },
@@ -346,6 +360,11 @@
         {
           "key": "logger",
           "target": "LoggerService",
+          "type": "ref"
+        },
+        {
+          "key": "pipeline",
+          "target": "PipelineManager",
           "type": "ref"
         }
       ]
