@@ -4,7 +4,7 @@ import { IResult, IStruct, VCategory } from '../../models/Types';
 import { IK8PodsConfig } from "./IK8PodsConfig";
 
 import * as kubernetes from '@pulumi/kubernetes';
-import * as fs from 'fs';
+import * as pulumi from '@pulumi/pulumi';
 
 /**
  * Simple demo component controller for testing pipeline functionality
@@ -19,18 +19,14 @@ export class K8Pods extends BaseController {
    */
   async deploy(input?: IK8PodsConfig, pipeline?: IPipeline): Promise<IResult> {
 
-    const kubeconfigPath = `${process.env.HOME}/.kube/config`;
-    const kubeconfig = fs.readFileSync(kubeconfigPath).toString();
-
-    // print kubeconfig string for debugging
-    this.logger?.debug({
-      flow: pipeline?.id,
-      category: VCategory.cmp.iac,
-      src: 'component:K8Pods:deploy',
-      message: `Kubeconfig loaded from ${kubeconfigPath}`,
-      data: {
-        kubeconfig
-      }
+    const kubeconfig: pulumi.Input<string> = (input?.kubeconfigJson ?? "");
+    pulumi.output(kubeconfig).apply((k: string) => {
+      this.logger?.info({
+        flow: pipeline?.id,
+        category: VCategory.cmp.iac,
+        src: 'component:K8Pods:deploy',
+        message: `kubeconfigJson (first 200 chars): ${k.slice(0, 200)}...`
+      });
     });
 
     this.logger?.info({

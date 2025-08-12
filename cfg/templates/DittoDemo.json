@@ -38,86 +38,34 @@
             }
         ],
         "components": [
+
             {
-                "name": "Atlas",
-                "input": [
-                    {
-                        "type": "value",
-                        "name": "clusterType",
-                        "value": "REPLICASET"
-                    },
-                    {
-                        "type": "value",
-                        "name": "replicationSpecs",
-                        "value": [
-                            {
-                                "numShards": 1,
-                                "regionsConfigs": [
-                                    {
-                                        "regionName": "US_EAST_1",
-                                        "electableNodes": 3,
-                                        "priority": 7,
-                                        "readOnlyNodes": 0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "type": "value",
-                        "name": "cloudBackup",
-                        "value": true
-                    },
-                    {
-                        "type": "value",
-                        "name": "autoScalingDiskGbEnabled",
-                        "value": true
-                    },
-                    {
-                        "type": "value",
-                        "name": "mongoDbMajorVersion",
-                        "value": "8.0"
-                    },
-                    {
-                        "type": "value",
-                        "name": "providerName",
-                        "value": "AWS"
-                    },
-                    {
-                        "type": "value",
-                        "name": "providerInstanceSizeName",
-                        "value": "M20"
-                    }
-                ],
+                "name": "EKS",
+                "input": [],
                 "output": [
                     {
                         "type": "reference",
-                        "name": "connectionString",
-                        "value": "connectionString",
-                        "description": "Connection string of the HelloWorld component"
+                        "name": "kubeconfig",
+                        "value": "kubeconfig",
+                        "description": "Kubeconfig file for accessing the EKS cluster"
                     },
                     {
                         "type": "reference",
-                        "name": "clusterId",
-                        "value": "clusterId",
-                        "description": "ID of the Atlas cluster"
+                        "name": "kubeconfigJson",
+                        "value": "kubeconfigJson",
+                        "description": "Kubeconfig JSON for accessing the EKS cluster"
                     }
                 ],
                 "setup": [
                     {
-                        "type": "secret",
-                        "name": "mongodb-atlas:publicKey",
-                        "value": "ATLAS_PUBLIC_KEY"
+                        "type": "environment",
+                        "name": "aws:accessKey",
+                        "value": "AWS_ACCESS_KEY_ID"
                     },
                     {
-                        "type": "secret",
-                        "name": "mongodb-atlas:privateKey",
-                        "value": "ATLAS_PRIVATE_KEY"
-                    },
-                    {
-                        "type": "secret",
-                        "name": "mongodb-atlas:projectId",
-                        "value": "ATLAS_PROJECT_ID"
+                        "type": "environment",
+                        "name": "aws:secretKey",
+                        "value": "AWS_SECRET_ACCESS_KEY"
                     }
                 ]
             },

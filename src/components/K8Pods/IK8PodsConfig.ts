@@ -1,3 +1,4 @@
+import * as pulumi from '@pulumi/pulumi';
 import { IStruct } from "../../models/Types";
 
 export interface IK8PodsConfig extends IStruct {
@@ -14,4 +15,5 @@ export interface IK8PodsConfig extends IStruct {
   args?: string[]; // Arguments to pass to the command
   labels?: { [key: string]: string }; // Pod labels
   annotations?: { [key: string]: string }; // Pod annotations
+  kubeconfigJson?: pulumi.Input<string>;
 }

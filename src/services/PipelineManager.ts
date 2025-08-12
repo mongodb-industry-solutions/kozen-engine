@@ -208,19 +208,30 @@ export class PipelineManager extends BaseService {
                 return configs?.output || {};
             },
         });
+
         out.results = out.results || [];
 
+        // // Merge resolved outputs from Automation API (preferred) with in-program outputs
+        // const mergedOutputs: any = { ...(out.output || {}) };
+        // if (stackResult?.output) {
+        // for (const [k, v] of Object.entries(stackResult.output as any)) {
+        //     mergedOutputs[k] = (v as any)?.value ?? v;
+        // }
+        // }
+        // out.output = mergedOutputs;
+
         try {
-            out.output && (process.env['KOZEN_ENV_ACTION'] === undefined || process.env['KOZEN_ENV_ACTION'] === 'EXPOSE') && await this.envSrv?.expose(out.output, { flow: id });
-        }
-        catch (error) {
-            this.logger?.warn({
-                flow: id,
-                src: 'Service:Pipeline:Deploy:End',
-                message: 'It was not possible to expose the environmental variables',
-                category: VCategory.core.pipeline,
-                data: { output: out.output, error: (error as Error).message }
-            });
+        out.output &&
+            (process.env['KOZEN_ENV_ACTION'] === undefined || process.env['KOZEN_ENV_ACTION'] === 'EXPOSE') &&
+            await this.envSrv?.expose(out.output, { flow: id });
+        } catch (error) {
+        this.logger?.warn({
+            flow: id,
+            src: 'Service:Pipeline:Deploy:End',
+            message: 'It was not possible to expose the environmental variables',
+            category: VCategory.core.pipeline,
+            data: { output: out.output, error: (error as Error).message }
+        });
         }
 
         stackResult && out.results.push(stackResult);
