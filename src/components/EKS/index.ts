@@ -69,8 +69,29 @@ export class K8AwsEks extends BaseController {
       // Get existing Cluster IAM role
       const clusterRole = aws.iam.Role.get("clusterRole", "AmazonEKSAutoClusterRole");
 
-      // Get existing Node IAM role
-      const nodeRole = aws.iam.Role.get("nodeRole", "AmazonEKSAutoNodeRole");
+      // REPLACE the old node role lookup with a dedicated role + policies
+      // const nodeRole = aws.iam.Role.get("nodeRole", "AmazonEKSAutoNodeRole");
+
+      const nodeRole = new aws.iam.Role(`${resourcePrefix}-node-role`, {
+        assumeRolePolicy: JSON.stringify({
+          Version: "2012-10-17",
+          Statement: [
+            { Effect: "Allow", Principal: { Service: "ec2.amazonaws.com" }, Action: "sts:AssumeRole" },
+          ],
+        }),
+      }, { provider: this.awsProvider });
+
+      const policies = [
+        "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
+        "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
+        "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
+        "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+      ];
+
+      policies.forEach((policyArn, i) => new aws.iam.RolePolicyAttachment(`${resourcePrefix}-ng-pa-${i}`, {
+        role: nodeRole.name,
+        policyArn,
+      }, { provider: this.awsProvider }));
 
       // EKS cluster with your exact manual configuration
       const cluster = new eks.Cluster(`${resourcePrefix}-cluster`, {
@@ -90,7 +111,7 @@ export class K8AwsEks extends BaseController {
 
         // Use your existing IAM roles
         serviceRole: clusterRole,
-        instanceRole: nodeRole,
+        instanceRoles: [nodeRole],
 
         // Cluster endpoint access: Public and Private
         endpointPublicAccess: true,
@@ -110,7 +131,7 @@ export class K8AwsEks extends BaseController {
         createOidcProvider: false,
 
         // Additional EKS configuration
-        version: input?.version || "1.33", // Use latest stable version
+        version: input?.version, // or set to a supported version like "1.30"
 
         // Role and user mappings for aws-auth ConfigMap
         roleMappings: [
@@ -131,12 +152,7 @@ export class K8AwsEks extends BaseController {
             username: "kozen",
             groups: ["system:masters"],
           },
-          // Optional: Add other users who need access
-          // {
-          //   userArn: "arn:aws:iam::275662791714:user/another-user",
-          //   username: "another-username",
-          //   groups: ["system:masters"],
-          // }
+
         ],
 
         // Tags for resource identification
@@ -153,34 +169,54 @@ export class K8AwsEks extends BaseController {
         provider: this.awsProvider,
       });
 
-      // Create a node group
-      const nodegroup = new eks.NodeGroup(`${resourcePrefix}-ng`, {
-        cluster: cluster,
-        nodeRole: nodeRole,
-        desiredCapacity: input?.desiredCapacity || 2,
-        minSize: input?.minSize || 1,
-        maxSize: input?.maxSize || 3,
-        instanceType: input?.instanceType || "t3.medium",
-        subnetIds: input?.privateSubnetIds,
+      new aws.eks.Addon(`${resourcePrefix}-vpc-cni`, {
+        clusterName: cluster.eksCluster.name,
+        addonName: "vpc-cni",
+      }, { provider: this.awsProvider, dependsOn: [cluster] });
+
+      new aws.eks.Addon(`${resourcePrefix}-kube-proxy`, {
+        clusterName: cluster.eksCluster.name,
+        addonName: "kube-proxy",
+      }, { provider: this.awsProvider, dependsOn: [cluster] });
+
+      new aws.eks.Addon(`${resourcePrefix}-coredns`, {
+        clusterName: cluster.eksCluster.name,
+        addonName: "coredns",
+      }, { provider: this.awsProvider, dependsOn: [cluster] });
+
+
+      const instanceProfile = new aws.iam.InstanceProfile("ng-instance-profile", {
+        role: nodeRole.name,
       }, { provider: this.awsProvider });
 
-      // Add this after your cluster creation
-      const accessEntry = new aws.eks.AccessEntry(`${resourcePrefix}-user-access`, {
-        clusterName: cluster.eksCluster.name,
-        principalArn: "arn:aws:iam::275662791714:user/kozen",
-        kubernetesGroups: ["system:masters"],
-        type: "STANDARD",
-        userName: "kozen",
-      }, { provider: this.awsProvider, dependsOn: [cluster] });
+      const nodegroup = new eks.NodeGroupV2(`${resourcePrefix}-ng`, {
+        cluster: cluster,
+        instanceProfile: instanceProfile,
+        desiredCapacity: input?.desiredCapacity ?? 2,
+        minSize: input?.minSize ?? 1,
+        maxSize: input?.maxSize ?? 3,
+        instanceType: input?.instanceType ?? "t3.medium",
+      }, { provider: this.awsProvider });
 
-      // Add another access entry for your SSO role
-      const ssoAccessEntry = new aws.eks.AccessEntry(`${resourcePrefix}-sso-access`, {
-        clusterName: cluster.eksCluster.name,
-        principalArn: "arn:aws:iam::275662791714:role/AWSReservedSSO_AdministratorAccess_33cfb77ad9632b7c",
-        kubernetesGroups: ["system:masters"],
-        type: "STANDARD",
-        userName: "rodrigo-sso",
-      }, { provider: this.awsProvider, dependsOn: [cluster] });
+      // // Add this after your cluster creation
+      // const accessEntry = new aws.eks.AccessEntry(`${resourcePrefix}-user-access`, {
+      //   clusterName: cluster.eksCluster.name,
+      //   principalArn: "arn:aws:iam::275662791714:user/kozen",
+      //   kubernetesGroups: ["admins"],
+      //   type: "STANDARD",
+      //   userName: "kozen",
+      // }, { provider: this.awsProvider, dependsOn: [cluster] });
+
+      // // Add another access entry for your SSO role
+      // const ssoAccessEntry = new aws.eks.AccessEntry(`${resourcePrefix}-sso-access`, {
+      //   clusterName: cluster.eksCluster.name,
+      //   principalArn: "arn:aws:iam::275662791714:role/AWSReservedSSO_AdministratorAccess_33cfb77ad9632b7c",
+      //   kubernetesGroups: ["admins"],
+      //   type: "STANDARD",
+      //   userName: "rodrigo-sso",
+      // }, { provider: this.awsProvider, dependsOn: [cluster] });
+
+      // let tmp = JSON.parse(JSON.stringify(cluster));
 
       return {
         templateName: pipeline?.template?.name,
