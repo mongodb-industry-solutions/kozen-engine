@@ -12,6 +12,10 @@ import * as pulumi from '@pulumi/pulumi';
  * This component demonstrates basic deployment, validation, and cleanup operations
  */
 export class K8Pods extends BaseController {
+  /**
+   * Provides metadata for K8s Pod and Service deployment.
+   * @returns {Promise<IComponent>} Component metadata definition.
+   */
   public metadata(): Promise<IComponent> {
     return Promise.resolve({
       description: 'Deploy a simple Pod and Service to an existing Kubernetes cluster',
