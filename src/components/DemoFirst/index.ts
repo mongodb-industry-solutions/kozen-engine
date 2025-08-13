@@ -18,6 +18,11 @@ export class DemoFirst extends BaseController {
       description: 'Simple demo component for basic pipeline testing',
       orchestrator: 'Node',
       engine: '^1.0.5',
+      setup: [
+        { type: 'secret', name: 'mongodb-atlas:publicKey', value: 'ATLAS_PUBLIC_KEY' },
+        { type: 'secret', name: 'mongodb-atlas:privateKey', value: 'ATLAS_PRIVATE_KEY' },
+        { type: 'secret', name: 'mongodb-atlas:projectId', value: 'ATLAS_PROJECT_ID' }
+      ],
       input: [
         { name: 'projectName', description: 'Project logical name', format: 'string' },
         { name: 'message', description: 'Demo message to log', format: 'string' },
@@ -28,10 +33,11 @@ export class DemoFirst extends BaseController {
         { name: 'ipAddress', description: 'Sample IP address output', format: 'string' },
         { name: 'format', description: 'Formatted string example', format: 'string' }
       ],
-      setup: [
-        { type: 'secret', name: 'mongodb-atlas:publicKey', value: 'ATLAS_PUBLIC_KEY' },
-        { type: 'secret', name: 'mongodb-atlas:privateKey', value: 'ATLAS_PRIVATE_KEY' },
-        { type: 'secret', name: 'mongodb-atlas:projectId', value: 'ATLAS_PROJECT_ID' }
+      dependency: [
+        {
+          name: 'DemoSecond',
+          description: 'Example of how to call another component as a dependency'
+        }
       ]
     });
   }
@@ -61,6 +67,18 @@ export class DemoFirst extends BaseController {
         prefix: this.getPrefix(pipeline)
       }
     });
+
+    // Example of how to call another component as a dependency
+    const component = await this.assistant?.resolve<BaseController>('DemoSecond');
+    const depResult = await component?.deploy(input, pipeline);
+    this.logger?.info({
+      flow: pipeline?.id,
+      category: VCategory.cmp.iac,
+      src: 'component:DemoFirst:deploy',
+      message: `Result of calling a component as a dependency`,
+      data: depResult?.output
+    });
+
     // await new Promise(resolve => setTimeout(resolve, input?. || 1000));
     return {
       templateName: pipeline?.template?.name,
