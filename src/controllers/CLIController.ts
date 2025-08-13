@@ -101,8 +101,9 @@ Core Options:
                                     (default: cfg/config.json)
     --controller=<name>             Specify controller explicitly. Available controllers:
                                     - pipeline: Manage infrastructure and testing pipelines
-                                    - logger: Manage system logs and monitoring data
+                                    - template: Manage templates from different data sources like MongoDB, Files, etc.
                                     - secret: Manage encrypted secrets and credentials
+                                    - logger: Manage system logs and monitoring data
     --action=<[controller:]action>  Action to perform. Format: 'action' or 'controller:action'
                                     - help: Get help or assistance on how to use a tool
 
