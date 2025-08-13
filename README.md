@@ -1,10 +1,10 @@
 # Kozen Engine - Dynamic Infrastructure & Testing Pipeline Platform
 
-A comprehensive, enterprise-grade platform for creating dynamic pipelines that combine Infrastructure as Code (IaC), automated testing, and data analytics. Built with TypeScript and designed for extensibility, Kozen Engine enables seamless infrastructure deployment, multi-type testing execution, and comprehensive data collection with MongoDB Chart visualization.
+Kozen Engine is an enterprise-grade framework designed for automated task execution within CI/CD pipelines, with robust support for Infrastructure as Code (IaC), testing automation, and data analytics. Developed in TypeScript for maximum flexibility, it empowers users to deploy infrastructure seamlessly, execute multi-dimensional testing workflows, and visualize insights through MongoDB Charts.
 
 ## 🎯 Overview
 
-Kozen Engine is a mono-stack pipeline platform that transforms JSON configuration files and templates into powerful, automated infrastructure and testing workflows. By combining configuration-driven deployment with extensible component architecture, it provides a unified solution for Infrastructure as a Service (IaaS) and Testing as a Service (TaaS) platforms.
+Kozen Engine simplifies the creation of dynamic, configuration-driven pipelines by transforming JSON templates into highly automated workflows for infrastructure and testing. With its extensible architecture, it serves as a versatile solution for Infrastructure as a Service (IaaS) and Testing as a Service (TaaS) platforms.
 
 ### Key Objectives
 
@@ -78,17 +78,17 @@ Each component autonomously decides its execution behavior and can:
 
 ## 📚 Documentation
 
-| Topic                      | Description                                       | Link                                                               |
-| -------------------------- | ------------------------------------------------- | ------------------------------------------------------------------ |
-| **Architecture**           | Detailed system architecture and component design | [docs/architecture.md](docs/architecture.md)                       |
-| **Components**             | Component system and extensibility guide          | [docs/components.md](docs/components.md)                           |
-| **Configuration**          | Configuration files and environment setup         | [docs/configuration.md](docs/configuration.md)                     |
-| **Environment Variables**  | Complete environment variables reference guide    | [docs/environment-variables.md](docs/environment-variables.md)     |
-| **Templates**              | Template system and creation guide                | [docs/templates.md](docs/templates.md)                             |
-| **Testing**                | Testing capabilities and execution patterns       | [docs/testing.md](docs/testing.md)                                 |
-| **API Reference**          | Complete API documentation                        | [docs/api-reference.md](docs/api-reference.md)                     |
-| **Deployment**             | Production deployment and NPM integration         | [docs/deployment.md](docs/deployment.md)                           |
-| **Contributing**           | Development, extension, and contribution guide    | [docs/contributing.md](docs/contributing.md)                       |
+| Topic                     | Description                                       | Link                                                           |
+| ------------------------- | ------------------------------------------------- | -------------------------------------------------------------- |
+| **Architecture**          | Detailed system architecture and component design | [docs/architecture.md](docs/architecture.md)                   |
+| **Components**            | Component system and extensibility guide          | [docs/components.md](docs/components.md)                       |
+| **Configuration**         | Configuration files and environment setup         | [docs/configuration.md](docs/configuration.md)                 |
+| **Environment Variables** | Complete environment variables reference guide    | [docs/environment-variables.md](docs/environment-variables.md) |
+| **Templates**             | Template system and creation guide                | [docs/templates.md](docs/templates.md)                         |
+| **Testing**               | Testing capabilities and execution patterns       | [docs/testing.md](docs/testing.md)                             |
+| **API Reference**         | Complete API documentation                        | [docs/api-reference.md](docs/api-reference.md)                 |
+| **Deployment**            | Production deployment and NPM integration         | [docs/deployment.md](docs/deployment.md)                       |
+| **Contributing**          | Development, extension, and contribution guide    | [docs/contributing.md](docs/contributing.md)                   |
 
 ### Template System Architecture
 
