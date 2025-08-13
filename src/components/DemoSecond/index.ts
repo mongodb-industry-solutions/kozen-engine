@@ -54,8 +54,11 @@ export class DemoSecond extends BaseController {
       templateName: this.config.name,
       action: 'deploy',
       success: true,
-      message: `DemoFirst deployed successfully with message: ${input?.address}`,
+      message: `DemoSecond deployed successfully with message: ${input?.address}`,
       timestamp: new Date(),
+      output: {
+        value: "test demo second"
+      }
     };
   }
 
