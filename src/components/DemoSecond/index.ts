@@ -1,4 +1,5 @@
 import { BaseController } from '../../controllers/BaseController';
+import { IComponent } from '../../models/Component';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct, VCategory } from '../../models/Types';
 
@@ -7,6 +8,23 @@ import { IResult, IStruct, VCategory } from '../../models/Types';
  * This component demonstrates basic deployment, validation, and cleanup operations
  */
 export class DemoSecond extends BaseController {
+
+  /**
+   * Supplies concise metadata for DemoSecond simple component.
+   * @returns {Promise<IComponent>} Component metadata definition.
+   */
+  public metadata(): Promise<IComponent> {
+    return Promise.resolve({
+      description: 'Second simple demo component for pipeline testing',
+      orchestrator: 'Node',
+      engine: '^1.0.5',
+      input: [
+        { name: 'adddress', description: 'Referenced IP address (typo kept to match template)', format: 'string' },
+        { name: 'message', description: 'Message to show', format: 'string' },
+        { name: 'delay', description: 'Delay value possibly sourced from secret', format: 'number' }
+      ]
+    });
+  }
 
   /**
    * Deploys the DemoSecond component with logging and result generation
