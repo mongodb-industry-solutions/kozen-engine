@@ -2,6 +2,7 @@ import * as mongodbatlas from "@pulumi/mongodbatlas";
 import * as pulumi from "@pulumi/pulumi";
 
 import { BaseController } from '../../controllers/BaseController';
+import { IComponent } from '../../models/Component';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct, VCategory } from '../../models/Types';
 import { IAtlasConfig } from "./IAtlasConfig";
@@ -12,6 +13,32 @@ import { IAtlasConfig } from "./IAtlasConfig";
  */
 export class Atlas extends BaseController {
   private atlasProvider?: mongodbatlas.Provider;
+
+  public metadata(): Promise<IComponent> {
+    return Promise.resolve({
+      description: 'MongoDB Atlas cluster deployment using Pulumi',
+      orchestrator: 'Pulumi',
+      engine: '^1.0.5',
+      input: [
+        { name: 'clusterType', description: 'Atlas cluster type', format: 'string', range: ['REPLICASET', 'SHARDED', 'GEOSHARDED'] },
+        { name: 'replicationSpecs', description: 'Replication specifications', format: 'Array<any>' },
+        { name: 'cloudBackup', description: 'Enable cloud backup', format: 'boolean' },
+        { name: 'autoScalingDiskGbEnabled', description: 'Enable disk autoscaling', format: 'boolean' },
+        { name: 'mongoDbMajorVersion', description: 'MongoDB major version', format: 'string' },
+        { name: 'providerName', description: 'Cloud provider', format: 'string', range: ['AWS', 'GCP', 'AZURE'] },
+        { name: 'providerInstanceSizeName', description: 'Atlas tier size', format: 'string' }
+      ],
+      output: [
+        { name: 'atlasConnectionUrl', description: 'Standard SRV connection string', format: 'string' },
+        { name: 'clusterId', description: 'Atlas cluster id', format: 'string' }
+      ],
+      setup: [
+        { type: 'secret', name: 'mongodb-atlas:publicKey', value: 'ATLAS_PUBLIC_KEY' },
+        { type: 'secret', name: 'mongodb-atlas:privateKey', value: 'ATLAS_PRIVATE_KEY' },
+        { type: 'secret', name: 'mongodb-atlas:projectId', value: 'ATLAS_PROJECT_ID' }
+      ]
+    });
+  }
 
   /**
    * Deploys a MongoDB Atlas cluster using Pulumi resources

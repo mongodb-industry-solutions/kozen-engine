@@ -1,4 +1,5 @@
 import { BaseController } from '../../controllers/BaseController';
+import { IComponent } from '../../models/Component';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct, VCategory } from '../../models/Types';
 
@@ -7,6 +8,21 @@ import { IResult, IStruct, VCategory } from '../../models/Types';
  * This component demonstrates basic deployment, validation, and cleanup operations
  */
 export class ECR extends BaseController {
+
+  public metadata(): Promise<IComponent> {
+    return Promise.resolve({
+      description: 'AWS ECR helper component (placeholder)',
+      orchestrator: 'Pulumi',
+      engine: '^1.0.5',
+      input: [
+        { name: 'resourcePrefix', description: 'Resource prefix for naming', format: 'string' },
+        { name: 'containerName', description: 'Container name', format: 'string' }
+      ],
+      output: [
+        { name: 'registryUrl', description: 'ECR registry URL', format: 'string' }
+      ]
+    });
+  }
 
   /**
    * Deploys the DemoFirst component with message logging and output generation
