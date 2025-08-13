@@ -1,4 +1,5 @@
 import { BaseController } from '../../controllers/BaseController';
+import { IComponent } from '../../models/Component';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct, VCategory } from '../../models/Types';
 
@@ -7,6 +8,40 @@ import { IResult, IStruct, VCategory } from '../../models/Types';
  * This component demonstrates API request execution and response retrieval logic
  */
 export class API extends BaseController {
+    public metadata(): Promise<IComponent> {
+        return Promise.resolve({
+            description: 'This component demonstrates API request execution and response retrieval logic',
+            input: [
+                {
+                    "name": "url",
+                    "description": "The server URL that will be used for the request",
+                    "format": "string"
+                },
+                {
+                    "name": "method",
+                    "description": "The request method to be used when making the request",
+                    "format": "string",
+                    "range": ["POST", "GET", "PUT", "DELETE"]
+                },
+                {
+                    "name": "headers",
+                    "description": "Custom headers list to be sent",
+                    "format": "Array<Record<string,string>>"
+                },
+                {
+                    "name": "body",
+                    "description": "List of data or parameters to send",
+                    "format": "Array<any>"
+                }
+            ],
+            output: [
+                {
+                    "name": "key",
+                    "description": "Data exposed in the server response"
+                }
+            ]
+        });
+    }
     /**
      * Executes a REST API call using the provided input and pipeline context
      * @param input - Input parameters containing API details like URL, method, headers, and body
