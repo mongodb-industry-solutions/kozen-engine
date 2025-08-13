@@ -9,6 +9,10 @@ import { IResult, IStruct, VCategory } from '../../models/Types';
  */
 export class DemoSecond extends BaseController {
 
+  /**
+   * Supplies concise metadata for DemoSecond simple component.
+   * @returns {Promise<IComponent>} Component metadata definition.
+   */
   public metadata(): Promise<IComponent> {
     return Promise.resolve({
       description: 'Second simple demo component for pipeline testing',

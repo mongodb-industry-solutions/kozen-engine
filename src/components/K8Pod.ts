@@ -16,6 +16,10 @@ import { IResult, IStruct } from '../models/Types';
 export class K8Pod extends BaseController {
   private k8sProvider?: kubernetes.Provider;
 
+  /**
+   * Provides metadata for Kubernetes Pod deployment configuration.
+   * @returns {Promise<IComponent>} Component metadata definition.
+   */
   public metadata(): Promise<IComponent> {
     return Promise.resolve({
       description: 'Deploy a containerized workload to an existing Kubernetes cluster',

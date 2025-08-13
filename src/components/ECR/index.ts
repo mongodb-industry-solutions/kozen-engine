@@ -9,6 +9,10 @@ import { IResult, IStruct, VCategory } from '../../models/Types';
  */
 export class ECR extends BaseController {
 
+  /**
+   * Provides ECR component metadata for configuration.
+   * @returns {Promise<IComponent>} Component metadata definition.
+   */
   public metadata(): Promise<IComponent> {
     return Promise.resolve({
       description: 'AWS ECR helper component (placeholder)',

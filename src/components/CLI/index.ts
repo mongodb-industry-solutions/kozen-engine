@@ -10,6 +10,10 @@ import { IResult, IStruct, VCategory } from '../../models/Types';
  */
 export class CLI extends BaseController {
 
+    /**
+     * Returns metadata describing CLI inputs and outputs.
+     * @returns {Promise<IComponent>} Component metadata definition.
+     */
     public metadata(): Promise<IComponent> {
         return Promise.resolve({
             description: 'Execute shell commands and return their output',
