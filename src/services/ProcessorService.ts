@@ -189,6 +189,7 @@ export class ProcessorService implements IProcessorService {
         const items: IStruct = {};
         const warns: IStruct = {};
         await Promise.all(inputs.map((item, index) => {
+            item.name = item.name || "default";
             if (!items[item.name]) {
                 items[item.name] = item;
             } else {
