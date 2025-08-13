@@ -8,9 +8,11 @@ import { IResult, IStruct, VCategory } from '../../models/Types';
  * This component demonstrates API request execution and response retrieval logic
  */
 export class API extends BaseController {
+
     public metadata(): Promise<IComponent> {
         return Promise.resolve({
             description: 'This component demonstrates API request execution and response retrieval logic',
+            engine: '^1.0.5',
             input: [
                 {
                     "name": "url",
@@ -42,6 +44,7 @@ export class API extends BaseController {
             ]
         });
     }
+
     /**
      * Executes a REST API call using the provided input and pipeline context
      * @param input - Input parameters containing API details like URL, method, headers, and body

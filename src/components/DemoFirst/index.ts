@@ -1,4 +1,5 @@
 import { BaseController } from '../../controllers/BaseController';
+import { IComponent } from '../../models/Component';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct, VCategory } from '../../models/Types';
 
@@ -7,6 +8,29 @@ import { IResult, IStruct, VCategory } from '../../models/Types';
  * This component demonstrates basic deployment, validation, and cleanup operations
  */
 export class DemoFirst extends BaseController {
+
+  public metadata(): Promise<IComponent> {
+    return Promise.resolve({
+      description: 'Simple demo component for basic pipeline testing',
+      orchestrator: 'Node',
+      engine: '^1.0.5',
+      input: [
+        { name: 'projectName', description: 'Project logical name', format: 'string' },
+        { name: 'message', description: 'Demo message to log', format: 'string' },
+        { name: 'delay', description: 'Delay in ms before completing', format: 'number' },
+        { name: 'secs', description: 'Secret example value', format: 'string' }
+      ],
+      output: [
+        { name: 'ipAddress', description: 'Sample IP address output', format: 'string' },
+        { name: 'format', description: 'Formatted string example', format: 'string' }
+      ],
+      setup: [
+        { type: 'secret', name: 'mongodb-atlas:publicKey', value: 'ATLAS_PUBLIC_KEY' },
+        { type: 'secret', name: 'mongodb-atlas:privateKey', value: 'ATLAS_PRIVATE_KEY' },
+        { type: 'secret', name: 'mongodb-atlas:projectId', value: 'ATLAS_PROJECT_ID' }
+      ]
+    });
+  }
 
   /**
    * Deploys the DemoFirst component with message logging and output generation
