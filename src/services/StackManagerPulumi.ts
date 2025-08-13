@@ -143,8 +143,8 @@ export class StackManagerPulumi extends StackManager {
      */
     public async transformSetupItem(meta: IMetadata, input: IStruct): Promise<IStruct> {
         return {
-            [meta.name]: {
-                value: input[meta.name],
+            [meta?.name || 'default']: {
+                value: input[meta?.name || 'default'],
                 secret: (meta.type === "secret" || meta.type === "protected")
             }
         };
