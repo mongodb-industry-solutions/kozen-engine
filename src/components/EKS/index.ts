@@ -16,6 +16,10 @@ import * as pulumi from "@pulumi/pulumi";
 export class K8AwsEks extends BaseController {
   private awsProvider?: aws.Provider;
 
+  /**
+   * Returns EKS component metadata including inputs and outputs.
+   * @returns {Promise<IComponent>} Component metadata definition.
+   */
   public metadata(): Promise<IComponent> {
     return Promise.resolve({
       description: 'Provision an AWS EKS cluster using Pulumi',

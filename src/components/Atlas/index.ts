@@ -14,6 +14,10 @@ import { IAtlasConfig } from "./IAtlasConfig";
 export class Atlas extends BaseController {
   private atlasProvider?: mongodbatlas.Provider;
 
+  /**
+   * Provides component metadata schema for inputs, outputs, and setup.
+   * @returns {Promise<IComponent>} Component metadata definition.
+   */
   public metadata(): Promise<IComponent> {
     return Promise.resolve({
       description: 'MongoDB Atlas cluster deployment using Pulumi',
