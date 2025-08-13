@@ -87,7 +87,7 @@ export abstract class BaseController implements IController {
      * @param {Object} [dependency] - Optional dependency injection object
      * @returns {BaseController} Returns the configured controller instance for method chaining
      */
-    configure(config: IComponent, dependency?: { assistant: IIoC, logger: ILoggerService }): BaseController {
+    public configure(config: IComponent, dependency?: { assistant: IIoC, logger: ILoggerService }): BaseController {
         this.config = config;
         dependency?.assistant && (this.assistant = dependency.assistant);
         dependency?.logger && (this.logger = dependency.logger);
@@ -125,7 +125,7 @@ export abstract class BaseController implements IController {
      * @returns {Promise<IResult>} Promise resolving to deployment result with success status and outputs
      * @throws {Error} When deployment fails due to configuration, network, or infrastructure errors
      */
-    abstract deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
+    public abstract deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
 
     /**
      * Undeploys the component, removing all deployed resources
@@ -206,4 +206,12 @@ export abstract class BaseController implements IController {
         const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output, flow));
         return input || {};
     }
+
+    /**
+     * Retrieves metadata describing the component.
+     * Provides a detailed object containing the component's metadata, such as its configuration, properties, and dependencies.
+     * @public
+     * @returns {Promise<IComponent>} - Promise resolving to the metadata object representing the component.
+     */
+    public abstract metadata(): Promise<IComponent>;
 }

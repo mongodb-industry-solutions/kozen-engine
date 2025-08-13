@@ -1,4 +1,5 @@
 import { BaseController } from '../../controllers/BaseController';
+import { IComponent } from '../../models/Component';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct, VCategory } from '../../models/Types';
 import { IK8PodsConfig } from "./IK8PodsConfig";
@@ -11,6 +12,25 @@ import * as pulumi from '@pulumi/pulumi';
  * This component demonstrates basic deployment, validation, and cleanup operations
  */
 export class K8Pods extends BaseController {
+  /**
+   * Provides metadata for K8s Pod and Service deployment.
+   * @returns {Promise<IComponent>} Component metadata definition.
+   */
+  public metadata(): Promise<IComponent> {
+    return Promise.resolve({
+      description: 'Deploy a simple Pod and Service to an existing Kubernetes cluster',
+      orchestrator: 'Pulumi',
+      engine: '^1.0.5',
+      input: [
+        { name: 'kubeconfigJson', description: 'Kubeconfig JSON for connecting to the cluster', format: 'string' },
+        { name: 'containerName', description: 'Container name', format: 'string' },
+        { name: 'image', description: 'Container image', format: 'string' }
+      ],
+      output: [
+        { name: 'podName', description: 'Name of the created pod', format: 'string' }
+      ]
+    });
+  }
 
   /**
    * Deploys the K8Pods component with message logging and output generation

@@ -5,6 +5,7 @@ import * as os from 'os';
 import * as path from 'path';
 
 import { BaseController } from '../controllers/BaseController';
+import { IComponent } from '../models/Component';
 import { IPipeline } from '../models/Pipeline';
 import { IResult, IStruct } from '../models/Types';
 
@@ -14,6 +15,44 @@ import { IResult, IStruct } from '../models/Types';
  */
 export class K8Pod extends BaseController {
   private k8sProvider?: kubernetes.Provider;
+
+  /**
+   * Provides metadata for Kubernetes Pod deployment configuration.
+   * @returns {Promise<IComponent>} Component metadata definition.
+   */
+  public metadata(): Promise<IComponent> {
+    return Promise.resolve({
+      description: 'Deploy a containerized workload to an existing Kubernetes cluster',
+      orchestrator: 'Pulumi',
+      engine: '^1.0.5',
+      input: [
+        { name: 'namespace', description: 'Target Kubernetes namespace', format: 'string' },
+        { name: 'deploymentName', description: 'Deployment resource name', format: 'string' },
+        { name: 'appLabel', description: 'Label to group resources', format: 'string' },
+        { name: 'labels', description: 'Additional labels for resources', format: 'Record<string,string>' },
+        { name: 'replicas', description: 'Desired replica count', format: 'number' },
+        { name: 'containerName', description: 'Container name', format: 'string' },
+        { name: 'image', description: 'Container image', format: 'string' },
+        { name: 'containerPort', description: 'Container port', format: 'number' },
+        { name: 'ports', description: 'Additional container ports', format: 'Array<{containerPort:number,protocol?:string}>' },
+        { name: 'env', description: 'Environment variables', format: 'Array<{name:string,value?:string,valueFrom?:any}>' },
+        { name: 'resources', description: 'Container resources', format: 'any' },
+        { name: 'volumes', description: 'Pod volumes', format: 'any[]' },
+        { name: 'volumeMounts', description: 'Container volume mounts', format: 'any[]' },
+        { name: 'serviceName', description: 'Service name', format: 'string' },
+        { name: 'servicePort', description: 'Service port', format: 'number' },
+        { name: 'serviceType', description: 'Service type', format: '"ClusterIP" | "NodePort" | "LoadBalancer"' },
+        { name: 'createService', description: 'Whether to create a service', format: 'boolean' }
+      ],
+      output: [
+        { name: 'deploymentName', description: 'Resulting deployment name', format: 'string' },
+        { name: 'serviceName', description: 'Resulting service name (if created)', format: 'string' },
+        { name: 'namespace', description: 'Namespace used', format: 'string' },
+        { name: 'image', description: 'Image deployed', format: 'string' },
+        { name: 'replicas', description: 'Replica count', format: 'number' }
+      ]
+    });
+  }
 
   /**
    * Deploys a container pod to an existing EKS cluster
@@ -56,10 +95,10 @@ export class K8Pod extends BaseController {
       const kubeconfig = fs.existsSync(kubeconfigPath) ? fs.readFileSync(kubeconfigPath, 'utf8') : '';
 
       // Create Kubernetes provider using file path
-      this.k8sProvider = new kubernetes.Provider(`${resourcePrefix}-k8s-provider`, { 
+      this.k8sProvider = new kubernetes.Provider(`${resourcePrefix}-k8s-provider`, {
         kubeconfig
-       });
-      
+      });
+
       // Create namespace (optional)
       const namespace = new kubernetes.core.v1.Namespace(`${resourcePrefix}-namespace`, {
         metadata: {
