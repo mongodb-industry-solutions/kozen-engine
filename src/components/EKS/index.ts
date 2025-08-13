@@ -1,4 +1,5 @@
 import { BaseController } from '../../controllers/BaseController';
+import { IComponent } from '../../models/Component';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct } from '../../models/Types';
 import { IEksConfig } from "./IEksConfig";
@@ -14,6 +15,35 @@ import * as pulumi from "@pulumi/pulumi";
  */
 export class K8AwsEks extends BaseController {
   private awsProvider?: aws.Provider;
+
+  public metadata(): Promise<IComponent> {
+    return Promise.resolve({
+      description: 'Provision an AWS EKS cluster using Pulumi',
+      orchestrator: 'Pulumi',
+      engine: '^1.0.5',
+      input: [
+        { name: 'vpcId', description: 'VPC identifier', format: 'string' },
+        { name: 'publicSubnetIds', description: 'Public subnet identifiers', format: 'Array<string>' },
+        { name: 'privateSubnetIds', description: 'Private subnet identifiers', format: 'Array<string>' },
+        { name: 'desiredCapacity', description: 'Desired node count', format: 'number' },
+        { name: 'minSize', description: 'Minimum node count', format: 'number' },
+        { name: 'maxSize', description: 'Maximum node count', format: 'number' },
+        { name: 'instanceType', description: 'EC2 instance type for nodes', format: 'string' },
+        { name: 'version', description: 'Kubernetes version', format: 'string' }
+      ],
+      output: [
+        { name: 'kubeconfig', description: 'Kubeconfig string for cluster access', format: 'string' },
+        { name: 'kubeconfigJson', description: 'Kubeconfig in JSON format', format: 'string' },
+        { name: 'clusterName', description: 'EKS cluster name', format: 'string' },
+        { name: 'clusterEndpoint', description: 'EKS API endpoint', format: 'string' },
+        { name: 'clusterArn', description: 'EKS cluster ARN', format: 'string' }
+      ],
+      setup: [
+        { type: 'environment', name: 'aws:accessKey', value: 'AWS_ACCESS_KEY_ID' },
+        { type: 'environment', name: 'aws:secretKey', value: 'AWS_SECRET_ACCESS_KEY' }
+      ]
+    });
+  }
 
   /**
    * Deploys a MongoDB Atlas cluster using Pulumi resources
