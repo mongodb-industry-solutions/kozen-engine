@@ -14,6 +14,10 @@ import { IResult, IStruct } from '../models/Types';
 export class K8AwsEks extends BaseController {
   private awsProvider?: aws.Provider;
 
+  /**
+   * Returns legacy EKS metadata for compatibility.
+   * @returns {Promise<IComponent>} Component metadata definition.
+   */
   public metadata(): Promise<IComponent> {
     return Promise.resolve({
       description: 'Provision an AWS EKS cluster using Pulumi (legacy path)',
