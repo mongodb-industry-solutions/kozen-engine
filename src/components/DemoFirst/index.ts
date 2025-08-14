@@ -1,4 +1,5 @@
 import { BaseController } from '../../controllers/BaseController';
+import { IComponent } from '../../models/Component';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct, VCategory } from '../../models/Types';
 
@@ -7,6 +8,39 @@ import { IResult, IStruct, VCategory } from '../../models/Types';
  * This component demonstrates basic deployment, validation, and cleanup operations
  */
 export class DemoFirst extends BaseController {
+
+  /**
+   * Supplies concise metadata for DemoFirst component usage.
+   * @returns {Promise<IComponent>} Component metadata definition.
+   */
+  public metadata(): Promise<IComponent> {
+    return Promise.resolve({
+      description: 'Simple demo component for basic pipeline testing',
+      orchestrator: 'Node',
+      engine: '^1.0.5',
+      setup: [
+        { type: 'secret', name: 'mongodb-atlas:publicKey', value: 'ATLAS_PUBLIC_KEY' },
+        { type: 'secret', name: 'mongodb-atlas:privateKey', value: 'ATLAS_PRIVATE_KEY' },
+        { type: 'secret', name: 'mongodb-atlas:projectId', value: 'ATLAS_PROJECT_ID' }
+      ],
+      input: [
+        { name: 'projectName', description: 'Project logical name', format: 'string' },
+        { name: 'message', description: 'Demo message to log', format: 'string' },
+        { name: 'delay', description: 'Delay in ms before completing', format: 'number' },
+        { name: 'secs', description: 'Secret example value', format: 'string' }
+      ],
+      output: [
+        { name: 'ipAddress', description: 'Sample IP address output', format: 'string' },
+        { name: 'format', description: 'Formatted string example', format: 'string' }
+      ],
+      dependency: [
+        {
+          name: 'DemoSecond',
+          description: 'Example of how to call another component as a dependency'
+        }
+      ]
+    });
+  }
 
   /**
    * Deploys the DemoFirst component with message logging and output generation
@@ -33,6 +67,18 @@ export class DemoFirst extends BaseController {
         prefix: this.getPrefix(pipeline)
       }
     });
+
+    // Example of how to call another component as a dependency
+    const component = await this.assistant?.resolve<BaseController>('DemoSecond');
+    const depResult = await component?.deploy(input, pipeline);
+    this.logger?.info({
+      flow: pipeline?.id,
+      category: VCategory.cmp.iac,
+      src: 'component:DemoFirst:deploy',
+      message: `Result of calling a component as a dependency`,
+      data: depResult?.output
+    });
+
     // await new Promise(resolve => setTimeout(resolve, input?. || 1000));
     return {
       templateName: pipeline?.template?.name,
