@@ -34,27 +34,15 @@ export type IAction = "deploy" | "undeploy" | "destroy" | "validate" | "status";
 export type IStructType = "reference" | "value" | "environment" | "secret" | "protected";
 
 /**
- * Variable definition interface for value resolution operations
+ * Metadata definition interface for value resolution operations
  * @interface IMetadata
  */
 export interface IMetadata {
     /**
-     * Actual value or reference key for variable resolution
-     * @type {any}
-     */
-    value: any;
-
-    /**
      * Unique variable identifier for reference and tracking
      * @type {string}
      */
-    name: string;
-
-    /**
-     * Value resolution strategy determining how variable is processed
-     * @type {IStructType}
-     */
-    type?: IStructType;
+    name?: string;
 
     /**
      * Variable description for documentation and debugging purposes
@@ -63,16 +51,40 @@ export interface IMetadata {
     description?: string;
 
     /**
+     * Actual value or reference key for variable resolution
+     * @type {any}
+     */
+    value?: any;
+
+    /**
+     * List of allowable or supported values for the variable
+     * @type {Array<any>}
+     */
+    range?: Array<any>;
+
+    /**
+     * Value resolution strategy determining how variable is processed
+     * @type {IStructType}
+     */
+    type?: IStructType;
+
+    /**
      * Default fallback value when resolution fails or returns null
      * @type {any}
      */
     default?: any;
 
     /**
+     * The format defines the expected data type of a variable.
+     * @type {string}
+     */
+    format?: string
+
+    /**
      * Additional custom properties for extended metadata functionality
      * @type {any}
      */
-    [key: string]: any
+    [key: string]: any;
 }
 
 /**
