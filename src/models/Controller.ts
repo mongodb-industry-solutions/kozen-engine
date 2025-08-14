@@ -67,4 +67,11 @@ export interface IController {
      * @throws {Error} When status check fails due to network issues or access problems.
      */
     status(input?: IStruct, pipeline?: IPipeline): Promise<IResult | void>;
+
+    /**
+     * Retrieves metadata describing the component.
+     * Provides a detailed object containing the component's metadata, such as its configuration, properties, and dependencies.
+     * @returns {Promise<IComponent>} - Promise resolving to the metadata object representing the component.
+     */
+    metadata(): Promise<IComponent>;
 }
