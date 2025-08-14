@@ -274,13 +274,15 @@ export class PipelineController extends CLIController {
    * @throws {Error} When validation fails due to missing or invalid arguments
    */
   public validateArguments(args: IPipelineArgs): void {
-    if (!args.template) {
-      throw new Error('Template is required. Use --template=<template-name> or set TEMPLATE environment variable.');
-    }
-
     const validActions = ['deploy', 'undeploy', 'validate', 'destroy', 'status', 'run'];
     if (!validActions.includes(args.action)) {
       throw new Error(`Invalid action: ${args.action}. Must be one of: ${validActions.join(', ')}`);
+    }
+
+    // Only require template for actions that need it
+    const requiresTemplate = ['deploy', 'validate'];
+    if (requiresTemplate.includes(args.action) && !args.template) {
+      throw new Error('Template is required for this action. Use --template=<template-name> or set TEMPLATE environment variable.');
     }
 
     if (!args?.config || !fs.existsSync(args.config)) {
