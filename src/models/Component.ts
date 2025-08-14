@@ -76,37 +76,51 @@ export interface IComponent {
     version?: string;
 
     /**
-     * Execution engine or runtime requirements for the component
-     * Specifies which engine should handle component execution
+     * Specifies which engine version should handle the component execution
      * @type {string}
      * @optional
-     * @example 'pulumi', 'node', 'terraform', 'kubernetes'
+     * @example '^1.2.3'
      */
     engine?: string;
 
     /**
+     * Pipeline orchestration tool name supported or required
+     * @type {string}
+     * @optional
+     * @example 'pulumi', 'node', 'terraform', 'kubernetes'
+     */
+    orchestrator?: string;
+
+    /**
      * Expected output structure that the component will produce after execution
      * Used for data flow validation and inter-component communication
-     * @type {IComponentOutput}
+     * @type {Array<IComponentOutput> | Record<string, IComponentOutput>}
      * @optional
      */
-    output?: IComponentOutput;
+    output?: Array<IComponentOutput> | Record<string, IComponentOutput>;
 
     /**
      * Required input parameters and configuration data for component execution
      * Defines the data contract that must be satisfied for successful execution
-     * @type {IComponentInput}
+     * @type {Array<IComponentInput> | Record<string, IComponentInput>}
      * @optional
      */
-    input?: IComponentInput;
+    input?: Array<IComponentInput> | Record<string, IComponentInput>;
 
     /**
      * Component-specific configuration parameters and setup options
      * Contains initialization settings, provider configurations, and runtime options
-     * @type {IMetadata}
+     * @type {Array<IMetadata> | Record<string, IMetadata>}
      * @optional
      */
-    setup?: IMetadata;
+    setup?: Array<IMetadata> | Record<string, IMetadata>;
+
+    /**
+     * Specifies the components or modules required for proper functionality or execution.
+     * @type {Array<IMetadata> | Record<string, IMetadata>}
+     * @optional
+     */
+    dependency?: Array<IMetadata> | Record<string, IMetadata>;
 
     /**
      * Additional custom properties for component extensibility
@@ -120,7 +134,7 @@ export interface IComponent {
 /**
  * Transform function type for processing component input data and pipeline output
  * Used to modify or transform data as it flows between pipeline components
- * 
+ *
  * @typedef {(component: IComponent, output: IStruct) => Promise<IStruct>} ITransformFn
  * @param {IComponent} component - The component configuration requesting the transformation
  * @param {IStruct} output - The output data from previous pipeline stages to be transformed

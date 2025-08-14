@@ -1,5 +1,6 @@
 import { exec } from 'child_process';
 import { BaseController } from '../../controllers/BaseController';
+import { IComponent } from '../../models/Component';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct, VCategory } from '../../models/Types';
 
@@ -8,6 +9,27 @@ import { IResult, IStruct, VCategory } from '../../models/Types';
  * This component demonstrates command execution and output retrieval logic
  */
 export class CLI extends BaseController {
+
+    /**
+     * Returns metadata describing CLI inputs and outputs.
+     * @returns {Promise<IComponent>} Component metadata definition.
+     */
+    public metadata(): Promise<IComponent> {
+        return Promise.resolve({
+            description: 'Execute shell commands and return their output',
+            engine: '^1.0.5',
+            input: [
+                { name: 'deploy', description: 'Inputs for deploy action', format: 'Array<any>' },
+                { name: 'undeploy', description: 'Inputs for undeploy action', format: 'Array<any>' },
+                { name: 'cmd', description: 'Command to execute', format: 'string' },
+                { name: 'args', description: 'Arguments for the command', format: 'Array<string>' }
+            ],
+            output: [
+                { name: 'raw', description: 'Raw command output', format: 'string' },
+                { name: 'processed', description: 'Processed/parsed output', format: 'any' }
+            ]
+        });
+    }
     /**
      * Executes a CLI command using the provided input and pipeline context
      * @param input - Input parameters with CLI command to execute
