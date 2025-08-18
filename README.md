@@ -168,7 +168,6 @@ Notes:
 - Stack names are case-sensitive.
 - An input like `K2025080114570884/` will be normalized (trailing slash ignored).
 
-````
 
 ## 📦 NPM Package Integration
 
