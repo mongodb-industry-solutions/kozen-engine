@@ -215,21 +215,33 @@ export class StackManager extends BaseService implements IStackManager {
     }
 
     /**
-     * Sets up and configures a Pulumi stack with custom configuration
+     * Sets up and configures the stack with custom configuration
      * @protected
-     * @param {Stack} stack - The Pulumi stack instance to configure
      * @param {IStackOptions} config - Configuration options containing setup function and parameters
+     * @param {IStruct} result - Optional result object to merge with output
      * @returns {Promise<Stack>} Promise resolving to the configured stack instance
      * @throws {Error} When stack configuration fails or setup function encounters errors
      */
     protected async output(opts: IStackOptions, result?: IStruct): Promise<IStruct> {
         // Configure the stack with the provided configuration
-        let { items, warns } = await this.transformOutput({ component: { setup: opts.output }, key: 'output', flow: opts.id });
-        let cmpOutput = {};
+        let { items = {}, warns = {} } = result ? { items: result } : await this.transformOutput({ component: { output: opts.output }, key: 'output', flow: opts.id });
+        let cmpOutput: { items?: IStruct, warns?: IStruct } = {};
         if (opts.end instanceof Function) {
             cmpOutput = await opts.end();
         }
-        return { items: { ...items }, warns: { ...warns } };
+        let output = cmpOutput ? { items: { ...items, ...cmpOutput.items }, warns: { ...warns, ...cmpOutput.warns } } : { items, warns };
+        output.warns && this.logger?.warn({
+            flow: opts.id,
+            category: VCategory.core.stack,
+            src: 'Service:StackManager:output',
+            data: {
+                stackName: opts.name,
+                projectName: opts.project,
+                issues: output.warns
+            },
+            message: `Stack output processed successfully.`,
+        });
+        return output;
     }
 }
 

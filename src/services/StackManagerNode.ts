@@ -28,7 +28,7 @@ export class StackManagerNode extends StackManager {
         try {
             config?.program instanceof Function && await config.program();
 
-            await this.output(config);
+            const output = await this.output(config);
 
             this.logger?.debug({
                 flow: config.id,
@@ -47,6 +47,7 @@ export class StackManagerNode extends StackManager {
                 success: true,
                 timestamp: new Date(),
                 message: `Stack ${config.name} deployed successfully.`,
+                output: output.items
             };
         }
         catch (error) {
