@@ -120,12 +120,6 @@ export class PipelineManager extends BaseService {
 
     /**
      * Deploys infrastructure using the specified template and pipeline arguments
-     * 
-     * @public
-     * @param {IPipelineArgs} pipeline - Pipeline arguments containing template name, action, project, and stack information
-     * @returns {Promise<IResult>} Promise resolving to the deployment execution result
-     * @throws {Error} When deployment fails due to template loading, stack management, or component deployment errors
-     * 
      * This method orchestrates the complete deployment process by:
      * 1. Extracting deployment parameters from pipeline arguments
      * 2. Resolving StackManager and TemplateManager from IoC container
@@ -133,6 +127,11 @@ export class PipelineManager extends BaseService {
      * 4. Executing the deployment through stack manager
      * 5. Processing all template components sequentially
      * 6. Returning comprehensive deployment results
+     * 
+     * @public
+     * @param {IPipelineArgs} pipeline - Pipeline arguments containing template name, action, project, and stack information
+     * @returns {Promise<IResult>} Promise resolving to the deployment execution result
+     * @throws {Error} When deployment fails due to template loading, stack management, or component deployment errors
      */
     public async deploy(args: IPipelineArgs): Promise<IResult> {
         const { template: templateName, action, project, stack: name } = args;
@@ -211,27 +210,20 @@ export class PipelineManager extends BaseService {
 
         out.results = out.results || [];
 
-        // // Merge resolved outputs from Automation API (preferred) with in-program outputs
-        // const mergedOutputs: any = { ...(out.output || {}) };
-        // if (stackResult?.output) {
-        // for (const [k, v] of Object.entries(stackResult.output as any)) {
-        //     mergedOutputs[k] = (v as any)?.value ?? v;
-        // }
-        // }
-        // out.output = mergedOutputs;
-
         try {
-        out.output &&
-            (process.env['KOZEN_ENV_ACTION'] === undefined || process.env['KOZEN_ENV_ACTION'] === 'EXPOSE') &&
-            await this.envSrv?.expose(out.output, { flow: id });
+            if (out.output) {
+                out.output.flow = id;
+                (process.env['KOZEN_ENV_ACTION'] === undefined || process.env['KOZEN_ENV_ACTION'] === 'EXPOSE') &&
+                    await this.envSrv?.expose(out.output, { flow: id });
+            }
         } catch (error) {
-        this.logger?.warn({
-            flow: id,
-            src: 'Service:Pipeline:Deploy:End',
-            message: 'It was not possible to expose the environmental variables',
-            category: VCategory.core.pipeline,
-            data: { output: out.output, error: (error as Error).message }
-        });
+            this.logger?.warn({
+                flow: id,
+                src: 'Service:Pipeline:Deploy:End',
+                message: 'It was not possible to expose the environmental variables',
+                category: VCategory.core.pipeline,
+                data: { output: out.output, error: (error as Error).message }
+            });
         }
 
         stackResult && out.results.push(stackResult);
@@ -292,10 +284,10 @@ export class PipelineManager extends BaseService {
             const input = await transform(component, output);
             const method = (delegate as any)[action];
             const result = ((method instanceof Function) && await method.apply(delegate, [input, pipeline])) || null;
-
-            // const result = await delegate.deploy(input);
             results.push(result);
-            output = { ...output, ...result.output };
+            if (result?.output) {
+                output = { ...output, ...result.output }
+            };
         }
 
         return {

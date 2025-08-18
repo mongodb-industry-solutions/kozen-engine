@@ -225,7 +225,8 @@ export class StackManagerPulumi extends StackManager {
                     message: `Stack output: ${output}`
                 })
             });
-            await this.output(config, upRes?.outputs);
+            // TODO: check output management actions
+            const output = await this.output(config, upRes?.outputs);
             return {
                 success: !!upRes,
                 stackName: config.name,
@@ -234,7 +235,7 @@ export class StackManagerPulumi extends StackManager {
                 timestamp: upRes?.summary?.endTime || new Date(),
                 message: `Stack deployment: ${upRes?.summary?.result}`,
                 error: (upRes?.stderr && new Error(upRes.stderr)) || undefined,
-                output: upRes?.outputs
+                output: upRes?.outputs || output.items
             };
         }
         catch (error) {
