@@ -149,6 +149,26 @@ npm run dev -- --template=performance.suite --config=cfg/config.json --action=va
 npm run dev -- --template=full.pipeline --config=cfg/config.json --action=deploy
 ```
 
+### Undeploy by project and stack
+
+```bash
+# Option 1: pass both project and stack explicitly
+ts-node bin/pipeline.ts --action=undeploy --project=K2025080114570884 --stack=DEV
+
+# Option 2: use env var for project, pass stack on the command
+export KOZEN_PROJECT=K2025080114570884
+ts-node bin/pipeline.ts --action=undeploy --stack=DEV
+
+# Or via npm script
+npm run test:undeploy -- --project=K2025080114570884 --stack=DEV
+```
+
+Notes:
+
+- Stack names are case-sensitive.
+- An input like `K2025080114570884/` will be normalized (trailing slash ignored).
+
+
 ## 📦 NPM Package Integration
 
 Kozen Engine is designed for distribution as an NPM package, enabling:
@@ -172,7 +192,7 @@ await pipeline.validate({
   config: "cfg/config.json",
   action: "validate",
 });
-```
+````
 
 ## 🛠️ Development
 
