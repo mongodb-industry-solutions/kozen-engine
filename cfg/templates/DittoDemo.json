@@ -73,6 +73,12 @@
                 "name": "K8Pods",
                 "input": [
                     {
+                        "type": "reference",
+                        "name": "kubeconfigJson",
+                        "value": "kubeconfigJson",
+                        "description": "Kubeconfig JSON for accessing the EKS cluster"
+                    },
+                    {
                         "type": "value",
                         "name": "containerName",
                         "value": "ditto-demo"
