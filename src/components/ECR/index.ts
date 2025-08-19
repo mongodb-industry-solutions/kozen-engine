@@ -2,12 +2,16 @@ import { BaseController } from '../../controllers/BaseController';
 import { IComponent } from '../../models/Component';
 import { IPipeline } from '../../models/Pipeline';
 import { IResult, IStruct, VCategory } from '../../models/Types';
+import { IEcrConfig } from "./IEcrConfig";
+
+import * as aws from "@pulumi/aws";
+import * as pulumi from "@pulumi/pulumi";
 
 /**
- * Simple demo component controller for testing pipeline functionality
- * This component demonstrates basic deployment, validation, and cleanup operations
+ * AWS ECR component - creates a container registry repository
  */
 export class ECR extends BaseController {
+  private awsProvider?: aws.Provider;
 
   /**
    * Provides ECR component metadata for configuration.
@@ -15,102 +19,148 @@ export class ECR extends BaseController {
    */
   public metadata(): Promise<IComponent> {
     return Promise.resolve({
-      description: 'AWS ECR helper component (placeholder)',
+      description: 'Create and manage an AWS ECR repository using Pulumi',
       orchestrator: 'Pulumi',
       engine: '^1.0.5',
       input: [
         { name: 'resourcePrefix', description: 'Resource prefix for naming', format: 'string' },
-        { name: 'containerName', description: 'Container name', format: 'string' }
+        { name: 'containerName', description: 'Container name (used in default repo name)', format: 'string' },
+        { name: 'repositoryName', description: 'Explicit ECR repository name (overrides default)', format: 'string' },
+        { name: 'scanOnPush', description: 'Enable image scanning on push', format: 'boolean' },
+        { name: 'forceDelete', description: 'Force delete the repository (even if images exist)', format: 'boolean' },
+        { name: 'imageTagMutability', description: 'Tag mutability policy', format: '"MUTABLE" | "IMMUTABLE"' },
+        { name: 'lifecyclePolicyJson', description: 'Lifecycle policy JSON string', format: 'string' },
+        { name: 'tags', description: 'Resource tags', format: 'Record<string,string>' },
+        { name: 'region', description: 'AWS region override', format: 'string' }
       ],
       output: [
-        { name: 'registryUrl', description: 'ECR registry URL', format: 'string' }
+        { name: 'repositoryUrl', description: 'ECR repository URL', format: 'string' },
+        { name: 'repositoryArn', description: 'ECR repository ARN', format: 'string' },
+        { name: 'repositoryName', description: 'ECR repository name', format: 'string' },
+        { name: 'registryId', description: 'AWS account registry ID', format: 'string' }
+      ],
+      setup: [
+        { type: 'environment', name: 'aws:accessKey', value: 'AWS_ACCESS_KEY_ID' },
+        { type: 'environment', name: 'aws:secretKey', value: 'AWS_SECRET_ACCESS_KEY' },
+        { type: 'environment', name: 'aws:region', value: 'AWS_REGION', default: 'us-east-1' }
       ]
     });
   }
 
   /**
-   * Deploys the DemoFirst component with message logging and output generation
-   * @param input - Optional deployment input parameters with message and timeout
-   * @returns Promise resolving to deployment result with success status and IP address output
+   * Creates an AWS ECR repository.
    */
-  async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
+  async deploy(input?: IEcrConfig, pipeline?: IPipeline): Promise<IResult> {
+    try {
+      this.logger?.info({
+        flow: pipeline?.id,
+        category: VCategory.cmp.iac,
+        src: 'component:ECR:deploy',
+        message: `Deploying ECR repository${input?.message ? `: ${input.message}` : ''}`,
+        data: {
+          componentName: this.config.name,
+          templateName: pipeline?.template?.name,
+          stackName: pipeline?.stack?.config?.name,
+          projectName: pipeline?.stack?.config?.project,
+          prefix: this.getPrefix(pipeline)
+        }
+      });
 
-    this.logger?.info({
-      flow: pipeline?.id,
-      category: VCategory.cmp.iac,
-      src: 'component:DemoFirst:deploy',
-      message: `Deploying with message: ${input?.message}`,
-      data: {
-        // Get the current component name
-        componentName: this.config.name,
-        // Get the current template name
+      const resourcePrefix = (input?.resourcePrefix || this.getPrefix(pipeline)).toLowerCase();
+
+      // Region resolution: Pulumi config → env → default
+      const awsCfg = new pulumi.Config("aws");
+      const region = (input?.region || awsCfg.get("region") || process.env.AWS_REGION || "us-east-1") as aws.Region;
+
+      this.awsProvider = new aws.Provider(`${resourcePrefix}-aws-provider`, { region });
+
+      const repoName =
+        input?.repositoryName ||
+        `${resourcePrefix}-${(input?.containerName || 'app').toLowerCase()}`;
+
+      const repo = new aws.ecr.Repository(`${resourcePrefix}-ecr`, {
+        name: repoName,
+        imageScanningConfiguration: { scanOnPush: input?.scanOnPush ?? true },
+        imageTagMutability: input?.imageTagMutability || "MUTABLE",
+        forceDelete: input?.forceDelete ?? true,
+        tags: {
+          Project: pipeline?.stack?.config?.project || "",
+          Stack: pipeline?.stack?.config?.name || "",
+          Component: this.config.name || "ECR",
+          ManagedBy: "pulumi-kozen-engine",
+          ...(input?.tags || {})
+        }
+      }, { provider: this.awsProvider });
+
+      // Optional lifecycle policy
+      if (input?.lifecyclePolicyJson) {
+        new aws.ecr.LifecyclePolicy(`${resourcePrefix}-ecr-lc`, {
+          repository: repo.name,
+          policy: input.lifecyclePolicyJson
+        }, { provider: this.awsProvider });
+      }
+
+      return {
         templateName: pipeline?.template?.name,
-        // Get the current stack name (usually the execution environment like: dev, stg, prd, test, etc.)
-        stackName: pipeline?.stack?.config?.name,
-        // Get the current project name, which can be used in combination with the stackName as prefix for internal resource deployment (ex. K2025072112202952-dev)
-        projectName: pipeline?.stack?.config?.project,
-        // Get component (ex. K2025072112202952-dev)
-        prefix: this.getPrefix(pipeline)
-      }
-    });
-    // await new Promise(resolve => setTimeout(resolve, input?. || 1000));
-    return {
-      templateName: pipeline?.template?.name,
-      action: 'deploy',
-      success: true,
-      message: `DemoFirst deployed successfully with message: ${input?.message}`,
-      timestamp: new Date(),
-      output: {
-        ipAddress: "123.94.55.2"
-      }
-    };
+        action: 'deploy',
+        success: true,
+        message: `ECR repository '${repoName}' deployed successfully`,
+        timestamp: new Date(),
+        output: {
+          repositoryUrl: repo.repositoryUrl,
+          repositoryArn: repo.arn,
+          repositoryName: repo.name,
+          registryId: repo.registryId
+        }
+      };
+    } catch (error) {
+      this.logger?.error({
+        flow: pipeline?.id,
+        category: VCategory.cmp.iac,
+        src: 'component:ECR:deploy',
+        message: `Error deploying ECR repository: ${error instanceof Error ? error.message : String(error)}`,
+        data: { error }
+      });
+
+      return {
+        templateName: pipeline?.template?.name,
+        action: 'deploy',
+        success: false,
+        message: `ECR deployment failed: ${error instanceof Error ? error.message : String(error)}`,
+        timestamp: new Date(),
+      };
+    }
   }
 
-  /**
-   * Undeploys the DemoFirst component with cleanup confirmation
-   * @param input - Optional undeployment input parameters
-   * @returns Promise resolving to undeployment result with success status
-   */
   async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
     return {
       templateName: this.config.name,
       action: 'undeploy',
       success: true,
-      message: `DemoFirst undeployed successfully.`,
+      message: `ECR undeploy handled at stack level.`,
       timestamp: new Date(),
     };
   }
 
-  /**
-   * Validates the DemoFirst component configuration for deployment readiness
-   * @param input - Optional validation input parameters
-   * @returns Promise resolving to validation result with success confirmation
-   */
   async validate(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
     return {
       templateName: this.config.name,
       action: 'validate',
       success: true,
-      message: `DemoFirst configuration is valid.`,
+      message: `ECR configuration is valid.`,
       timestamp: new Date(),
     };
   }
 
-  /**
-   * Retrieves current operational status information for the DemoFirst component
-   * @param input - Optional status query input parameters
-   * @returns Promise resolving to status result with operational state
-   */
   async status(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
     return {
       templateName: this.config.name,
       action: 'status',
       success: true,
-      message: `DemoFirst is running.`,
+      message: `ECR component status OK.`,
       timestamp: new Date(),
     };
   }
-
 }
 
 export default ECR;
