@@ -11,6 +11,14 @@ import { ServerMCP } from "../src/tools/mcp/ServerMCP";
         if (!cli.helper || !cli.logger) {
             throw new Error("CLIController not properly initialized: missing helper or logger.");
         }
+
+        cli.logger.info({
+            flow: cli.getId(args),
+            src: 'bin:mcp',
+            category: VCategory.cmp.exe,
+            message: `🚀 Starting MCP server...`
+        });
+
         const ops = { assistant: cli.helper, logger: cli.logger };
 
         await Promise.all([
