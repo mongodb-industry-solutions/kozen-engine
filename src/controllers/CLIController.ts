@@ -86,14 +86,17 @@ export class CLIController {
     public help(): void {
         console.log(`
 ===============================================================================
-Kozen Engine - Dynamic Infrastructure & Testing Pipeline Platform
+Kozen Engine - Task Execution Framework
+
+.......................................
+Kozen is a Task Execution Framework designed to streamline and automate the coordination of workflows, including dynamic infrastructure management, automated testing pipelines, data modeling validation, security processes, and more. It simplifies the execution of complex tasks, ensuring seamless integration, scalability, and adaptability across dynamic and customized platforms. By acting as a centralized system for task management, Kozen empowers users to efficiently handle critical operations in development and deployment environments.
 ===============================================================================
 
 Usage:
     kozen --action=<value> [--controller=<value>] [options]
 
 Core Options:
-    --stack=<id>                    Environment identifier (dev, test, prod) 
+    --stack=<id>                    Environment identifier (dev, test, prod)
                                     (default: from NODE_ENV or 'dev')
     --project=<id>                  Project identifier for resource organization
                                     (default: auto-generated timestamp ID)
