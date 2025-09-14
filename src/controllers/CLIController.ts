@@ -86,14 +86,24 @@ export class CLIController {
     public help(): void {
         console.log(`
 ===============================================================================
-Kozen Engine - Dynamic Infrastructure & Testing Pipeline Platform
+#    ##....##..#######..########.########.##....##
+#    ##...##..##.....##......##..##.......###...##
+#    ##..##...##.....##.....##...##.......####..##
+#    #####....##.....##....##....######...##.##.##
+#    ##..##...##.....##...##.....##.......##..####
+#    ##...##..##.....##..##......##.......##...###
+#    ##....##..#######..########.########.##....##
+#
+#    Kozen Engine - Task Execution Framework
+...............................................................................
+Kozen is a Task Execution Framework designed to streamline and automate the coordination of workflows, including dynamic infrastructure management, automated testing pipelines, data modeling validation, security processes, and more.It simplifies the execution of complex tasks, ensuring seamless integration, scalability, and adaptability across dynamic and customized platforms.By acting as a centralized system for task management, Kozen empowers users to efficiently handle critical operations in development and deployment environments.
 ===============================================================================
 
 Usage:
     kozen --action=<value> [--controller=<value>] [options]
 
 Core Options:
-    --stack=<id>                    Environment identifier (dev, test, prod) 
+    --stack=<id>                    Environment identifier (dev, test, prod)
                                     (default: from NODE_ENV or 'dev')
     --project=<id>                  Project identifier for resource organization
                                     (default: auto-generated timestamp ID)
@@ -132,7 +142,7 @@ Quick Start Examples:
      * @param {string} configPath - File system path to the configuration file
      * @returns {Promise<IConfig>} Promise resolving to the loaded and parsed pipeline configuration
      * @throws {Error} When file reading fails, JSON parsing errors occur, or file access is denied
-     * 
+     *
      * Loads and parses pipeline configuration from a JSON file, providing error handling
      * for common file system and parsing issues. The configuration includes service dependencies,
      * deployment settings, and environment-specific parameters.
@@ -155,7 +165,7 @@ Quick Start Examples:
     /**
      * Generates a unique pipeline identifier from configuration options
      * Combines project and stack identifiers to create a unique pipeline ID
-     * 
+     *
      * @param {IConfig} [opt] - Configuration object containing project and stack information
      * @returns {string} Generated pipeline ID in format 'project-stack' or fallback ID
      * @public
@@ -170,7 +180,7 @@ Quick Start Examples:
      * @param {ICLIArgs} args - Secret controller configuration arguments
      * @returns {Promise<void>} Promise that resolves when configuration is complete
      * @throws {Error} When configuration fails due to invalid configuration or dependency registration errors
-     * 
+     *
      * This method sets up the secret controller by:
      * 1. Loading the configuration file if provided
      * 2. Setting up the IoC container for dependency injection
@@ -196,7 +206,7 @@ Quick Start Examples:
     /**
      * Initializes the CLI controller by parsing arguments and loading configuration
      * This method combines argument parsing and configuration loading in a single operation
-     * 
+     *
      * @template T - Type of arguments to return, defaults to ICLIArgs
      * @param {string[] | ICLIArgs} [argv] - Command line arguments or pre-parsed arguments
      * @returns {Promise<{args?: T, config?: IConfig | null}>} Promise resolving to parsed arguments and loaded configuration
@@ -213,7 +223,7 @@ Quick Start Examples:
     /**
      * Parses and processes command line arguments into structured format with environment variable fallbacks
      * Handles both string array arguments and pre-parsed argument objects, applying defaults from environment variables
-     * 
+     *
      * @param {string[] | ICLIArgs} args - Raw command line arguments array or pre-parsed arguments object
      * @returns {Promise<ICLIArgs>} Promise resolving to structured CLI arguments with all defaults applied
      * @public
@@ -233,7 +243,7 @@ Quick Start Examples:
     /**
      * Extracts key-value pairs from command line arguments array using '--key=value' format
      * Supports both raw command line arrays and pre-parsed argument objects
-     * 
+     *
      * @param {string[] | ICLIArgs} [argv] - Command line arguments array or parsed arguments object
      * @returns {Record<string, any>} Object containing parsed argument key-value pairs
      * @protected
@@ -253,7 +263,7 @@ Quick Start Examples:
     /**
      * Waits for all pending logger operations to complete before continuing
      * Ensures all log entries are properly written before the application exits
-     * 
+     *
      * @returns {Promise<void>} Promise that resolves when all pending log operations are complete
      * @public
      */
@@ -266,7 +276,7 @@ Quick Start Examples:
     /**
      * Logs a message using the controller's logger service with automatic categorization
      * Automatically sets category and flow ID if not specified in the input
-     * 
+     *
      * @param {ILogInput} input - Log message string or structured log object with metadata
      * @param {ILogLevel} [level=ILogLevel.INFO] - Log level for the message
      * @returns {Promise<void>} Promise that resolves when logging operation completes
@@ -283,7 +293,7 @@ Quick Start Examples:
     /**
      * Capitalizes the first letter of a string while preserving the rest
      * Utility method for formatting controller names and identifiers
-     * 
+     *
      * @param {string} str - String to capitalize
      * @returns {string} String with first letter capitalized, empty string if input is falsy
      * @protected
