@@ -17,7 +17,7 @@
  */
 import dotenv from "dotenv";
 import { ILogLevel } from "../src";
-import { PipelineController } from '../src/controllers/PipelineController';
+import { PipelineController } from '../src/controllers/cli/PipelineController';
 import { VCategory } from "../src/models/Types";
 
 /**
