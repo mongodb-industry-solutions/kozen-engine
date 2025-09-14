@@ -22,6 +22,9 @@ Kozen Engine simplifies the creation of dynamic, configuration-driven pipelines 
 # Install dependencies
 npm install
 
+# Get template documentation
+npm run dev -- --action=template:help
+
 # Deploy infrastructure with testing pipeline
 npm run dev -- --template=atlas.basic --config=cfg/config.json --action=deploy
 

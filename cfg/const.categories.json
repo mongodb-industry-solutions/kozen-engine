@@ -10,6 +10,12 @@
         "secret": "cli:secret",
         "tool": "cli:tool"
     },
+    "mcp": {
+        "logger": "mcp:logger",
+        "pipeline": "mcp:pipeline",
+        "secret": "mcp:secret",
+        "tool": "mcp:tool"
+    },
     "test": {
         "e2e": "test:e2e",
         "integration": "test:integration",
