@@ -309,12 +309,40 @@ export class PipelineManager extends BaseService {
      */
     public async undeploy(pipeline: IPipelineArgs): Promise<IResult> {
         const { template: templateName, action, project, stack: name } = pipeline;
+
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
+        }
+
+        const id = this.getId(pipeline as any);
+        const stackAdm = await this.assistant.resolve<IStackManager>("StackManager");
+
+        // If a template is provided, use it to get orchestrator/workspace; otherwise default to Pulumi.
+        let orchestrator = "Pulumi";
+        let stackOpts: any = {};
+
+        if (templateName) {
+            const srvTemplate = await this.assistant.resolve<ITemplateManager>("TemplateManager");
+            const template = await srvTemplate.load<ITemplate>(templateName, { flow: id });
+            orchestrator = template.stack?.orchestrator || "Pulumi";
+            stackOpts = template.stack || {};
+        }
+
+        const stackResult = await stackAdm.undeploy({
+            id,
+            name,
+            project,
+            orchestrator,
+            ...stackOpts,
+        });
+
         return {
             templateName,
             action: action as IAction,
-            success: true,
-            message: `Pipeline ${templateName} undeployed successfully.`,
+            success: !!stackResult?.success,
+            message: stackResult?.message || `Stack ${name} undeployed.`,
             timestamp: new Date(),
+            results: [stackResult],
         };
     }
 
