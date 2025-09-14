@@ -5,8 +5,8 @@
             "command": "npx",
             "args": [
                 "-y",
-                "tsc",
-                "C:\\data\\dev\\kozen-engine\\bin\\mcp.ts"
+                "ts-node",
+                "bin/mcp.ts"
             ]
         }
     },
