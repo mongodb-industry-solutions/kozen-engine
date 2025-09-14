@@ -18,7 +18,9 @@
         "test:deploy": "ts-node bin/pipeline.ts --action=deploy",
         "test:validate": "ts-node bin/pipeline.ts --action=validate",
         "test:undeploy": "ts-node bin/pipeline.ts --action=undeploy",
-        "test:status": "ts-node bin/pipeline.ts --action=status"
+        "test:status": "ts-node bin/pipeline.ts --action=status",
+        "mcp:dev": "npx -y @modelcontextprotocol/inspector npx -y tsc bin/mcp.ts",
+        "mcp:start": "tsc bin/mcp.ts"
     },
     "keywords": [
         "iac",
@@ -43,6 +45,7 @@
     },
     "dependencies": {
         "@aws-sdk/client-secrets-manager": "^3.840.0",
+        "@modelcontextprotocol/sdk": "^1.18.0",
         "@pulumi/aws": "^6.83.0",
         "@pulumi/awsx": "^3.0.0",
         "@pulumi/eks": "^4.0.0",
@@ -52,7 +55,8 @@
         "dotenv": "^17.0.1",
         "mongodb": "^6.17.0",
         "mongodb-client-encryption": "^6.4.0",
-        "ora": "^8.2.0"
+        "ora": "^8.2.0",
+        "zod": "^3.25.76"
     },
     "engines": {
         "node": ">=16.0.0"

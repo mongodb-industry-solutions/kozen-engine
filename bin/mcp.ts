@@ -1,0 +1,29 @@
+import { CLIController } from "../src";
+import { TemplateController } from "../src/controllers/mcp/TemplateController";
+import { VCategory } from "../src/models/Types";
+import { ServerMCP } from "../src/tools/mcp/ServerMCP";
+
+(async () => {
+    const cli = new CLIController();
+    const { args } = await cli.init(process.argv);
+    try {
+        const server = new ServerMCP({ name: "kozen", version: "1.0.0" });
+        if (!cli.helper || !cli.logger) {
+            throw new Error("CLIController not properly initialized: missing helper or logger.");
+        }
+        const ops = { assistant: cli.helper, logger: cli.logger };
+
+        await Promise.all([
+            new TemplateController(ops).register(server.node)
+        ]);
+
+        server.start();
+    } catch (error) {
+        console.error({
+            flow: cli.getId(args),
+            src: 'bin:mcp',
+            category: VCategory.cmp.exe,
+            message: `❌ MCP execution failed:` + (error as Error).message || error
+        });
+    }
+})();
