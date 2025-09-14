@@ -1,0 +1,14 @@
+{
+    "servers": {
+        "kozen": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "ts-node",
+                "bin/mcp.ts"
+            ]
+        }
+    },
+    "inputs": []
+}

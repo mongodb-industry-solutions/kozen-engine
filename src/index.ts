@@ -50,11 +50,11 @@ export { TemplateManager } from './services/TemplateManager';
 
 // Controllers
 export { BaseController } from './controllers/BaseController';
+export { LoggerController } from './controllers/cli/LoggerController';
+export { PipelineController } from './controllers/cli/PipelineController';
+export { SecretController } from './controllers/cli/SecretController';
+export { TemplateController } from './controllers/cli/TemplateController';
 export { CLIController } from './controllers/CLIController';
-export { LoggerController } from './controllers/LoggerController';
-export { PipelineController } from './controllers/PipelineController';
-export { SecretController } from './controllers/SecretController';
-export { TemplateController } from './controllers/TemplateController';
 
 // IoC Container and Utilities
 export { Env } from './tools/env/Env';
