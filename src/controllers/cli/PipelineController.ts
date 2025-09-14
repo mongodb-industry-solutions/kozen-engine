@@ -13,12 +13,12 @@
  * @version 1.0.5
  */
 import * as fs from 'fs';
-import { ILoggerService } from '../models/Logger';
-import { IConfig, IPipelineArgs } from '../models/Pipeline';
-import { IAction, ICLIArgs, IResult, VCategory } from '../models/Types';
-import { PipelineManager } from '../services/PipelineManager';
-import { IIoC } from '../tools';
-import { CLIController } from './CLIController';
+import { ILoggerService } from '../../models/Logger';
+import { IConfig, IPipelineArgs } from '../../models/Pipeline';
+import { IAction, ICLIArgs, IResult, VCategory } from '../../models/Types';
+import { PipelineManager } from '../../services/PipelineManager';
+import { IIoC } from '../../tools';
+import { CLIController } from '../CLIController';
 
 /**
  * @class PipelineController
