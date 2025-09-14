@@ -7,11 +7,11 @@
  * @since 1.1.0
  * @version 1.1.0
  */
-import { IConfig } from '../models/Pipeline';
-import { ITemplateArgs, ITemplateManager } from '../models/Template';
-import { ICLIArgs } from '../models/Types';
-import { readFrom } from '../tools/util';
-import { CLIController } from './CLIController';
+import { IConfig } from '../../models/Pipeline';
+import { ITemplateArgs, ITemplateManager } from '../../models/Template';
+import { ICLIArgs } from '../../models/Types';
+import { readFrom } from '../../tools/util';
+import { CLIController } from '../CLIController';
 
 /**
  * @class TemplateController

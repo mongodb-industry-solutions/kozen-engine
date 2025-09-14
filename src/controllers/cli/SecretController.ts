@@ -7,10 +7,10 @@
  * @since 1.0.0
  * @version 1.1.0
  */
-import { IConfig } from '../models/Pipeline';
-import { ISecretArgs, ISecretManager } from '../models/Secret';
-import { IAction, ICLIArgs } from '../models/Types';
-import { CLIController } from './CLIController';
+import { IConfig } from '../../models/Pipeline';
+import { ISecretArgs, ISecretManager } from '../../models/Secret';
+import { IAction, ICLIArgs } from '../../models/Types';
+import { CLIController } from '../CLIController';
 
 /**
  * @class SecretController

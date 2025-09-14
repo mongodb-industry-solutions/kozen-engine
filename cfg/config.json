@@ -331,7 +331,7 @@
       "target": "LoggerController",
       "type": "class",
       "lifetime": "transient",
-      "path": "../../controllers",
+      "path": "../../controllers/cli",
       "dependencies": [
         {
           "key": "assistant",
@@ -349,7 +349,7 @@
       "target": "PipelineController",
       "type": "class",
       "lifetime": "transient",
-      "path": "../../controllers",
+      "path": "../../controllers/cli",
       "dependencies": [
         {
           "key": "assistant",
@@ -372,7 +372,7 @@
       "target": "SecretController",
       "type": "class",
       "lifetime": "transient",
-      "path": "../../controllers",
+      "path": "../../controllers/cli",
       "dependencies": [
         {
           "key": "assistant",
@@ -390,7 +390,7 @@
       "target": "TemplateController",
       "type": "class",
       "lifetime": "transient",
-      "path": "../../controllers",
+      "path": "../../controllers/cli",
       "dependencies": [
         {
           "key": "assistant",
