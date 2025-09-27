@@ -26,6 +26,7 @@
         "stack": "core:stack",
         "template": "core:template",
         "secret": "core:secret",
-        "iac": "core:iac"
+        "iac": "core:iac",
+        "report": "core:report"
     }
 }
