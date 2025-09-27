@@ -13,6 +13,7 @@ export class ConsoleLogProcessor extends LogProcessor {
    */
   public async process(entry: ILogEntry, level: ILogLevel, outputType: ILogOutputType): Promise<void> {
     if (!this.shouldLog({ ...entry, level })) return;
+    outputType = this.type || outputType || 'object';
     if (outputType === 'json') {
       // Output as JSON string - useful for log aggregation systems
       const jsonString = JSON.stringify(entry);

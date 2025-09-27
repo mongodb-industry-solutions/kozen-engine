@@ -5,6 +5,7 @@ import {
     HybridLogProcessor,
     ILogInput,
     ILogLevel,
+    ILogOutputType,
     ILogProcessor,
     Logger,
     MongoDBLogProcessor
@@ -66,9 +67,11 @@ export class LoggerService implements ILoggerService {
 
         // Create processors for dual output destination
         const processors = [];
+        const logType = (process.env.KOZEN_LOG_TYPE as ILogOutputType) || config?.type || 'json';
         config.console?.enabled && processors.push(new ConsoleLogProcessor({
-            level: ILogLevel[(config.console?.level as unknown) as keyof typeof ILogLevel] ?? level,
-            skip: config.console?.skip ?? skip
+            level: ILogLevel[((process.env.KOZEN_LOG_LEVEL || config.console?.level) as unknown) as keyof typeof ILogLevel] ?? level,
+            skip: config.console?.skip ?? skip,
+            type: logType
         }));
         config.mdb?.enabled && processors.push(new MongoDBLogProcessor({
             level: ILogLevel[(config.mdb?.level as unknown) as keyof typeof ILogLevel] ?? level,
@@ -86,7 +89,7 @@ export class LoggerService implements ILoggerService {
             level,
             skip,
             category: config.category || 'KOZEN',
-            type: config?.type || 'object',
+            type: logType,
             processor: this.hybridProcessor
         });
     }
