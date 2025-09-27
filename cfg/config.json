@@ -342,6 +342,11 @@
           "key": "logger",
           "target": "LoggerService",
           "type": "ref"
+        },
+        {
+          "key": "fileSrv",
+          "target": "FileService",
+          "type": "ref"
         }
       ]
     },
@@ -365,6 +370,11 @@
           "key": "pipeline",
           "target": "PipelineManager",
           "type": "ref"
+        },
+        {
+          "key": "fileSrv",
+          "target": "FileService",
+          "type": "ref"
         }
       ]
     },
@@ -382,6 +392,11 @@
         {
           "key": "logger",
           "target": "LoggerService",
+          "type": "ref"
+        },
+        {
+          "key": "fileSrv",
+          "target": "FileService",
           "type": "ref"
         }
       ]
@@ -401,6 +416,24 @@
           "key": "logger",
           "target": "LoggerService",
           "type": "ref"
+        },
+        {
+          "key": "fileSrv",
+          "target": "FileService",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "FileService",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../services",
+      "args": [
+        {
+          "extension": ".txt",
+          "dir": "./docs/tools",
+          "encoding": "utf-8"
         }
       ]
     }
