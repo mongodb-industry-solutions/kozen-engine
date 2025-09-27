@@ -36,73 +36,9 @@ export class LoggerController extends CLIController {
      * @returns {void}
      * @public
      */
-    public help(): void {
-        console.log(`
-===============================================================================
-Kozen Engine - Logger Manager Tool
-===============================================================================
-
-Description:
-    Manage system logs, application events, and monitoring data through the
-    Kozen Engine logging infrastructure. Supports multiple log levels, structured
-    data logging, and file-based log processing.
-
-Usage:
-    kozen --action=logger:log [options] --message=<text>
-    kozen --action=logger:log [options] --file=<path>
-    kozen --controller=logger --action=log [options]
-
-Core Options:
-    --stack=<id>                    Environment identifier (dev, test, prod)
-                                    (default: from NODE_ENV or 'dev')
-    --project=<id>                  Project identifier for log organization
-                                    (default: auto-generated timestamp ID)
-    --config=<file>                 Configuration file path
-                                    (default: cfg/config.json)
-    --controller=logger             Explicitly set controller to logger
-    --action=<[controller:]action>  Action to perform. Available actions:
-                                    - log: Write a log entry to the logging system
-                                    - help: Display this help information
-
-Logging Options:
-    --flow=<id>                     Flow identifier for request/operation tracking
-                                    (useful for tracing multi-step operations)
-    --level=<level>                 Log severity level. Available levels:
-                                    ERROR, WARN, INFO, DEBUG, VERBOSE
-                                    (default: debug)
-    --message=<text>                Log message text (required if --data not provided)
-    --data=<content>                Structured data content (JSON, objects)
-    --file=<path>                   Read log data from file (JSON format)
-    --category=<tag>                Classification tag for log filtering
-                                    (default: CLI.LOGGER)
-    --src=<location>                Source location identifier for debugging
-
-Environment Variables:
-    KOZEN_CONFIG                    Default value assigned to the --config property
-    KOZEN_ACTION                    Default value assigned to the --action property
-    KOZEN_STACK                     Default value assigned to the --stack property
-    KOZEN_PROJECT                   Default value assigned to the --project property
-
-    KOZEN_LOG_FILE                  Default value assigned to the --file property, Ex: tmp/report-jest.json
-    KOZEN_LOG_LEVEL                 Default value assigned to the --level property, Ex: ERROR
-
-Examples:
-    # Basic text logging
-    kozen --action=logger:log --level=info --message="Application started"
-    
-    # Structured data logging with flow tracking
-    kozen --action=logger:log --level=debug --flow=K2025080509533 --message="User login" --data='{"userId": "123", "timestamp": "2025-01-01T10:00:00Z"}'
-    
-    # File-based logging (read JSON data from file)
-    kozen --action=logger:log --level=error --file=./logs/error-report.json
-    
-    # Alternative syntax with explicit controller
-    kozen --controller=logger --action=log --level=warn --message="Configuration updated"
-    
-    # Categorized logging for filtering
-    kozen --action=logger:log --category=SECURITY --level=warn --message="Failed login attempt"
-===============================================================================
-        `);
+    public async help(): Promise<void> {
+        const helpText = await this.fileSrv?.select('logger');
+        console.log(helpText);
     }
 
     /**
