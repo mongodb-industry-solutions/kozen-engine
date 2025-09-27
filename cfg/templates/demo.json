@@ -6,7 +6,7 @@
     "release": "20241201",
     "requires": [],
     "stack": {
-        "orchestrator": "Pulumi",
+        "orchestrator": "Node",
         "input": [
             {
                 "type": "environment",

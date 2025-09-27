@@ -10,8 +10,27 @@
       "name": "🛠️ Develop",
       "runtimeExecutable": "npm",
       "console": "integratedTerminal",
-      "runtimeArgs": ["run", "dev"],
-      "skipFiles": ["<node_internals>/**"]
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "🛠️ MCP Develop",
+      "runtimeExecutable": "npm",
+      "console": "integratedTerminal",
+      "runtimeArgs": [
+        "run",
+        "mcp:dev"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     },
     {
       "type": "node",
@@ -19,8 +38,13 @@
       "name": "🚀 Test Deploy",
       "runtimeExecutable": "npm",
       "console": "integratedTerminal",
-      "runtimeArgs": ["run", "test:deploy"],
-      "skipFiles": ["<node_internals>/**"]
+      "runtimeArgs": [
+        "run",
+        "test:deploy"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     },
     {
       "type": "node",
@@ -35,7 +59,9 @@
         "--project=${input:projectId}",
         "--stack=${input:stackName}"
       ],
-      "skipFiles": ["<node_internals>/**"]
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     },
     {
       "type": "node",
@@ -43,8 +69,13 @@
       "name": "✅ Test Validate",
       "runtimeExecutable": "npm",
       "console": "integratedTerminal",
-      "runtimeArgs": ["run", "test:validate"],
-      "skipFiles": ["<node_internals>/**"]
+      "runtimeArgs": [
+        "run",
+        "test:validate"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     },
     {
       "type": "node",
@@ -52,16 +83,27 @@
       "name": "🔧 Test Status",
       "runtimeExecutable": "npm",
       "console": "integratedTerminal",
-      "runtimeArgs": ["run", "test:status"],
-      "skipFiles": ["<node_internals>/**"]
+      "runtimeArgs": [
+        "run",
+        "test:status"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     },
     {
       "type": "node",
       "request": "launch",
       "name": "📁 Debug Current File",
       "program": "${file}",
-      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-      "runtimeArgs": ["-r", "ts-node/register"],
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ],
+      "runtimeArgs": [
+        "-r",
+        "ts-node/register"
+      ],
       "env": {
         "NODE_ENV": "development"
       },
@@ -73,8 +115,13 @@
       "name": "🛠️ Run Secret",
       "runtimeExecutable": "npm",
       "console": "integratedTerminal",
-      "runtimeArgs": ["run", "secret"],
-      "skipFiles": ["<node_internals>/**"]
+      "runtimeArgs": [
+        "run",
+        "secret"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     }
   ],
   "inputs": [
