@@ -4,11 +4,13 @@ export class LogProcessor implements ILogProcessor {
 
     public level: ILogLevel;
     public skip?: string;
+    public type?: ILogOutputType;
 
     constructor(opt?: ILoggerConfig) {
-        const { level = ILogLevel.INFO, skip } = opt || {};
+        const { level = ILogLevel.INFO, skip, type } = opt || {};
         this.level = level;
         this.skip = skip;
+        this.type = type;
     }
 
     protected compare(skip?: string, input?: string) {
