@@ -39,7 +39,7 @@ export class TemplateManagerFile extends TemplateManager {
     async load<T = any>(templateName: string, options?: ITemplateConfig): Promise<T> {
         try {
             this.options = options || this.options;
-            const templatePath = this.getTemplatePath(templateName, this.options.file?.path || '');
+            const templatePath = this.getTemplatePath(templateName, this.options.file?.path || process.env.KOZEN_TEMPLATE_PATH || '');
 
             if (!fs.existsSync(templatePath)) {
                 throw new Error(`Template file not found: ${templatePath}`);
@@ -71,7 +71,7 @@ export class TemplateManagerFile extends TemplateManager {
     async save<T = any>(templateName: string, content: T, options?: ITemplateConfig): Promise<boolean> {
         try {
             this.options = options || this.options;
-            const templatePath = this.getTemplatePath(templateName, this.options.file?.path || '');
+            const templatePath = this.getTemplatePath(templateName, this.options.file?.path || process.env.KOZEN_TEMPLATE_PATH || '');
             const templateDir = path.dirname(templatePath);
 
             // Ensure the directory exists
@@ -101,7 +101,7 @@ export class TemplateManagerFile extends TemplateManager {
 
         } catch (error) {
             // Clean up temp file if it exists
-            const tempPath = `${this.getTemplatePath(templateName, this.options.file?.path || '')}.tmp`;
+            const tempPath = `${this.getTemplatePath(templateName, this.options.file?.path || process.env.KOZEN_TEMPLATE_PATH || '')}.tmp`;
             try {
                 if (fs.existsSync(tempPath)) {
                     await fs.promises.unlink(tempPath);
@@ -128,7 +128,7 @@ export class TemplateManagerFile extends TemplateManager {
     async delete(templateName: string, options?: ITemplateConfig): Promise<boolean> {
         try {
             this.options = options || this.options;
-            const templatePath = this.getTemplatePath(templateName, this.options.file?.path || '');
+            const templatePath = this.getTemplatePath(templateName, this.options.file?.path || process.env.KOZEN_TEMPLATE_PATH || '');
 
             // Check if file exists before attempting deletion
             if (!fs.existsSync(templatePath)) {
@@ -158,7 +158,7 @@ export class TemplateManagerFile extends TemplateManager {
     async list(options?: ITemplateConfig): Promise<string[]> {
         try {
             this.options = options || this.options;
-            const templateDir = this.options.file?.path || '';
+            const templateDir = this.options.file?.path || process.env.KOZEN_TEMPLATE_PATH || '';
 
             // Check if directory exists
             if (!fs.existsSync(templateDir)) {
@@ -167,7 +167,7 @@ export class TemplateManagerFile extends TemplateManager {
 
             // Read directory contents
             const files = await fs.promises.readdir(templateDir);
-            
+
             // Filter for JSON files and remove the .json extension
             const templateFiles = files
                 .filter(file => file.endsWith('.json'))
@@ -178,7 +178,7 @@ export class TemplateManagerFile extends TemplateManager {
 
         } catch (error) {
             if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-                throw new Error(`Template directory not found: ${this.options.file?.path || ''}`);
+                throw new Error(`Template directory not found: ${this.options.file?.path || process.env.KOZEN_TEMPLATE_PATH || ''}`);
             }
             throw new Error(`Failed to list templates: ${(error as Error).message}`);
         }
