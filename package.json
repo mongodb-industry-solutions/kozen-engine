@@ -37,7 +37,7 @@
     "author": "MDB SAT",
     "license": "MIT",
     "devDependencies": {
-        "@types/node": "^18",
+        "@types/node": "^18.19.127",
         "cross-env": "^7.0.3",
         "ts-node": "^10.9.0",
         "tslint": "^6.1.3",
