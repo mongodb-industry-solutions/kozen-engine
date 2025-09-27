@@ -12,6 +12,7 @@ import * as fs from 'fs';
 import { ILoggerService } from '../models/Logger';
 import { IConfig } from '../models/Pipeline';
 import { ICLIArgs, VCategory } from '../models/Types';
+import { FileService } from '../services/FileService';
 import { getID, IIoC, ILogInput, ILogLevel, IoC } from '../tools';
 
 /**
@@ -63,6 +64,9 @@ export class CLIController {
      */
     public logger?: ILoggerService | null;
 
+
+    public fileSrv?: FileService | null;
+
     /**
      * Creates a new CLIController instance with dependency injection support
      * 
@@ -71,9 +75,10 @@ export class CLIController {
      * @param {IIoC} [dependency.assistant] - IoC container for service resolution
      * @param {ILoggerService} [dependency.logger] - Logger service for operation tracking
      */
-    constructor(dependency?: { assistant: IIoC, logger: ILoggerService }) {
+    constructor(dependency?: { assistant: IIoC, logger: ILoggerService, fileSrv?: FileService }) {
         this.assistant = dependency?.assistant ?? new IoC();
         this.logger = dependency?.logger ?? null;
+        this.fileSrv = dependency?.fileSrv ?? null;
     }
 
     /**
@@ -83,57 +88,9 @@ export class CLIController {
      * @public
      * @returns {void}
      */
-    public help(): void {
-        console.log(`
-===============================================================================
-#    ##....##..#######..########.########.##....##
-#    ##...##..##.....##......##..##.......###...##
-#    ##..##...##.....##.....##...##.......####..##
-#    #####....##.....##....##....######...##.##.##
-#    ##..##...##.....##...##.....##.......##..####
-#    ##...##..##.....##..##......##.......##...###
-#    ##....##..#######..########.########.##....##
-#
-#    Kozen Engine - Task Execution Framework
-...............................................................................
-Kozen is a Task Execution Framework designed to streamline and automate the coordination of workflows, including dynamic infrastructure management, automated testing pipelines, data modeling validation, security processes, and more.It simplifies the execution of complex tasks, ensuring seamless integration, scalability, and adaptability across dynamic and customized platforms.By acting as a centralized system for task management, Kozen empowers users to efficiently handle critical operations in development and deployment environments.
-===============================================================================
-
-Usage:
-    kozen --action=<value> [--controller=<value>] [options]
-
-Core Options:
-    --stack=<id>                    Environment identifier (dev, test, prod)
-                                    (default: from NODE_ENV or 'dev')
-    --project=<id>                  Project identifier for resource organization
-                                    (default: auto-generated timestamp ID)
-    --config=<file>                 Path to configuration file
-                                    (default: cfg/config.json)
-    --controller=<name>             Specify controller explicitly. Available controllers:
-                                    - pipeline: Manage infrastructure and testing pipelines
-                                    - template: Manage templates from different data sources like MongoDB, Files, etc.
-                                    - secret: Manage encrypted secrets and credentials
-                                    - logger: Manage system logs and monitoring data
-    --action=<[controller:]action>  Action to perform. Format: 'action' or 'controller:action'
-                                    - help: Get help or assistance on how to use a tool
-
-Environment Variables:
-    KOZEN_CONFIG                    Default value assigned to the --config property
-    KOZEN_ACTION                    Default value assigned to the --action property
-    KOZEN_STACK                     Default value assigned to the --stack property
-    KOZEN_PROJECT                   Default value assigned to the --project property
-
-Controller-Specific Help:
-    kozen --action=help --controller=pipeline    # Pipeline management help
-    kozen --action=help --controller=secret      # Secret management help
-    kozen --action=help --controller=logger      # Logging system help
-
-Quick Start Examples:
-    kozen --action=pipeline:help                 # Get pipeline help
-    kozen --action=secret:help                   # Get secret management help
-    kozen --controller=pipeline --action=help    # Alternative syntax
-===============================================================================
-        `);
+    public async help(): Promise<void> {
+        const helpText = await this.fileSrv?.select('kozen');
+        console.log(helpText);
     }
 
     /**
@@ -197,6 +154,7 @@ Quick Start Examples:
             }
             config.dependencies && await this.assistant.register(config.dependencies);
             this.logger = this.logger || await this.assistant.resolve<ILoggerService>('LoggerService');
+            this.fileSrv = this.fileSrv || await this.assistant.resolve<FileService>('FileService');
             return config;
         } catch (error) {
             throw new Error(`Failed to configure: ${error instanceof Error ? error.message : String(error)}`);
