@@ -18,6 +18,10 @@ Description:
     for task management, Kozen empowers users to efficiently handle critical operations in development
     and deployment environments.
 
+    Kozen supports the use of direct tools through its "controller" and "action" options. These options allow you
+    to specify and execute predefined functionalities or tasks within the framework, making it easier to implement
+    tools directly in your projects.
+
 Usage:
     kozen --action=<value> [--controller=<value>] [options]
 
@@ -28,7 +32,7 @@ Core Options:
                                     (default: auto-generated timestamp ID)
     --config=<file>                 Path to configuration file
                                     (default: cfg/config.json)
-    --controller=<name>             Specify controller explicitly. Available controllers:
+    --controller=<name>             Specify tool controller explicitly. Available tool controllers:
                                     - pipeline: Manage infrastructure and testing pipelines
                                     - template: Manage templates from different data sources like MongoDB, Files, etc.
                                     - secret: Manage encrypted secrets and credentials
