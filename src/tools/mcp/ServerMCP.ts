@@ -1,6 +1,9 @@
-
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+console.log = (...args) => console.error(...args);
+console.info = console.log;
+console.warn = console.log;
+console.debug = console.log;
 
 export class ServerMCP {
     private _node: McpServer;
