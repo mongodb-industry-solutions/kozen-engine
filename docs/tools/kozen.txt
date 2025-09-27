@@ -1,0 +1,54 @@
+===============================================================================
+#    ##....##..#######..########.########.##....##
+#    ##...##..##.....##......##..##.......###...##
+#    ##..##...##.....##.....##...##.......####..##
+#    #####....##.....##....##....######...##.##.##
+#    ##..##...##.....##...##.....##.......##..####
+#    ##...##..##.....##..##......##.......##...###
+#    ##....##..#######..########.########.##....##
+#
+#    Kozen Engine - Task Execution Framework
+===============================================================================
+
+Description:
+    Kozen is a Task Execution Framework designed to streamline and automate the coordination of workflows,
+    including dynamic infrastructure management, automated testing pipelines, data modeling validation,
+    security processes, and more.It simplifies the execution of complex tasks, ensuring seamless integration,
+    scalability, and adaptability across dynamic and customized platforms. By acting as a centralized system
+    for task management, Kozen empowers users to efficiently handle critical operations in development
+    and deployment environments.
+
+Usage:
+    kozen --action=<value> [--controller=<value>] [options]
+
+Core Options:
+    --stack=<id>                    Environment identifier (dev, test, prod)
+                                    (default: from NODE_ENV or 'dev')
+    --project=<id>                  Project identifier for resource organization
+                                    (default: auto-generated timestamp ID)
+    --config=<file>                 Path to configuration file
+                                    (default: cfg/config.json)
+    --controller=<name>             Specify controller explicitly. Available controllers:
+                                    - pipeline: Manage infrastructure and testing pipelines
+                                    - template: Manage templates from different data sources like MongoDB, Files, etc.
+                                    - secret: Manage encrypted secrets and credentials
+                                    - logger: Manage system logs and monitoring data
+    --action=<[controller:]action>  Action to perform. Format: 'action' or 'controller:action'
+                                    - help: Get help or assistance on how to use a tool
+
+Environment Variables:
+    KOZEN_CONFIG                    Default value assigned to the --config property
+    KOZEN_ACTION                    Default value assigned to the --action property
+    KOZEN_STACK                     Default value assigned to the --stack property
+    KOZEN_PROJECT                   Default value assigned to the --project property
+
+Controller-Specific Help:
+    kozen --action=help --controller=pipeline    # Pipeline management help
+    kozen --action=help --controller=secret      # Secret management help
+    kozen --action=help --controller=logger      # Logging system help
+
+Quick Start Examples:
+    kozen --action=pipeline:help                 # Get pipeline help
+    kozen --action=secret:help                   # Get secret management help
+    kozen --controller=pipeline --action=help    # Alternative syntax
+===============================================================================

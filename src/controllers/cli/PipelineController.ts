@@ -16,6 +16,7 @@ import * as fs from 'fs';
 import { ILoggerService } from '../../models/Logger';
 import { IConfig, IPipelineArgs } from '../../models/Pipeline';
 import { IAction, ICLIArgs, IResult, VCategory } from '../../models/Types';
+import { FileService } from '../../services/FileService';
 import { PipelineManager } from '../../services/PipelineManager';
 import { IIoC } from '../../tools';
 import { CLIController } from '../CLIController';
@@ -57,7 +58,7 @@ export class PipelineController extends CLIController {
    * @constructor
    * @param {PipelineManager} pipeline - Optional pipeline manager instance
    */
-  constructor(dependency?: { assistant: IIoC, logger: ILoggerService, pipeline?: PipelineManager }) {
+  constructor(dependency?: { assistant: IIoC, logger: ILoggerService, pipeline?: PipelineManager, fileSrv?: FileService }) {
     super(dependency);
     this.pipeline = dependency?.pipeline;
   }
@@ -398,92 +399,8 @@ export class PipelineController extends CLIController {
    * @returns {void}
    * @public
    */
-  public help(): void {
-    console.log(`
-===============================================================================
-Kozen Engine (Pipeline Manager Tool)
-===============================================================================
-
-Description:
-    Deploy, manage, and orchestrate dynamic infrastructure and testing pipelines.
-    Execute Infrastructure as Code (IaC) operations with automated testing,
-    data collection, and comprehensive monitoring across multiple cloud providers.
-
-Usage:
-    kozen --action=pipeline:<action> --template=<name> [options]
-    kozen --controller=pipeline --action=<action> --template=<name> [options]
-
-Core Options:
-    --stack=<id>                    Environment identifier (dev, test, staging, prod)
-                                    (default: from NODE_ENV or 'dev')
-    --project=<id>                  Project identifier for resource organization
-                                    (default: auto-generated timestamp ID)
-    --config=<file>                 Configuration file path containing service definitions
-                                    (default: cfg/config.json)
-    --controller=pipeline           Explicitly set controller to pipeline
-    --template=<name>               Template name for pipeline execution (REQUIRED)
-                                    Examples: atlas.basic, k8s.standard, demo
-    --action=<[controller:]action>  Pipeline operation to perform:
-
-Available Actions:
-    deploy                          Provision and launch all pipeline resources
-                                    - Creates infrastructure components
-                                    - Executes testing workflows
-                                    - Collects deployment metrics
-    
-    undeploy                        Gracefully stop active resources
-                                    - Stops running services
-                                    - Preserves data and configuration
-                                    - Maintains resource definitions
-    
-    destroy                         Permanently remove all pipeline resources
-                                    - Deletes infrastructure components
-                                    - Removes all data and configurations
-                                    - Cleans up cloud provider resources
-    
-    validate                        Verify pipeline configuration and readiness
-                                    - Checks template syntax and dependencies
-                                    - Validates cloud provider credentials
-                                    - Ensures all prerequisites are met
-    
-    status                          Check current pipeline and resource health
-                                    - Reports component operational status
-                                    - Shows resource utilization metrics
-                                    - Identifies configuration drift
-
-Environment Variables:
-    KOZEN_CONFIG                    Default value assigned to the --config property
-    KOZEN_ACTION                    Default value assigned to the --action property
-    KOZEN_STACK                     Default value assigned to the --stack property
-    KOZEN_PROJECT                   Default value assigned to the --project property
-
-    KOZEN_TEMPLATE                  Default value assigned to the --stack property
-
-Common Templates:
-    atlas.basic                     MongoDB Atlas cluster deployment
-    k8s.standard                    Standard Kubernetes application deployment
-    demo                            Demo pipeline with testing components
-    ops.manager                     MongoDB Ops Manager deployment
-
-Examples:
-    # Deploy MongoDB Atlas cluster in production
-    kozen --action=pipeline:deploy --template=atlas.basic --stack=production --config=cfg/prod-config.json
-    
-    # Validate Kubernetes deployment configuration
-    kozen --action=pipeline:validate --template=k8s.standard
-    
-    # Check status of demo pipeline
-    kozen --controller=pipeline --action=status --template=demo --stack=dev
-    
-    # Undeploy development environment
-    kozen --action=pipeline:undeploy --template=atlas.basic --stack=dev
-    
-    # Completely destroy test resources
-    kozen --action=pipeline:destroy --template=k8s.standard --stack=test
-    
-    # Deploy with custom project identifier
-    kozen --action=pipeline:deploy --template=atlas.basic --project=MyApp-v2.1 --stack=staging
-===============================================================================
-    `);
+  public async help(): Promise<void> {
+    const helpText = await this.fileSrv?.select('pipeline');
+    console.log(helpText);
   }
 } 
