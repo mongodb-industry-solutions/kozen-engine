@@ -1,5 +1,6 @@
 import { CLIController } from "../src";
 import { HelpController } from "../src/controllers/mcp/HelpController";
+import { SecretController } from "../src/controllers/mcp/SecretController";
 import { TemplateController } from "../src/controllers/mcp/TemplateController";
 import { VCategory } from "../src/models/Types";
 import { ServerMCP } from "../src/tools/mcp/ServerMCP";
@@ -24,7 +25,8 @@ import { ServerMCP } from "../src/tools/mcp/ServerMCP";
 
         await Promise.all([
             new TemplateController(ops).register(server.node),
-            new HelpController(ops).register(server.node)
+            new HelpController(ops).register(server.node),
+            new SecretController(ops).register(server.node)
         ]);
 
         server.start();
