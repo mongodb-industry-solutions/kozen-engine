@@ -6,11 +6,14 @@ import { MCPController } from "../MCPController";
 export class TemplateController extends MCPController {
 
     public async register(server: McpServer): Promise<void> {
-        // select templates 
+        // select templates
         server.registerTool("kozen_template_select",
             {
                 description: "Get template content",
-                inputSchema: { name: z.string().describe("Template name"), format: z.string().optional().describe("Output format, e.g., json, yaml").default("json") },
+                inputSchema: {
+                    name: z.string().describe("Template name"),
+                    format: z.string().optional().describe("Output format, e.g., json, yaml").default("json")
+                },
             },
             this.select.bind(this)
         );
@@ -18,7 +21,9 @@ export class TemplateController extends MCPController {
         server.registerTool("kozen_template_list",
             {
                 description: "Get template list",
-                inputSchema: { format: z.string().optional().describe("Output format, e.g., json, yaml").default("json") },
+                inputSchema: {
+                    format: z.string().optional().describe("Output format, e.g., json, yaml").default("json")
+                }
             },
             this.list.bind(this)
         );
@@ -62,7 +67,6 @@ export class TemplateController extends MCPController {
                 ]
             };
         } catch (error) {
-
             return {
                 content: [
                     {
@@ -84,13 +88,6 @@ export class TemplateController extends MCPController {
             }
 
             const templates = await templateManager.list();
-
-            this.logger?.info({
-                flow: this.getId(),
-                src: 'Controller:Template:list',
-                message: `📋 Retrieved ${templates.length} templates successfully.`,
-                data: { count: templates.length, format }
-            });
 
             return {
                 content: [
