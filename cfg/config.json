@@ -425,6 +425,29 @@
       ]
     },
     {
+      "target": "ReportController",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../controllers/cli",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        },
+        {
+          "key": "fileSrv",
+          "target": "FileService",
+          "type": "ref"
+        }
+      ]
+    },
+    {
       "target": "FileService",
       "type": "class",
       "lifetime": "transient",
@@ -434,6 +457,56 @@
           "extension": ".txt",
           "dir": "./docs/tools",
           "encoding": "utf-8"
+        }
+      ]
+    },
+    {
+      "target": "ReportManager",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../services",
+      "args": [
+        {
+          "type": "MDB",
+          "mdb": {
+            "enabled": true,
+            "database": "kozen",
+            "collection": "logs",
+            "uri": "MDB_URI"
+          }
+        }
+      ],
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        }
+      ]
+    },
+    {
+      "target": "ReportManagerMDB",
+      "type": "class",
+      "lifetime": "singleton",
+      "path": "../../services",
+      "args": [
+        null
+      ],
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
         }
       ]
     }
