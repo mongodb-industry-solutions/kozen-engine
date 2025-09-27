@@ -79,7 +79,7 @@
       "path": "../../services",
       "args": [
         {
-          "type": "File",
+          "type": "MDB",
           "file": {
             "path": "./cfg/templates"
           },
