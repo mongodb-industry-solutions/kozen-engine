@@ -31,7 +31,7 @@ export class ReportManagerMDB extends MdbClient implements IReportManager {
      * @returns {Promise<PipelineResult[]>} Promise resolving the list of log reports
      * @throws {Error} When operation fails
      */
-    public async list(filters: { start?: string, end?: string }, options?: ISecretManagerOptions): Promise<PipelineResult[]> {
+    public async list(filters: { start?: string, end?: string, range?: number }, options?: ISecretManagerOptions): Promise<PipelineResult[]> {
         try {
             const { mdb } = { ...this.options, ...options };
 
@@ -45,15 +45,16 @@ export class ReportManagerMDB extends MdbClient implements IReportManager {
             // Get collection
             const logsCollection = client!.db(mdb.database).collection(mdb.collection || "logs");
 
-            const { start = null, end = null } = filters;
+            // Determine date range
+            const DEFAULT_RANGE_DAYS = Number(process.env.KOSEN_REPORT_RANGE) || filters.range || 10;
+            const now = new Date();
+            const start = filters?.start ? new Date(filters.start) : new Date(now.setDate(now.getDate() - DEFAULT_RANGE_DAYS));
+            const end = filters?.end ? new Date(filters.end) : new Date();
 
-            const dateFilter: Record<string, any> = {};
-            if (start) {
-                dateFilter.$gte = new Date(start);
-            }
-            if (end) {
-                dateFilter.$lte = new Date(end);
-            }
+            const dateFilter = {
+                $gte: start,
+                $lte: end
+            };
 
             const pipeline = [
                 {
@@ -66,6 +67,9 @@ export class ReportManagerMDB extends MdbClient implements IReportManager {
                             },
                         },
                     },
+                },
+                {
+                    $match: { date: dateFilter }
                 },
                 {
                     $group: {
