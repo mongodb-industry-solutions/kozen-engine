@@ -59,7 +59,7 @@ export class ReportController extends CLIController {
      * @public
      */
     public async help(): Promise<void> {
-        const helpText = await this.fileSrv?.select('secret');
+        const helpText = await this.fileSrv?.select('report');
         console.log(helpText);
     }
 }
