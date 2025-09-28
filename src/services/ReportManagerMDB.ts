@@ -57,12 +57,6 @@ export class ReportManagerMDB extends MdbClient implements IReportManager {
 
             const pipeline = [
                 {
-                    $match: {
-                        level: "ERROR",
-                        ...(Object.keys(dateFilter).length > 0 && { date: dateFilter })
-                    }
-                },
-                {
                     $addFields: {
                         date: {
                             $dateFromString: {
@@ -75,16 +69,23 @@ export class ReportManagerMDB extends MdbClient implements IReportManager {
                 },
                 {
                     $group: {
-                        _id: "$flow", // Avoid generating a grouped _id field
+                        _id: "$flow",
                         flow: { $first: "$flow" }, // The flow value is taken directly from the documents being grouped
-                        errors: { $sum: 1 },
                         dateStart: { $min: "$date" }, // The earliest date in the group
                         dateEnd: { $max: "$date" }, // The latest date in the group
+                        errors: { $sum: { $cond: [{ $eq: ["$level", "ERROR"] }, 1, 0] } },
+                        warns: { $sum: { $cond: [{ $eq: ["$level", "WARN"] }, 1, 0] } },
+                        messages: { $push: "$message" },
+                        templateName: { $first: { $cond: [{ $ne: ["$data.templateName", null] }, "$data.templateName", null] } },
+                        engine: { $first: { $cond: [{ $ne: ["$data.engine", null] }, "$data.engine", null] } },
+                        orchestrator: { $first: { $cond: [{ $ne: ["$data.orchestrator", null] }, "$data.orchestrator", null] } },
+                        components: { $first: { $cond: [{ $ne: ["$data.components", null] }, "$data.components", null] } },
                     },
                 },
                 {
                     $addFields: {
-                        duration: { $subtract: ["$dateEnd", "$dateStart"] }, // Calculate the difference between dateStart and dateEnd in milliseconds
+                        // Calculate the difference between dateStart and dateEnd in milliseconds
+                        duration: { $subtract: ["$dateEnd", "$dateStart"] }
                     },
                 },
                 {
@@ -92,9 +93,15 @@ export class ReportManagerMDB extends MdbClient implements IReportManager {
                         _id: 0,
                         flow: 1,
                         errors: 1,
+                        warns: 1,
                         dateStart: 1,
                         dateEnd: 1,
                         duration: 1,
+                        messages: 1,
+                        templateName: 1,
+                        engine: 1,
+                        orchestrator: 1,
+                        components: 1,
                     },
                 }
             ];
