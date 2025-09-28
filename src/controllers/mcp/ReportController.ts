@@ -9,10 +9,11 @@ export class ReportController extends MCPController {
         // list reports
         server.registerTool("kozen_report_list",
             {
-                description: "List all excecuted pipelines as reports",
+                description: "Retrieve detailed reports of all executed Kozen pipelines, filtered by a specified date range or a default value if no range is provided",
                 inputSchema: {
-                    start: z.string().describe("start date filter").optional(),
-                    end: z.string().describe("end date filter").optional()
+                    start: z.string().describe("Optional start date for the filter in ISO format.").optional(),
+                    end: z.string().describe("Optional end date for the filter in ISO format.").optional(),
+                    range: z.number().describe("Optional number of days to filter data from today backward. Defaults to a predefined value.").optional()
                 }
             },
             this.list.bind(this)
@@ -39,7 +40,7 @@ export class ReportController extends MCPController {
                 content: [
                     {
                         type: "text" as const,
-                        text: `❌ Failed to retrive the report list: ${(error as Error).message}`
+                        text: `❌ Failed to retrieve the report list: ${(error as Error).message}`
                     }
                 ]
             };
