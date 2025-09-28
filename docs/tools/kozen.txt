@@ -37,6 +37,7 @@ Core Options:
                                     - template: Manage templates from different data sources like MongoDB, Files, etc.
                                     - secret: Manage encrypted secrets and credentials
                                     - logger: Manage system logs and monitoring data
+                                    - report: Query and retrieve statistical summaries and pipeline execution details from the log database
     --action=<[controller:]action>  Action to perform. Format: 'action' or 'controller:action'
                                     - help: Get help or assistance on how to use a tool
 
