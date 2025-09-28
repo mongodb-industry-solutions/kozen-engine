@@ -63,18 +63,39 @@ export class ReportManagerMDB extends MdbClient implements IReportManager {
                     }
                 },
                 {
+                    $addFields: {
+                        date: {
+                            $dateFromString: {
+                                dateString: "$date",
+                                onError: null,
+                                onNull: null
+                            },
+                        },
+                    },
+                },
+                {
                     $group: {
-                        _id: "$flow",
-                        errors: {
-                            $sum: 1
-                        },
-                        startDate: {
-                            $min: "$date"
-                        },
-                        endDate: {
-                            $max: "$date"
-                        }
-                    }
+                        _id: "$flow", // Avoid generating a grouped _id field
+                        flow: { $first: "$flow" }, // The flow value is taken directly from the documents being grouped
+                        errors: { $sum: 1 },
+                        dateStart: { $min: "$date" }, // The earliest date in the group
+                        dateEnd: { $max: "$date" }, // The latest date in the group
+                    },
+                },
+                {
+                    $addFields: {
+                        duration: { $subtract: ["$dateEnd", "$dateStart"] }, // Calculate the difference between dateStart and dateEnd in milliseconds
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        flow: 1,
+                        errors: 1,
+                        dateStart: 1,
+                        dateEnd: 1,
+                        duration: 1,
+                    },
                 }
             ];
 
