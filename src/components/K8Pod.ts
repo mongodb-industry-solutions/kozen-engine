@@ -4,10 +4,10 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-import { BaseController } from '../controllers/BaseController';
-import { IComponent } from '../models/Component';
-import { IPipeline } from '../models/Pipeline';
-import { IResult, IStruct } from '../models/Types';
+import { BaseController } from '../modules/component/controllers/BaseController';
+import { IComponent } from '../modules/component/models/Component';
+import { IPipeline } from '../modules/pipeline/models/Pipeline';
+import { IResult, IStruct } from '../shared/models/Types';
 
 /**
  * K8Pod component controller for deploying containers to existing EKS clusters

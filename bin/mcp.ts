@@ -1,11 +1,11 @@
 import { CLIController } from "../src";
-import { HelpController } from "../src/controllers/mcp/HelpController";
-import { RectificationController } from "../src/controllers/mcp/RectificationController";
-import { ReportController } from "../src/controllers/mcp/ReportController";
-import { SecretController } from "../src/controllers/mcp/SecretController";
-import { TemplateController } from "../src/controllers/mcp/TemplateController";
-import { VCategory } from "../src/models/Types";
-import { ServerMCP } from "../src/tools/mcp/ServerMCP";
+import { HelpController } from "../src/modules/help/controllers/HelpMCPController";
+import { RectificationController } from "../src/modules/rectification/controllers/RectificationMCPController";
+import { ReportController } from "../src/modules/report/controllers/ReportMCPController";
+import { SecretController } from "../src/modules/secret/controllers/SecretMCPController";
+import { TemplateController } from "../src/modules/template/controllers/TemplateMCPController";
+import { VCategory } from "../src/shared/models/Types";
+import { ServerMCP } from "../src/shared/tools/mcp/ServerMCP";
 
 (async () => {
     const cli = new CLIController();
