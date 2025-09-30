@@ -37,13 +37,17 @@ import { VCategory } from '../src/models/Types';
         }
 
         const controller = await cli.helper?.resolve(args.controller) as any;
-        const action = controller[args.action];
 
-        if (!controller || !action) {
-            throw new Error('No valid controller or action found');
+        if (!controller) {
+            throw new Error('No valid controller found');
         }
 
         const options = { ...args, ...(await controller.fillout(args)) };
+        const action = controller[args.action];
+        if (!action) {
+            throw new Error('No valid action found');
+        }
+
         const result = await action.apply(controller, [options]);
 
         args.action !== 'help' && cli.log({
