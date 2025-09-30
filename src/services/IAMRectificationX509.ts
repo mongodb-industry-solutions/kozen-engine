@@ -1,18 +1,17 @@
 import { MongoRoleManager } from "@mongodb-solution-assurance/iam-util";
-import { IRectificationOption, IRectificationResponse } from "../models/IAMRectification";
+import { AuthOptions } from "@mongodb-solution-assurance/iam-util/dist/models/AuthOptions";
+import tls from 'tls';
+import { IRectificationOptionX509, IRectificationResponse } from "../models/IAMRectification";
 
-export class IAMRectificationScram {
+export class IAMRectificationX509 {
 
-    async rectify(options: IRectificationOption): Promise<IRectificationResponse> {
+    async rectify(options: IRectificationOptionX509): Promise<IRectificationResponse> {
         // Collect options to carry out the rectification process
         let uri = options.uri || options.uriEnv && process.env[options.uriEnv] || "";
         if (!uri || uri.length === 0) {
-            let dbUsername = options.username || "";
-            let dbPassword = options.password || "";
-            let dbHost = options.host || "solutionsassurance.mongodb.com";
+            let dbHost = options.host || "solutionsassurance.n0kts.mongodb.net";
             let dbApp = options.app || "MyLocalApp";
-            let auth = (dbUsername && dbPassword) ? `${encodeURIComponent(dbUsername)}:${encodeURIComponent(dbPassword)}@` : "";
-            uri = options.uri || `mongodb+srv://${auth}${dbHost}/?retryWrites=true&w=majority&appName=${dbApp}`;
+            uri = options.uri || `mongodb+srv://${dbHost}/?retryWrites=true&w=majority&appName=${dbApp}`;
         }
 
         if (!uri || uri.length === 0) {
@@ -29,9 +28,29 @@ export class IAMRectificationScram {
             "collMod",
         ];
 
+
+        // Specify TLS options for MongoClient using the custom secure context
+        const ops: AuthOptions = {
+            tls: true,                      // Enable TLS encryption
+            authMechanism: 'MONGODB-X509',  // Enable X.509 authentication,
+            uri: options.uri
+        };
+
+        // Pass the custom secure context
+        if (options.cert && options.key) {
+            // Create a custom secure context for TLS using Node.js `tls` library
+            ops.secureContext = tls.createSecureContext({
+                cert: options.cert, // PEM-formatted certificate (includes private key)
+                key: options.key, // Private key in PEM format
+                ca: options.ca,  // CA certificate for validation (optional)
+            });
+        } else {
+
+        }
+
         try {
             // Create the role manager instance
-            let roleManager = new MongoRoleManager(uri);
+            let roleManager = new MongoRoleManager(ops as AuthOptions);
 
             // Perform the rectification acction
             const [permissions, username, roles] = await Promise.all([

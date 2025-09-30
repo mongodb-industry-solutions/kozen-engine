@@ -444,6 +444,11 @@
           "key": "srvIAMScram",
           "target": "IAMRectificationScram",
           "type": "ref"
+        },
+        {
+          "key": "srvIAMX509",
+          "target": "IAMRectificationX509",
+          "type": "ref"
         }
       ]
     },
@@ -485,6 +490,12 @@
     },
     {
       "target": "IAMRectificationScram",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../services"
+    },
+    {
+      "target": "IAMRectificationX509",
       "type": "class",
       "lifetime": "transient",
       "path": "../../services"
