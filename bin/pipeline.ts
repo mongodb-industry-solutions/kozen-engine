@@ -20,6 +20,18 @@ import { ILogLevel } from "../src";
 import { PipelineController } from '../src/controllers/cli/PipelineController';
 import { VCategory } from "../src/models/Types";
 
+// Load environment variables
+try {
+  dotenv.config();
+}
+catch (error) {
+  console.error({
+    src: 'bin:Kozen',
+    category: VCategory.cli.tool,
+    message: `❌ Load local environment failed:` + (error as Error).message || error
+  });
+}
+
 /**
  * Main CLI entry point
  *
@@ -33,9 +45,6 @@ import { VCategory } from "../src/models/Types";
   let controller = null;
 
   try {
-    // Load environment variables
-    dotenv.config();
-
     // Create controller and parse arguments
     controller = new PipelineController();
 
