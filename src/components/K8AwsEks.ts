@@ -2,10 +2,10 @@ import * as aws from "@pulumi/aws";
 import * as eks from "@pulumi/eks";
 import * as pulumi from "@pulumi/pulumi";
 
-import { BaseController } from '../controllers/BaseController';
-import { IComponent } from '../models/Component';
-import { IPipeline } from '../models/Pipeline';
-import { IResult, IStruct } from '../models/Types';
+import { BaseController } from '../modules/component/controllers/BaseController';
+import { IComponent } from '../modules/component/models/Component';
+import { IPipeline } from '../modules/pipeline/models/Pipeline';
+import { IResult, IStruct } from '../shared/models/Types';
 
 /**
  * Atlas component controller for MongoDB Atlas cluster deployments

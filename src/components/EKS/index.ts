@@ -1,7 +1,7 @@
-import { BaseController } from '../../controllers/BaseController';
-import { IComponent } from '../../models/Component';
-import { IPipeline } from '../../models/Pipeline';
-import { IResult, IStruct } from '../../models/Types';
+import { BaseController } from '../../modules/component/controllers/BaseController';
+import { IComponent } from '../../modules/component/models/Component';
+import { IPipeline } from '../../modules/pipeline/models/Pipeline';
+import { IResult, IStruct } from '../../shared/models/Types';
 import { IEksConfig } from "./IEksConfig";
 
 import * as aws from "@pulumi/aws";

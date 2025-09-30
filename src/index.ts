@@ -40,38 +40,38 @@
  */
 
 // Core Pipeline Management
-export { PipelineManager } from './services/PipelineManager';
-export { StackManager } from './services/StackManager';
+export { PipelineManager } from './modules/pipeline/services/PipelineManager';
+export { StackManager } from './modules/pipeline/services/StackManager';
 
 // Service Layer
-export { LoggerService } from './services/LoggerService';
-export { SecretManager } from './services/SecretManager';
-export { TemplateManager } from './services/TemplateManager';
+export { LoggerService } from './modules/logger/services/LoggerService';
+export { SecretManager } from './modules/secret/services/SecretManager';
+export { TemplateManager } from './modules/template/services/TemplateManager';
 
 // Controllers
-export { BaseController } from './controllers/BaseController';
-export { LoggerController } from './controllers/cli/LoggerController';
-export { PipelineController } from './controllers/cli/PipelineController';
-export { SecretController } from './controllers/cli/SecretController';
-export { TemplateController } from './controllers/cli/TemplateController';
-export { CLIController } from './controllers/CLIController';
+export { BaseController } from './modules/component/controllers/BaseController';
+export { LoggerController } from './modules/logger/controllers/LoggerCLIController';
+export { PipelineController } from './modules/pipeline/controllers/PipelineCLIController';
+export { SecretController } from './modules/secret/controllers/SecretCLIController';
+export { TemplateController } from './modules/template/controllers/TemplateCLIController';
+export { CLIController } from './shared/controllers/CLIController';
 
 // IoC Container and Utilities
-export { Env } from './tools/env/Env';
-export { IoC } from './tools/ioc/IoC';
-export { ILogLevel, Logger } from './tools/log';
-export { EnumUtl, getID, readFrom } from './tools/util';
+export { Env } from './shared/tools/env/Env';
+export { IoC } from './shared/tools/ioc/IoC';
+export { ILogLevel, Logger } from './shared/tools/log';
+export { EnumUtl, getID, readFrom } from './shared/tools/util';
 
 // Models and Interfaces
-export { IComponent, IComponentInput, IComponentOutput, ITransformFn } from './models/Component';
-export { ILogArgs, ILoggerService } from './models/Logger';
-export { IConfig, IPipelineArgs } from './models/Pipeline';
-export { ISecretArgs, ISecretManager } from './models/Secret';
-export { ITemplate, ITemplateArgs, ITemplateConfig, ITemplateManager } from './models/Template';
-export { IAction, ICLIArgs, IMetadata, IResult } from './models/Types';
+export { IComponent, IComponentInput, IComponentOutput, ITransformFn } from './modules/component/models/Component';
+export { ILogArgs, ILoggerService } from './modules/logger/models/Logger';
+export { IConfig, IPipelineArgs } from './modules/pipeline/models/Pipeline';
+export { ISecretArgs, ISecretManager } from './modules/secret/models/Secret';
+export { ITemplate, ITemplateArgs, ITemplateConfig, ITemplateManager } from './modules/template/models/Template';
+export { IAction, ICLIArgs, IMetadata, IResult } from './shared/models/Types';
 
 // Type definitions
-export * from './tools/env/types';
-export * from './tools/ioc/types';
-export * from './tools/log/types';
+export * from './shared/tools/env/types';
+export * from './shared/tools/ioc/types';
+export * from './shared/tools/log/types';
 
