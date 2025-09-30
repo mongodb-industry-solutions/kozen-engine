@@ -11,13 +11,23 @@ import dotenv from 'dotenv';
 import { CLIController } from '../src/controllers/CLIController';
 import { VCategory } from '../src/models/Types';
 
+// Load environment variables
+try {
+    dotenv.config();
+}
+catch (error) {
+    console.error({
+        src: 'bin:Kozen',
+        category: VCategory.cli.tool,
+        message: `❌ Load local environment failed:` + (error as Error).message || error
+    });
+}
+
 /**
  * Main CLI entry point for secret management operations
  * @returns {Promise<void>} Promise that resolves when CLI execution completes
  */
 (async function main(): Promise<void> {
-    // Load environment variables
-    dotenv.config();
 
     // Create controller and parse arguments
     const cli = new CLIController();
