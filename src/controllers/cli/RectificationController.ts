@@ -7,7 +7,7 @@
  * @since 1.0.0
  * @version 1.1.0
  */
-import { IIAMRectification, IRectificationArg, IRectificationResponse } from '../../models/IAMRectification';
+import { IIAMRectification, IRectificationResponse, IRectificationScramArg, IRectificationX509Arg } from '../../models/IAMRectification';
 import { ILoggerService } from '../../models/Logger';
 import { IConfig } from '../../models/Pipeline';
 import { ICLIArgs } from '../../models/Types';
@@ -23,6 +23,7 @@ import { CLIController } from '../CLIController';
 export class RectificationController extends CLIController {
 
     protected srvIAMScram?: IIAMRectification;
+    protected srvIAMX509?: IIAMRectification;
 
     /**
      * Creates a new RectificationController instance
@@ -30,23 +31,45 @@ export class RectificationController extends CLIController {
      * @constructor
      * @param {PipelineManager} pipeline - Optional pipeline manager instance
      */
-    constructor(dependency?: { srvIAMScram?: IIAMRectification, assistant: IIoC; logger: ILoggerService; fileSrv?: FileService }) {
+    constructor(dependency?: { srvIAMScram?: IIAMRectification, srvIAMX509?: IIAMRectification, assistant: IIoC; logger: ILoggerService; fileSrv?: FileService }) {
         super(dependency);
         this.srvIAMScram = dependency?.srvIAMScram;
+        this.srvIAMX509 = dependency?.srvIAMX509;
     }
 
     /**
-     * Saves an encrypted secret to the configured secret management backend
-     * Stores the secret using the resolved SecretManager service with automatic encryption
+     * Validates and executes the SCRAM rectification process
      * 
-     * @param {IRectificationArg} options - options
+     * @param {IRectificationScramArg} options - options
      * @returns {Promise<IRectificationResponse>} Promise resolving to true if save operation succeeds, false otherwise
      * @throws {Error} When secret manager resolution fails or storage operation encounters errors
      * @public
      */
-    public async verifySCRAM(options: IRectificationArg): Promise<IRectificationResponse> {
+    public async verifySCRAM(options: IRectificationScramArg): Promise<IRectificationResponse> {
         try {
             const result = await this.srvIAMScram!.rectify(options);
+            return result;
+        } catch (error) {
+            this.logger?.error({
+                flow: this.getId(options as unknown as IConfig),
+                src: 'Controller:Secret:set',
+                message: `❌ Failed to retrieve reports: ${(error as Error).message}`
+            });
+            return null as unknown as IRectificationResponse;
+        }
+    }
+
+    /**
+     * Validates and rectifies IAM roles and permissions using X.509 authentication
+     * 
+     * @param {IRectificationX509Arg} options - options
+     * @returns {Promise<IRectificationResponse>} Promise resolving to true if save operation succeeds, false otherwise
+     * @throws {Error} When secret manager resolution fails or storage operation encounters errors
+     * @public
+     */
+    public async verifyX509(options: IRectificationX509Arg): Promise<IRectificationResponse> {
+        try {
+            const result = await this.srvIAMX509!.rectify(options);
             return result;
         } catch (error) {
             this.logger?.error({
@@ -70,14 +93,14 @@ export class RectificationController extends CLIController {
         console.log(helpText);
     }
 
-    public async fillout(args: string[] | ICLIArgs): Promise<IRectificationArg> {
-        let parsed: Partial<IRectificationArg> = this.extract(args);
+    public async fillout(args: string[] | ICLIArgs): Promise<IRectificationScramArg> {
+        let parsed: Partial<IRectificationScramArg> = this.extract(args);
         parsed.method = parsed.method?.toLocaleUpperCase() || process.env.KOZEN_IAM_METHOD?.toLocaleUpperCase() || "SCRAM";
         parsed.isCluster = parsed.isCluster !== undefined ? parsed.isCluster : true;
         parsed.uriEnv = parsed.uriEnv || process.env.KOZEN_IAM_URI_ENV;
         parsed.protocol = parsed.protocol || (parsed.isCluster ? "mongodb+srv" : "mongodb");
         parsed.action = parsed.action + parsed.method;
         parsed.permissions = typeof parsed.permissions === "string" ? (parsed.permissions as unknown as string).split(",").map(p => p.trim()) : parsed.permissions;
-        return parsed as IRectificationArg;
+        return parsed as IRectificationScramArg;
     }
 }
