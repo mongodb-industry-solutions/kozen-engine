@@ -7,11 +7,12 @@ export class IAMRectificationScram {
         // Collect options to carry out the rectification process
         let uri = options.uri || options.uriEnv && process.env[options.uriEnv] || "";
         if (!uri || uri.length === 0) {
-            let dbUsername = options.username || "dorottya";
-            let dbPassword = options.password || "passwordone";
-            let dbHost = options.host || "solutionsassurance.n0kts.mongodb.net";
+            let dbUsername = options.username || "";
+            let dbPassword = options.password || "";
+            let dbHost = options.host || "solutionsassurance.mongodb.com";
             let dbApp = options.app || "MyLocalApp";
-            uri = options.uri || `mongodb+srv://${dbUsername}:${dbPassword}@${dbHost}/?retryWrites=true&w=majority&appName=${dbApp}`;
+            let auth = (dbUsername && dbPassword) ? `${encodeURIComponent(dbUsername)}:${encodeURIComponent(dbPassword)}@` : "";
+            uri = options.uri || `mongodb+srv://${auth}${dbHost}/?retryWrites=true&w=majority&appName=${dbApp}`;
         }
 
         if (!uri || uri.length === 0) {
