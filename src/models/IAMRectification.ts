@@ -13,7 +13,7 @@ export interface IRectificationOption {
     permissions: Array<string>;
 }
 
-export interface IRectificationX509Option extends IRectificationOption {
+export interface IRectificationOptionX509 extends IRectificationOption {
     key?: string;
     cert?: string;
     ca?: string;
@@ -35,4 +35,6 @@ export interface IIAMRectification {
     rectify(options: IRectificationOption): Promise<IRectificationResponse>;
 }
 
-export interface IRectificationArg extends ICLIArgs, IRectificationOption { }
+export interface IRectificationScramArg extends ICLIArgs, IRectificationOption { }
+
+export interface IRectificationX509Arg extends ICLIArgs, IRectificationOptionX509 { }
