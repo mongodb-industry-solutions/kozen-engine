@@ -1,8 +1,8 @@
 import path from 'path';
-import { BaseController } from '../../controllers/BaseController';
-import { IComponent } from '../../models/Component';
-import { IPipeline } from '../../models/Pipeline';
-import { IResult, IStruct, VCategory } from '../../models/Types';
+import { BaseController } from '../../modules/component/controllers/BaseController';
+import { IComponent } from '../../modules/component/models/Component';
+import { IPipeline } from '../../modules/pipeline/models/Pipeline';
+import { IResult, VCategory } from '../../shared/models/Types';
 import { IDockerConfig } from "./IDockerConfig";
 
 export class Docker extends BaseController {

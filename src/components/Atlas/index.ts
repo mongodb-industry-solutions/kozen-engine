@@ -1,10 +1,10 @@
 import * as mongodbatlas from "@pulumi/mongodbatlas";
 import * as pulumi from "@pulumi/pulumi";
 
-import { BaseController } from '../../controllers/BaseController';
-import { IComponent } from '../../models/Component';
-import { IPipeline } from '../../models/Pipeline';
-import { IResult, IStruct, VCategory } from '../../models/Types';
+import { BaseController } from '../../modules/component/controllers/BaseController';
+import { IComponent } from '../../modules/component/models/Component';
+import { IPipeline } from '../../modules/pipeline/models/Pipeline';
+import { IResult, IStruct, VCategory } from '../../shared/models/Types';
 import { IAtlasConfig } from "./IAtlasConfig";
 
 /**

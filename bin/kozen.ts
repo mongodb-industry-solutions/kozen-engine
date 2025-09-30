@@ -8,8 +8,8 @@
  */
 
 import dotenv from 'dotenv';
-import { CLIController } from '../src/controllers/CLIController';
-import { VCategory } from '../src/models/Types';
+import { CLIController } from '../src/shared/controllers/CLIController';
+import { VCategory } from '../src/shared/models/Types';
 
 // Load environment variables
 try {
