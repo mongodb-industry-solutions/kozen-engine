@@ -425,6 +425,29 @@
       ]
     },
     {
+      "target": "RectificationController",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../controllers/cli",
+      "dependencies": [
+        {
+          "key": "assistant",
+          "target": "IoC",
+          "type": "ref"
+        },
+        {
+          "key": "logger",
+          "target": "LoggerService",
+          "type": "ref"
+        },
+        {
+          "key": "srvIAMScram",
+          "target": "IAMRectificationScram",
+          "type": "ref"
+        }
+      ]
+    },
+    {
       "target": "ReportController",
       "type": "class",
       "lifetime": "transient",
@@ -459,6 +482,12 @@
           "encoding": "utf-8"
         }
       ]
+    },
+    {
+      "target": "IAMRectificationScram",
+      "type": "class",
+      "lifetime": "transient",
+      "path": "../../services"
     },
     {
       "target": "ReportManager",
