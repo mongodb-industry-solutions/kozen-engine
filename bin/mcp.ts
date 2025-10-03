@@ -11,13 +11,15 @@ import { ServerMCP } from "../src/shared/tools/mcp/ServerMCP";
     const { args, config } = await app.init(process.argv);
 
     try {
-        const server = new ServerMCP({ name: "kozen", version: "1.0.0" });
-        if (!app.helper || !app.logger) {
-            throw new Error("App Module not properly initialized: missing helper or logger.");
-        }
-
         if (!config) {
             throw new Error("App Module not properly initialized: missing config.");
+        }
+
+        await app.register(config);
+        const server = new ServerMCP({ name: "kozen", version: "1.0.0" });
+
+        if (!app.helper || !app.logger) {
+            throw new Error("App Module not properly initialized: missing helper or logger.");
         }
 
         await server.init(config, app);
