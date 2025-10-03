@@ -1,9 +1,9 @@
 {
-    "pipeline:controller:mcp": {
-        "target": "PipelineMCPController",
+    "help:controller:cli": {
+        "target": "HelpCLIController",
         "type": "class",
         "lifetime": "transient",
-        "path": "../../../modules/pipeline/controllers",
+        "path": "../../../modules/help/controllers",
         "dependencies": [
             {
                 "key": "assistant",
@@ -13,6 +13,11 @@
             {
                 "key": "logger",
                 "target": "logger:service",
+                "type": "ref"
+            },
+            {
+                "key": "srvFile",
+                "target": "app:file",
                 "type": "ref"
             }
         ]
