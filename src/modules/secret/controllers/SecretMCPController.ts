@@ -36,7 +36,7 @@ export class SecretController extends MCPController {
                 throw new Error('Secret key is required for get operation');
             }
 
-            const srvSecret = await this.assistant?.resolve<ISecretManager>('SecretManager');
+            const srvSecret = await this.assistant?.resolve<ISecretManager>('secret:manager');
             const value = await srvSecret!.resolve(key);
             if (!value) {
                 throw new Error('Failed to resolve secret key');
@@ -70,7 +70,7 @@ export class SecretController extends MCPController {
                 throw new Error('Secret key and value are required for save operation');
             }
 
-            const srvSecret = await this.assistant?.resolve<ISecretManager>('SecretManager');
+            const srvSecret = await this.assistant?.resolve<ISecretManager>('secret:manager');
             const result = await srvSecret!.save(key, value);
 
             return {

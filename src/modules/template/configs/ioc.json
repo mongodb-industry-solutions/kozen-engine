@@ -1,0 +1,74 @@
+{
+    "template:manager": {
+        "target": "TemplateManager",
+        "type": "class",
+        "lifetime": "singleton",
+        "path": "../../../modules/template/services",
+        "args": [
+            {
+                "type": "mdb",
+                "file": {
+                    "path": "./cfg/templates"
+                },
+                "mdb": {
+                    "enabled": true,
+                    "database": "kozen",
+                    "collection": "templates",
+                    "uri": "MDB_URI"
+                }
+            }
+        ],
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
+    },
+    "template:manager:file": {
+        "target": "TemplateManagerFile",
+        "type": "class",
+        "path": "../../../modules/template/services",
+        "args": [
+            null
+        ],
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
+    },
+    "template:manager:mdb": {
+        "target": "TemplateManagerMDB",
+        "type": "class",
+        "path": "../../../modules/template/services",
+        "args": [
+            null
+        ],
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
+    }
+}

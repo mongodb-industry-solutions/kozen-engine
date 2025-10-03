@@ -13,12 +13,16 @@
  * @version 1.0.5
  */
 import * as fs from 'fs';
+import path from 'path';
 import { CLIController } from '../../../shared/controllers/CLIController';
-import { IAction, ICLIArgs, IResult, VCategory } from '../../../shared/models/Types';
+import { IArgs } from '../../../shared/models/Args';
+import { IResult } from '../../../shared/models/Result';
+import { IAction, VCategory } from '../../../shared/models/Types';
 import { FileService } from '../../../shared/services/FileService';
 import { IIoC } from '../../../shared/tools';
+import { IConfig } from '../../app/models/Config';
 import { ILoggerService } from '../../logger/models/Logger';
-import { IConfig, IPipelineArgs } from '../models/Pipeline';
+import { IPipelineArgs } from '../models/Pipeline';
 import { PipelineManager } from '../services/PipelineManager';
 
 /**
@@ -58,7 +62,7 @@ export class PipelineController extends CLIController {
    * @constructor
    * @param {PipelineManager} pipeline - Optional pipeline manager instance
    */
-  constructor(dependency?: { assistant: IIoC, logger: ILoggerService, pipeline?: PipelineManager, fileSrv?: FileService }) {
+  constructor(dependency?: { assistant: IIoC, logger: ILoggerService, pipeline?: PipelineManager, srvFile?: FileService }) {
     super(dependency);
     this.pipeline = dependency?.pipeline;
   }
@@ -67,13 +71,13 @@ export class PipelineController extends CLIController {
    * Parses and processes command line arguments specific to pipeline operations
    * Extends base argument parsing with pipeline-specific defaults like template configuration
    * 
-   * @param {string[] | ICLIArgs} args - Raw command line arguments array or pre-parsed arguments
+   * @param {string[] | IArgs} args - Raw command line arguments array or pre-parsed arguments
    * @returns {Promise<IPipelineArgs>} Promise resolving to structured pipeline arguments with defaults applied
    * @public
    */
-  public async fillout(args: string[] | ICLIArgs): Promise<IPipelineArgs> {
+  public async fill(args: string[] | IArgs): Promise<IPipelineArgs> {
     let parsed: Partial<IPipelineArgs> = this.extract(args);
-    Array.isArray(args) && (parsed = { ...(await super.fillout(args)), ...parsed });
+    Array.isArray(args) && (parsed = { ...(await super.fill(args)), ...parsed });
     parsed.template = parsed.template || process.env.KOZEN_TEMPLATE || '';
     return parsed as IPipelineArgs;
   }
@@ -82,15 +86,15 @@ export class PipelineController extends CLIController {
    * Initializes the pipeline controller by parsing arguments, loading configuration, and resolving the pipeline manager
    * Extends base initialization to include pipeline manager service resolution
    * 
-   * @template T - Type of arguments to return, defaults to ICLIArgs
-   * @param {string[] | ICLIArgs} [argv] - Command line arguments or pre-parsed arguments
+   * @template T - Type of arguments to return, defaults to IArgs
+   * @param {string[] | IArgs} [argv] - Command line arguments or pre-parsed arguments
    * @returns {Promise<{args?: T, config?: IConfig | null}>} Promise resolving to parsed arguments and loaded configuration
    * @throws {Error} When pipeline manager resolution fails or configuration loading errors occur
    * @public
    */
-  public async init<T = ICLIArgs>(argv?: string[] | ICLIArgs): Promise<{ args?: T, config?: IConfig | null }> {
+  public async init<T = IArgs>(argv?: string[] | IArgs): Promise<{ args?: T, config?: IConfig | null }> {
     const { args, config } = await super.init<T>(argv);
-    this.pipeline = await this.assistant?.resolve<PipelineManager>('PipelineManager');
+    this.pipeline = await this.assistant?.resolve<PipelineManager>('pipeline:manager');
     return { args: args as T, config };
   }
 
@@ -400,7 +404,8 @@ export class PipelineController extends CLIController {
    * @public
    */
   public async help(): Promise<void> {
-    const helpText = await this.fileSrv?.select('pipeline');
+    const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
+    const helpText = await this.srvFile?.select('pipeline', dir);
     console.log(helpText);
   }
 } 

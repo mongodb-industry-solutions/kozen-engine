@@ -6,7 +6,8 @@
  * @version 1.0.5
  */
 import { ConfigMap, Stack } from "@pulumi/pulumi/automation";
-import { IResult, IStruct } from "../../../shared/models/Types";
+import { IResult } from "../../../shared/models/Result";
+import { IStruct } from "../../../shared/models/Types";
 import { IComponent, ITransformOption } from "../../component/models/Component";
 
 /**

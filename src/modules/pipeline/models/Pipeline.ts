@@ -1,6 +1,6 @@
 
-import { ICLIArgs } from "../../../shared/models/Types";
-import { IDependency, IIoC } from "../../../shared/tools";
+import { IArgs } from "../../../shared/models/Args";
+import { IIoC } from "../../../shared/tools";
 import { ITemplate } from "../../template/models/Template";
 import { IStackManager } from "./Stack";
 
@@ -15,58 +15,14 @@ import { IStackManager } from "./Stack";
 /**
  * Extended pipeline arguments interface with template and deployment options
  * @interface IPipelineArgs
- * @extends ICLIArgs
+ * @extends IArgs
  */
-export interface IPipelineArgs extends ICLIArgs {
+export interface IPipelineArgs extends IArgs {
   /**
    * Infrastructure template name for deployment operations
    * @type {string}
    */
   template?: string;
-}
-
-/**
- * Kozen configuration interface for deployment management
- * @interface IConfig
- * @extends IPipelineArgs
- */
-export interface IConfig extends IPipelineArgs {
-
-  /**
-   * Unique pipeline instance identifier for tracking and logging
-   * @type {string}
-   */
-  id?: string;
-
-  /**
-   * Pipeline configuration identifier for human-readable naming
-   * @type {string}
-   */
-  name?: string;
-
-  /**
-   * Engine version requirements for compatibility validation
-   * @type {string}
-   */
-  engine?: string;
-
-  /**
-   * Semantic version for pipeline configuration versioning
-   * @type {string}
-   */
-  version?: string;
-
-  /**
-   * Optional pipeline description for documentation purposes
-   * @type {string}
-   */
-  description?: string;
-
-  /**
-   * Service configuration array for IoC container dependency injection
-   * @type {IDependency[]}
-   */
-  dependencies?: IDependency[];
 }
 
 /**

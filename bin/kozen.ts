@@ -8,7 +8,8 @@
  */
 
 import dotenv from 'dotenv';
-import { CLIController } from '../src/shared/controllers/CLIController';
+import { AppModule } from '../src/modules/app';
+import { CLIServer } from '../src/modules/app/services/CLIServer';
 import { VCategory } from '../src/shared/models/Types';
 
 // Load environment variables
@@ -30,38 +31,22 @@ catch (error) {
 (async function main(): Promise<void> {
 
     // Create controller and parse arguments
-    const cli = new CLIController();
-    const { args } = await cli.init(process.argv);
+    const app = new AppModule();
+
+    // Initialize application (parse args and load config)
+    process.argv.push('--type=cli');
+    const { args, config } = await app.init(process.argv);
 
     try {
-        if (!args?.controller) {
-            throw new Error('No valid controller was specified');
+        if (!args || !config) {
+            throw new Error('No valid configuration was specified');
         }
 
-        if (!args?.action) {
-            throw new Error('No valid action was specified');
-        }
+        await app.register(config);
+        const { result, options } = await (new CLIServer(app)).dispatch(args);
 
-        if (args.controller === 'Controller' && args.action === 'help') {
-            return cli.help();
-        }
-
-        const controller = await cli.helper?.resolve(args.controller) as any;
-
-        if (!controller) {
-            throw new Error('No valid controller found');
-        }
-
-        const options = { ...args, ...(await controller.fillout(args)) };
-        const action = controller[args.action];
-        if (!action) {
-            throw new Error('No valid action found');
-        }
-
-        const result = await action.apply(controller, [options]);
-
-        args.action !== 'help' && cli.log({
-            flow: cli.getId(args),
+        args.action !== 'help' && app.log({
+            flow: (config && app.getId(config)) || undefined,
             src: 'bin:Kozen',
             data: {
                 params: options,
@@ -69,16 +54,16 @@ catch (error) {
             }
         });
 
-        await cli.wait();
+        await app.wait();
         process.exit(0);
     } catch (error) {
         console.error({
-            flow: cli.getId(args),
+            flow: config && app.getId(config),
             src: 'bin:Kozen',
             category: VCategory.cli.secret,
             message: `❌ CLI execution failed:` + (error as Error).message || error
         });
-        cli.help()
+        // app.help()
         process.exit(1);
     }
 })();  

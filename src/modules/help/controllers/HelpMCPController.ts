@@ -25,7 +25,7 @@ export class HelpController extends MCPController {
             this.list.bind(this)
         );
 
-        this.fileSrv = this.fileSrv || await this.assistant?.resolve<FileService>('FileService');
+        this.srvFile = this.srvFile || await this.assistant?.resolve<FileService>('app:file');
     }
 
     async select(args: { name: string, format?: string }, extra?: any) {
@@ -35,9 +35,9 @@ export class HelpController extends MCPController {
                 throw new Error('Tool name is required for get operation');
             }
 
-            const text = await this.fileSrv?.select(name);
+            const text = await this.srvFile?.select(name);
             if (!text) {
-                throw new Error(`Failed to resolve Tool content: ${name} in ${this.fileSrv?.dir}`);
+                throw new Error(`Failed to resolve Tool content: ${name} in ${this.srvFile?.dir}`);
             }
 
             return {
@@ -62,9 +62,9 @@ export class HelpController extends MCPController {
 
     public async list(options?: { format?: string }): Promise<{ content: { type: "text"; text: string; }[] }> {
         try {
-            const text = await this.fileSrv?.select('kozen');
+            const text = await this.srvFile?.select('kozen');
             if (!text) {
-                throw new Error(`Failed to resolve Kozen content in ${this.fileSrv?.dir}`);
+                throw new Error(`Failed to resolve Kozen content in ${this.srvFile?.dir}`);
             }
 
             return {

@@ -7,7 +7,7 @@
  */
 
 import { Binary } from "mongodb";
-import { ICLIArgs } from "../../../shared/models/Types";
+import { IArgs } from "../../../shared/models/Args";
 import { IMdbClientOpt } from "../../../shared/tools/mdb/MdbClientOpt";
 
 /**
@@ -94,9 +94,9 @@ export interface ISecretManager {
 /**
  * Secret management CLI arguments interface
  * @interface ISecretArgs
- * @extends ICLIArgs
+ * @extends IArgs
  */
-export interface ISecretArgs extends ICLIArgs {
+export interface ISecretArgs extends IArgs {
     /**
      * Secret key identifier for storage and retrieval operations
      * @type {string}

@@ -7,6 +7,7 @@
  * @since 1.0.0
  * @version 1.1.0
  */
+import path from 'path';
 import { CLIController } from '../../../shared/controllers/CLIController';
 import { VCategory } from '../../../shared/models/Types';
 import { JSONT, readFrom } from '../../../shared/tools';
@@ -37,7 +38,8 @@ export class LoggerController extends CLIController {
      * @public
      */
     public async help(): Promise<void> {
-        const helpText = await this.fileSrv?.select('logger');
+        const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
+        const helpText = await this.srvFile?.select('logger', dir);
         console.log(helpText);
     }
 
@@ -50,7 +52,7 @@ export class LoggerController extends CLIController {
      * @throws {Error} When file reading fails or JSON parsing errors occur
      * @public
      */
-    public async fillout(args: string[]): Promise<ILogArgs> {
+    public async fill(args: string[]): Promise<ILogArgs> {
         let parsed: Partial<ILogArgs> = this.extract(args);
         parsed.level = parsed.level || 'debug';
         parsed.category = parsed.category || VCategory.cli.logger;

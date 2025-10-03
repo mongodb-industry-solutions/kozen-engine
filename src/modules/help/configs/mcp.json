@@ -1,0 +1,25 @@
+{
+    "help:controller:mcp": {
+        "target": "HelpMCPController",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/help/controllers",
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            },
+            {
+                "key": "srvFile",
+                "target": "app:file",
+                "type": "ref"
+            }
+        ]
+    }
+}

@@ -1,4 +1,4 @@
-import { ICLIArgs } from "../../../shared/models/Types";
+import { IArgs } from "../../../shared/models/Args";
 
 export interface IRectificationOption {
     host?: string;
@@ -35,6 +35,6 @@ export interface IIAMRectification {
     rectify(options: IRectificationOption): Promise<IRectificationResponse>;
 }
 
-export interface IRectificationScramArg extends ICLIArgs, IRectificationOption { }
+export interface IRectificationScramArg extends IArgs, IRectificationOption { }
 
-export interface IRectificationX509Arg extends ICLIArgs, IRectificationOptionX509 { }
+export interface IRectificationX509Arg extends IArgs, IRectificationOptionX509 { }

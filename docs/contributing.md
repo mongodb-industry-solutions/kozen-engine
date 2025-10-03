@@ -387,7 +387,7 @@ Components are automatically discovered through the IoC container's auto-registr
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]

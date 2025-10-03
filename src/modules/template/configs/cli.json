@@ -1,0 +1,25 @@
+{
+    "template:controller:cli": {
+        "target": "TemplateCLIController",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/template/controllers",
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            },
+            {
+                "key": "srvFile",
+                "target": "app:file",
+                "type": "ref"
+            }
+        ]
+    }
+}

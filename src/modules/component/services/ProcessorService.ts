@@ -1,5 +1,6 @@
 
-import { IMetadata, IStruct, VCategory } from "../../../shared/models/Types";
+import { IMetadata } from "../../../shared/models/Metadata";
+import { IStruct, VCategory } from "../../../shared/models/Types";
 import { IIoC } from "../../../shared/tools";
 import { ILoggerService } from "../../logger/models/Logger";
 import { ISecretManager } from "../../secret/models/Secret";
@@ -253,7 +254,7 @@ export class ProcessorService implements IProcessorService {
     private async resolveSecret(secretKey: string, defaultValue?: any, flow?: string): Promise<any> {
         try {
             if (!this.srvSecret && this.assistant) {
-                this.srvSecret = await this.assistant.resolve<ISecretManager>('SecretManager');
+                this.srvSecret = await this.assistant.resolve<ISecretManager>('secret:manager');
             }
             const resolvedSecret = await this.srvSecret?.resolve(secretKey, { flow });
             return resolvedSecret ?? defaultValue;
