@@ -15,7 +15,7 @@
                 },
                 "console": {
                     "enabled": true,
-                    "level": "INFO",
+                    "level": "DEBUG",
                     "skip": "Stack output: \\."
                 }
             }
