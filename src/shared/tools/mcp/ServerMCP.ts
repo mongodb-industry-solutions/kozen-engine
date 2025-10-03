@@ -24,11 +24,15 @@ export class ServerMCP {
 
     async start(): Promise<void> {
         const transport = new StdioServerTransport();
+        this.node.server.onerror = (error) => {
+            console.error("MCP Server Error:", error);
+        }
         await this.node.connect(transport);
+
     }
 
     async init(config: IConfig, app: IModule, node?: McpServer): Promise<void> {
-        const modules = [];
+        const modules = [Promise.resolve()];
         node = node || this._node;
 
         if (!config || config.modules?.load === undefined) {
