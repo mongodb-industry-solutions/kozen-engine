@@ -7,9 +7,9 @@ export class PipelineController extends MCPController {
 
     public async register(server: McpServer): Promise<void> {
         // select templates
-        server.registerTool("kozen_template_select",
+        server.registerTool("kozen_pipeline_select",
             {
-                description: "Get template content",
+                description: "Get pipeline content",
                 inputSchema: {
                     name: z.string().describe("Template name"),
                     format: z.string().optional().describe("Output format, e.g., json, yaml").default("json")
@@ -18,9 +18,9 @@ export class PipelineController extends MCPController {
             this.select.bind(this)
         );
         // list templates
-        server.registerTool("kozen_template_list",
+        server.registerTool("kozen_pipeline_list",
             {
-                description: "Get template list",
+                description: "Get pipeline list",
                 inputSchema: {
                     format: z.string().optional().describe("Output format, e.g., json, yaml").default("json")
                 }
@@ -46,15 +46,15 @@ export class PipelineController extends MCPController {
             if (template) {
                 this.logger?.info({
                     flow: this.getId(),
-                    src: 'Controller:Template:get',
+                    src: 'Controller:Pipeline:get',
                     message: `✅ Retrieved template '${name}' successfully.`,
                     data: { templateName: name, format }
                 });
             } else {
                 this.logger?.info({
                     flow: this.getId(),
-                    src: 'Controller:Template:get',
-                    message: `🔍 Template '${name}' not found.`
+                    src: 'Controller:Pipeline:get',
+                    message: `🔍 Pipeline '${name}' not found.`
                 });
             }
 
@@ -71,7 +71,7 @@ export class PipelineController extends MCPController {
                 content: [
                     {
                         type: "text" as const,
-                        text: `🔍 Template '${name}' not found or ${(error as Error).message}.`
+                        text: `🔍 Pipeline '${name}' not found or ${(error as Error).message}.`
                     }
                 ]
             };
@@ -102,7 +102,7 @@ export class PipelineController extends MCPController {
                 content: [
                     {
                         type: "text" as const,
-                        text: `❌ Failed to list templates: ${(error as Error).message}`
+                        text: `❌ Failed to list pipelines: ${(error as Error).message}`
                     }
                 ]
             };

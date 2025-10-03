@@ -1,6 +1,6 @@
 import { KzModule } from "../../shared/controllers/KzModule";
+import { IConfig } from "../../shared/models/Config";
 import { IDependency } from "../../shared/tools";
-import { IConfig } from "../app/models/Config";
 import ioc from "./configs/ioc.json";
 
 export class ComponentModule extends KzModule {

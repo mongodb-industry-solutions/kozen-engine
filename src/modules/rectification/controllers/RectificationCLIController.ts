@@ -10,9 +10,9 @@
 import path from 'path';
 import { CLIController } from '../../../shared/controllers/CLIController';
 import { IArgs } from '../../../shared/models/Args';
+import { IConfig } from '../../../shared/models/Config';
 import { FileService } from '../../../shared/services/FileService';
 import { IIoC } from '../../../shared/tools';
-import { IConfig } from '../../app/models/Config';
 import { ILoggerService } from '../../logger/models/Logger';
 import { IIAMRectification, IRectificationResponse, IRectificationScramArg, IRectificationX509Arg } from '../models/IAMRectification';
 
