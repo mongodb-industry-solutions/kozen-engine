@@ -9,7 +9,7 @@
  * 
  * @author MongoDB Solution Assurance Team (SAT)
  * @version 1.1.0
- * @since 2024-01-01
+ * @since 2025-07-01
  * 
  * @example
  * ```typescript
@@ -65,10 +65,15 @@ export { EnumUtl, getID, readFrom } from './shared/tools/util';
 // Models and Interfaces
 export { IComponent, IComponentInput, IComponentOutput, ITransformFn } from './modules/component/models/Component';
 export { ILogArgs, ILoggerService } from './modules/logger/models/Logger';
-export { IConfig, IPipelineArgs } from './modules/pipeline/models/Pipeline';
+export { IPipelineArgs } from './modules/pipeline/models/Pipeline';
+
+export { IConfig } from './modules/app/models/Config';
 export { ISecretArgs, ISecretManager } from './modules/secret/models/Secret';
 export { ITemplate, ITemplateArgs, ITemplateConfig, ITemplateManager } from './modules/template/models/Template';
-export { IAction, ICLIArgs, IMetadata, IResult } from './shared/models/Types';
+export { IArgs } from './shared/models/Args';
+export { IMetadata } from './shared/models/Metadata';
+export { IResult } from './shared/models/Result';
+export { IAction, IStruct, VCategory } from './shared/models/Types';
 
 // Type definitions
 export * from './shared/tools/env/types';

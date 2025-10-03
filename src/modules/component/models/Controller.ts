@@ -1,4 +1,5 @@
-import { IResult, IStruct } from "../../../shared/models/Types";
+import { IResult } from "../../../shared/models/Result";
+import { IStruct } from "../../../shared/models/Types";
 import { IPipeline } from '../../pipeline/models/Pipeline';
 import { IComponent } from "./Component";
 

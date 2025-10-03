@@ -6,7 +6,8 @@
  * @version 1.0.5
  */
 
-import { IResult, IStruct, VCategory } from "../../../shared/models/Types";
+import { IResult } from "../../../shared/models/Result";
+import { IStruct, VCategory } from "../../../shared/models/Types";
 import { IIoC } from "../../../shared/tools";
 import { ITransformOption } from "../../component/models/Component";
 import { BaseService } from "../../component/services/BaseService";

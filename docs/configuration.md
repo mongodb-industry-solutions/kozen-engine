@@ -38,7 +38,7 @@ The main configuration file defines global settings, service dependencies, and e
         },
         {
           "key": "logger",
-          "target": "LoggerService",
+          "target": "logger:service",
           "type": "ref"
         }
       ]
@@ -107,7 +107,7 @@ interface IDependency {
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]
@@ -131,7 +131,7 @@ interface IDependency {
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]
@@ -155,7 +155,7 @@ interface IDependency {
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]
@@ -180,7 +180,7 @@ interface IDependency {
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]
@@ -203,7 +203,7 @@ interface IDependency {
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]
@@ -240,7 +240,7 @@ interface IDependency {
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]
@@ -266,7 +266,7 @@ interface IDependency {
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]
@@ -290,7 +290,7 @@ interface IDependency {
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]
@@ -301,7 +301,7 @@ interface IDependency {
 
 ```json
 {
-  "target": "SecretManager",
+  "target": "secret:manager",,
   "type": "class",
   "lifetime": "singleton",
   "path": "../../services",
@@ -323,7 +323,7 @@ interface IDependency {
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]
@@ -348,7 +348,7 @@ interface IDependency {
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]
@@ -359,7 +359,7 @@ interface IDependency {
 
 ```json
 {
-  "target": "LoggerService",
+  "target": "logger:service",
   "type": "class",
   "lifetime": "singleton",
   "path": "../../services",
@@ -400,7 +400,7 @@ interface IDependency {
   "dependencies": [
     {
       "key": "srvSecret",
-      "target": "SecretManager",
+      "target": "secret:manager",,
       "type": "ref"
     },
     {
@@ -410,7 +410,7 @@ interface IDependency {
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]
@@ -433,7 +433,7 @@ interface IDependency {
     },
     {
       "key": "logger",
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "ref"
     }
   ]
@@ -691,13 +691,13 @@ LOG_LEVEL=warn
         },
         {
           "key": "logger",
-          "target": "LoggerService",
+          "target": "logger:service",
           "type": "ref"
         }
       ]
     },
     {
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "class",
       "lifetime": "singleton",
       "path": "../../services",
@@ -736,13 +736,13 @@ LOG_LEVEL=warn
         },
         {
           "key": "logger",
-          "target": "LoggerService",
+          "target": "logger:service",
           "type": "ref"
         }
       ]
     },
     {
-      "target": "LoggerService",
+      "target": "logger:service",
       "type": "class",
       "lifetime": "singleton",
       "path": "../../services",

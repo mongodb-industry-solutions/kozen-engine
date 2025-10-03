@@ -7,8 +7,9 @@
  * @since 1.0.0
  * @version 1.1.0
  */
+import path from 'path';
 import { CLIController } from '../../../shared/controllers/CLIController';
-import { IConfig } from '../../pipeline/models/Pipeline';
+import { IConfig } from '../../app/models/Config';
 import { IReportManager, PipelineResult } from '../models/Report';
 
 /**
@@ -32,7 +33,7 @@ export class ReportController extends CLIController {
     public async list(options: { start?: string, end?: string }): Promise<PipelineResult[]> {
         try {
             const { start, end } = options;
-            const srvReport = await this.assistant?.resolve<IReportManager>('ReportManager');
+            const srvReport = await this.assistant?.resolve<IReportManager>('report:manager');
             const result = await srvReport!.list({ start, end });
 
             this.logger?.info({
@@ -59,7 +60,8 @@ export class ReportController extends CLIController {
      * @public
      */
     public async help(): Promise<void> {
-        const helpText = await this.fileSrv?.select('report');
+        const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
+        const helpText = await this.srvFile?.select('report', dir);
         console.log(helpText);
     }
 }

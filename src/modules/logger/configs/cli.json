@@ -1,0 +1,25 @@
+{
+    "logger:controller:cli": {
+        "target": "LoggerCLIController",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/logger/controllers",
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            },
+            {
+                "key": "srvFile",
+                "target": "app:file",
+                "type": "ref"
+            }
+        ]
+    }
+}

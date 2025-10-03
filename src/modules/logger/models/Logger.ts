@@ -1,4 +1,5 @@
-import { ICLIArgs } from "../../../shared/models/Types";
+
+import { IArgs } from "../../../shared/models/Args";
 import { ILogInput, ILogLevel, ILogProcessor, ILoggerConfig } from "../../../shared/tools";
 import { ILogEntry, ILoggerConfigMDB } from "../../../shared/tools/log/types";
 
@@ -98,9 +99,9 @@ export interface ILoggerService {
 /**
  * Secret management CLI arguments interface
  * @interface ILogArgs
- * @extends ICLIArgs
+ * @extends IArgs
  */
-export interface ILogArgs extends ICLIArgs, ILogEntry {
+export interface ILogArgs extends IArgs, ILogEntry {
     /**
      * The path of the file containing the content of the data property
      * @type {string}

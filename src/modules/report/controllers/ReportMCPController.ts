@@ -24,7 +24,7 @@ export class ReportController extends MCPController {
         try {
             const { start, end } = options || {};
 
-            const srvReport = await this.assistant?.resolve<IReportManager>('ReportManager');
+            const srvReport = await this.assistant?.resolve<IReportManager>('report:manager');
             const result = await srvReport!.list({ start, end });
 
             return {

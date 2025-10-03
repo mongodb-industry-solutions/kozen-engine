@@ -1,0 +1,31 @@
+{
+    "logger:service": {
+        "target": "LoggerService",
+        "type": "class",
+        "lifetime": "singleton",
+        "path": "../../../modules/logger/services",
+        "args": [
+            {
+                "mdb": {
+                    "enabled": true,
+                    "database": "kozen",
+                    "collection": "logs",
+                    "uri": "MDB_URI",
+                    "level": "DEBUG"
+                },
+                "console": {
+                    "enabled": true,
+                    "level": "INFO",
+                    "skip": "Stack output: \\."
+                }
+            }
+        ],
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            }
+        ]
+    }
+}

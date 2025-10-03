@@ -1,0 +1,15 @@
+{
+    "app:file": {
+        "target": "FileService",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../services",
+        "args": [
+            {
+                "extension": ".txt",
+                "dir": "./docs/tools",
+                "encoding": "utf-8"
+            }
+        ]
+    }
+}

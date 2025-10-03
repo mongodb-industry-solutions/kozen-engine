@@ -98,6 +98,8 @@ export interface IDependency {
  * IoC container interface for dependency injection operations.
  */
 export interface IIoC {
+  logger: Console | null;
+
   /**
    * Registers dependencies from array or map.
    */
@@ -107,6 +109,12 @@ export interface IIoC {
    * Unregisters dependencies by keys.
    */
   unregister(keys: string[]): void;
+
+
+  /**
+   * Safely resolve dependency with auto-registration support.
+   */
+  get<T = any>(key: string): Promise<T | null>;
 
   /**
    * Resolves dependency with auto-registration support.
@@ -121,5 +129,5 @@ export interface IIoC {
   /**
    * Gets all registered dependency configurations.
    */
-  readonly config: IDependency[];
+  readonly config: IDependencyMap;
 } 

@@ -7,10 +7,11 @@
  * @since 1.1.0
  * @version 1.1.0
  */
+import path from 'path';
 import { CLIController } from '../../../shared/controllers/CLIController';
-import { ICLIArgs } from '../../../shared/models/Types';
+import { IArgs } from '../../../shared/models/Args';
 import { readFrom } from '../../../shared/tools/util';
-import { IConfig } from '../../pipeline/models/Pipeline';
+import { IConfig } from '../../app/models/Config';
 import { ITemplateArgs, ITemplateManager } from '../models/Template';
 
 /**
@@ -70,7 +71,7 @@ export class TemplateController extends CLIController {
                 throw new Error('Template name is required for save operation');
             }
 
-            const templateManager = await this.assistant?.resolve<ITemplateManager>('TemplateManager');
+            const templateManager = await this.assistant?.resolve<ITemplateManager>('template:manager');
             if (!templateManager) {
                 throw new Error('Failed to resolve TemplateManager service');
             }
@@ -113,7 +114,7 @@ export class TemplateController extends CLIController {
                 throw new Error('Template name is required for get operation');
             }
 
-            const templateManager = await this.assistant?.resolve<ITemplateManager>('TemplateManager');
+            const templateManager = await this.assistant?.resolve<ITemplateManager>('template:manager');
             if (!templateManager) {
                 throw new Error('Failed to resolve TemplateManager service');
             }
@@ -164,7 +165,7 @@ export class TemplateController extends CLIController {
                 throw new Error('Template name is required for delete operation');
             }
 
-            const templateManager = await this.assistant?.resolve<ITemplateManager>('TemplateManager');
+            const templateManager = await this.assistant?.resolve<ITemplateManager>('template:manager');
             if (!templateManager) {
                 throw new Error('Failed to resolve TemplateManager service');
             }
@@ -209,7 +210,7 @@ export class TemplateController extends CLIController {
         try {
             const { format = 'table' } = options || {};
 
-            const templateManager = await this.assistant?.resolve<ITemplateManager>('TemplateManager');
+            const templateManager = await this.assistant?.resolve<ITemplateManager>('template:manager');
             if (!templateManager) {
                 throw new Error('Failed to resolve TemplateManager service');
             }
@@ -244,7 +245,7 @@ export class TemplateController extends CLIController {
      */
     public async metadata(options?: { name?: string }): Promise<any | null> {
         try {
-            const templateManager = await this.assistant?.resolve<ITemplateManager>('TemplateManager');
+            const templateManager = await this.assistant?.resolve<ITemplateManager>('template:manager');
             if (!templateManager) {
                 throw new Error('Failed to resolve TemplateManager service');
             }
@@ -276,7 +277,8 @@ export class TemplateController extends CLIController {
      * @public
      */
     public async help(): Promise<void> {
-        const helpText = await this.fileSrv?.select('template');
+        const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
+        const helpText = await this.srvFile?.select('template', dir);
         console.log(helpText);
     }
 
@@ -284,11 +286,11 @@ export class TemplateController extends CLIController {
      * Parses and processes command line arguments specific to template management operations
      * Extends base argument parsing with template-specific defaults and environment variable fallbacks
      * 
-     * @param {string[] | ICLIArgs} args - Raw command line arguments array or pre-parsed arguments
+     * @param {string[] | IArgs} args - Raw command line arguments array or pre-parsed arguments
      * @returns {Promise<ITemplateArgs>} Promise resolving to structured template arguments with defaults applied
      * @public
      */
-    public async fillout(args: string[] | ICLIArgs): Promise<ITemplateArgs> {
+    public async fill(args: string[] | IArgs): Promise<ITemplateArgs> {
         let parsed: Partial<ITemplateArgs> = this.extract(args);
         // Apply environment variable defaults
         process.env.KOZEN_TM_NAME && (parsed.name = parsed.name || process.env.KOZEN_TM_NAME);

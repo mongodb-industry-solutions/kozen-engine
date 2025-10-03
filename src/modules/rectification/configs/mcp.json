@@ -1,0 +1,30 @@
+{
+    "rectification:controller:mcp": {
+        "target": "RectificationMCPController",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/rectification/controllers",
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            },
+            {
+                "key": "srvIAMScram",
+                "target": "iam:rectification:scram",
+                "type": "ref"
+            },
+            {
+                "key": "srvIAMX509",
+                "target": "iam:rectification:x509",
+                "type": "ref"
+            }
+        ]
+    }
+}

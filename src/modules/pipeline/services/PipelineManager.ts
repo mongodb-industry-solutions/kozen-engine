@@ -1,12 +1,14 @@
 import * as fs from 'fs';
-import { IAction, IResult, IStruct, VCategory } from "../../../shared/models/Types";
+import { IResult } from '../../../shared/models/Result';
+import { IAction, IStruct, VCategory } from "../../../shared/models/Types";
 import { Env, IEnv, IIoC, IoC } from "../../../shared/tools";
+import { IConfig } from '../../app/models/Config';
 import { IComponent, ITransformFn } from '../../component/models/Component';
 import { IController } from '../../component/models/Controller';
 import { BaseService } from '../../component/services/BaseService';
 import { ILoggerService } from '../../logger/models/Logger';
 import { ITemplate, ITemplateManager } from '../../template/models/Template';
-import { IConfig, IPipeline, IPipelineArgs } from '../models/Pipeline';
+import { IPipeline, IPipelineArgs } from '../models/Pipeline';
 import { IStackManager } from '../models/Stack';
 
 /**

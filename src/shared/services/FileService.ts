@@ -19,10 +19,9 @@ export class FileService {
      * @param fileName - The name of the file to read.
      * @returns The textual content of the file, or throws an error if the file does not exist.
      */
-    async select(fileName: string): Promise<string> {
+    async select(fileName: string, dir?: string): Promise<string> {
         try {
-            const filePath = path.resolve(this.dir, fileName + this.extension);
-            console.log(`Selecting file: ${filePath}`);
+            const filePath = path.resolve(dir || this.dir, fileName + this.extension);
             const data = await fs.readFile(filePath, this.encoding);
             return data as string;
         } catch (error) {

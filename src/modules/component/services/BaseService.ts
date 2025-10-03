@@ -68,7 +68,7 @@ export class BaseService {
     constructor(dependency?: { assistant: IIoC, logger: ILoggerService }) {
         this.assistant = dependency?.assistant ?? null;
         this.logger = dependency?.logger ?? null;
-        // this.assistant?.resolve<ILoggerService>('LoggerService').then(obj => this.logger = obj);
+        // this.assistant?.resolve<ILoggerService>('logger:service').then(obj => this.logger = obj);
     }
 
     /**
