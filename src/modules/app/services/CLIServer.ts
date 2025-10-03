@@ -30,10 +30,10 @@ export class CLIServer {
             }
 
             if (args.controller === 'controller' && args.action === 'help') {
-                // return this.app.help();
+                args.controller = 'help:controller:cli';
             }
 
-            const controller = await this.app?.helper?.resolve(args.controller) as any;
+            const controller = await this.app?.helper?.get(args.controller) as any;
 
             if (!controller) {
                 throw new Error('No valid controller found');

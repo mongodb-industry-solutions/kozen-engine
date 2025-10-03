@@ -154,8 +154,6 @@ export class AppModule {
         for (const key in config.modules.load || []) {
             let module = config?.modules?.load[key];
             if (module) {
-                module = typeof module === 'string' ? { name: module } : module;
-                module.path = module.path || config?.modules?.path || "../../../modules";
                 const mod = await this.getModule(module, config);
                 if (mod?.register instanceof Function) {
                     const dependencies = await mod.register(config, opts);
@@ -168,7 +166,9 @@ export class AppModule {
         }
     }
 
-    public async getModule(mod: IModuleOpt, config: IConfig | null): Promise<KzModule | null> {
+    public async getModule(mod: IModuleOpt | string, config: IConfig | null): Promise<KzModule | null> {
+        mod = typeof mod === 'string' ? { name: mod } : mod;
+        mod.path = mod.path || config?.modules?.path || "../../../modules";
         let namespace = "module:" + mod.name;
         await this.assistant?.register({
             [namespace]: {
