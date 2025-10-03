@@ -1,15 +1,14 @@
 import { promises as fs } from 'fs';
 import defConfig from "../../../cfg/config.json";
-import { KzModule } from '../../shared/controllers/KzModule';
 import { IArgs } from '../../shared/models/Args';
-import { VCategory } from "../../shared/models/Types";
-import { getID, IDependencyMap, IIoC, ILogInput, ILogLevel, IoC } from "../../shared/tools";
+import { IConfig } from '../../shared/models/Config';
+import { IModule, IModuleOpt } from '../../shared/models/Module';
+import { IAppType, VCategory } from "../../shared/models/Types";
+import { getID, IDependency, IDependencyMap, IIoC, ILogInput, ILogLevel, IoC } from "../../shared/tools";
 import { ILoggerService } from "../logger/models/Logger";
 import ioc from "./configs/ioc.json";
-import { IConfig } from './models/Config';
-import { IModuleOpt } from './models/Module';
 
-export class AppModule {
+export class AppModule implements IModule {
 
     /**
      * IoC container instance for dependency injection and service resolution
@@ -143,9 +142,9 @@ export class AppModule {
         return { args: args as T, config };
     }
 
-    public async register(config: IConfig | null, opts?: any): Promise<void> {
+    public async register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null> {
         if (!config?.modules?.load?.length) {
-            return;
+            return null;
         }
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
@@ -164,9 +163,10 @@ export class AppModule {
                 }
             }
         }
+        return null;
     }
 
-    public async getModule(mod: IModuleOpt | string, config: IConfig | null): Promise<KzModule | null> {
+    public async getModule(mod: IModuleOpt | string, config: IConfig | null): Promise<IModule | null> {
         mod = typeof mod === 'string' ? { name: mod } : mod;
         mod.path = mod.path || config?.modules?.path || "../../../modules";
         let namespace = "module:" + mod.name;
@@ -184,7 +184,7 @@ export class AppModule {
                 ]
             }
         });
-        return await this.assistant?.get<KzModule>(namespace) || null;
+        return await this.assistant?.get<IModule>(namespace) || null;
     }
 
     /**
@@ -202,6 +202,7 @@ export class AppModule {
         parsed.stack = (parsed.stack || process.env.KOZEN_STACK || process.env["NODE_ENV"] || 'dev').toUpperCase();
         parsed.project = parsed.project || process.env.KOZEN_PROJECT || getID();
         parsed.action = option?.length > 1 ? option[1] : option[0];
+        parsed.type = parsed.type || (process.env.KOZEN_TYPE as IAppType) || 'cli' as IAppType;
         parsed.controller = `${(parsed.controller || process.env['KOZEN_CONTROLLER'] || option?.length && option[0] || '')}:controller` + (parsed.type ? `:${parsed.type}` : '');
         parsed.config = parsed.config || process.env.KOZEN_CONFIG || 'cfg/config.json';
         return parsed as IArgs;
@@ -215,7 +216,7 @@ export class AppModule {
      * @returns {Record<string, any>} Object containing parsed argument key-value pairs
      * @protected
      */
-    protected extract(argv?: string[] | IArgs): Record<string, any> {
+    public extract(argv?: string[] | IArgs): Record<string, any> {
         if (!Array.isArray(argv) && typeof argv === 'object') {
             return argv;
         }

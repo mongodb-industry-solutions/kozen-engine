@@ -26,7 +26,7 @@
       "console": "integratedTerminal",
       "runtimeArgs": [
         "run",
-        "mcp:dev"
+        "mcp:start"
       ],
       "skipFiles": [
         "<node_internals>/**"

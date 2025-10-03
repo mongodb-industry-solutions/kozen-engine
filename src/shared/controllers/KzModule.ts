@@ -1,8 +1,9 @@
-import { IConfig } from "../../modules/app/models/Config";
 import { IArgs } from "../models/Args";
+import { IConfig } from "../models/Config";
+import { IModule } from "../models/Module";
 import { IDependency, IIoC } from "../tools";
 
-export class KzModule {
+export class KzModule implements IModule {
 
     /**
      * IoC container instance for dependency injection and service resolution

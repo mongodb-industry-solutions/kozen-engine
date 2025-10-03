@@ -1,8 +1,8 @@
 
-import { IArgs } from "../../../shared/models/Args";
-import { IAppType } from "../../../shared/models/Types";
-import { IDependency } from "../../../shared/tools";
+import { IDependency } from "../tools";
+import { IArgs } from "./Args";
 import { IModuleOpt } from "./Module";
+import { IAppType } from "./Types";
 
 /**
  * Kozen configuration interface for deployment management

@@ -1,5 +1,4 @@
 import { AppModule } from "../src/modules/app";
-import { MCPController } from "../src/shared/controllers/MCPController";
 import { VCategory } from "../src/shared/models/Types";
 import { ServerMCP } from "../src/shared/tools/mcp/ServerMCP";
 
@@ -17,27 +16,11 @@ import { ServerMCP } from "../src/shared/tools/mcp/ServerMCP";
             throw new Error("App Module not properly initialized: missing helper or logger.");
         }
 
-        app.logger.info({
-            flow: app.getId(args),
-            src: 'bin:mcp',
-            category: VCategory.cmp.exe,
-            message: `🚀 Starting MCP server...`
-        });
-
-        const modules = [];
-
         if (!config) {
             throw new Error("App Module not properly initialized: missing config.");
         }
 
-        for (const key in config.modules?.load || []) {
-            let module = await app.helper?.get<MCPController>(key + ":controller:mcp") || null;
-            if (module) {
-                modules.push(module.register(server.node));
-            }
-        }
-
-        await Promise.all(modules);
+        await server.init(config, app);
 
         server.start();
     } catch (error) {

@@ -9,7 +9,7 @@
  */
 import path from 'path';
 import { CLIController } from '../../../shared/controllers/CLIController';
-import { IConfig } from '../../app/models/Config';
+import { IConfig } from '../../../shared/models/Config';
 import { IReportManager, PipelineResult } from '../models/Report';
 
 /**

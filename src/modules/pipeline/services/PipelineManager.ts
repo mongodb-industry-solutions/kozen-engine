@@ -1,8 +1,8 @@
 import * as fs from 'fs';
+import { IConfig } from '../../../shared/models/Config';
 import { IResult } from '../../../shared/models/Result';
 import { IAction, IStruct, VCategory } from "../../../shared/models/Types";
 import { Env, IEnv, IIoC, IoC } from "../../../shared/tools";
-import { IConfig } from '../../app/models/Config';
 import { IComponent, ITransformFn } from '../../component/models/Component';
 import { IController } from '../../component/models/Controller';
 import { BaseService } from '../../component/services/BaseService';
