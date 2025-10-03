@@ -7,7 +7,16 @@
                 "-y",
                 "ts-node",
                 "bin/mcp.ts"
-            ]
+            ],
+            "env": {
+                "MDB_URI": "<MDB_URI>",
+                "MDB_MASTER_KEY": "<MDB_MASTER_KEY>",
+                "ATLAS_PROJECT_ID": "111",
+                "ATLAS_PRIVATE_KEY": "111",
+                "ATLAS_PUBLIC_KEY": "111",
+                "PULUMI_CONFIG_PASSPHRASE": "<PULUMI_CONFIG_PASSPHRASE>",
+                "KOZEN_LOG_LEVEL": "NONE"
+            }
         }
     },
     "inputs": []

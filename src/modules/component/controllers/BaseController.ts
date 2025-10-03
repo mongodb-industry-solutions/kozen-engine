@@ -1,4 +1,5 @@
-import { IResult, IStruct } from '../../../shared/models/Types';
+import { IResult } from '../../../shared/models/Result';
+import { IStruct } from '../../../shared/models/Types';
 import { IIoC } from '../../../shared/tools';
 import { ILoggerService } from '../../logger/models/Logger';
 import { IPipeline } from '../../pipeline/models/Pipeline';

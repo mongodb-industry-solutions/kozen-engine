@@ -1,7 +1,8 @@
 import { BaseController } from '../../modules/component/controllers/BaseController';
 import { IComponent } from '../../modules/component/models/Component';
 import { IPipeline } from '../../modules/pipeline/models/Pipeline';
-import { IResult, IStruct, VCategory } from '../../shared/models/Types';
+import { IResult } from '../../shared/models/Result';
+import { IStruct, VCategory } from '../../shared/models/Types';
 
 /**
  * Simple demo component controller for testing pipeline functionality

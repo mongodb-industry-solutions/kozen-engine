@@ -9,9 +9,10 @@
  */
 
 import * as fs from 'fs';
+import { IConfig } from '../../modules/app/models/Config';
 import { ILoggerService } from '../../modules/logger/models/Logger';
-import { IConfig } from '../../modules/pipeline/models/Pipeline';
-import { ICLIArgs, VCategory } from '../models/Types';
+import { IArgs } from '../models/Args';
+import { VCategory } from '../models/Types';
 import { FileService } from '../services/FileService';
 import { getID, IIoC, ILogInput, ILogLevel, IoC } from '../tools';
 
@@ -49,11 +50,11 @@ export class CLIController {
 
     /**
      * Gets the parsed command line arguments
-     * @template T - Type of arguments to return, defaults to ICLIArgs
+     * @template T - Type of arguments to return, defaults to IArgs
      * @returns {T} The parsed arguments cast to specified type
      * @public
      */
-    public getArgs<T = ICLIArgs>(): T {
+    public getArgs<T = IArgs>(): T {
         return this.args as T;
     }
 
@@ -65,7 +66,7 @@ export class CLIController {
     public logger?: ILoggerService | null;
 
 
-    public fileSrv?: FileService | null;
+    public srvFile?: FileService | null;
 
     /**
      * Creates a new CLIController instance with dependency injection support
@@ -75,10 +76,10 @@ export class CLIController {
      * @param {IIoC} [dependency.assistant] - IoC container for service resolution
      * @param {ILoggerService} [dependency.logger] - Logger service for operation tracking
      */
-    constructor(dependency?: { assistant: IIoC, logger: ILoggerService, fileSrv?: FileService }) {
+    constructor(dependency?: { assistant: IIoC, logger: ILoggerService, srvFile?: FileService }) {
         this.assistant = dependency?.assistant ?? new IoC();
         this.logger = dependency?.logger ?? null;
-        this.fileSrv = dependency?.fileSrv ?? null;
+        this.srvFile = dependency?.srvFile ?? null;
     }
 
     /**
@@ -89,7 +90,7 @@ export class CLIController {
      * @returns {void}
      */
     public async help(): Promise<void> {
-        const helpText = await this.fileSrv?.select('kozen');
+        const helpText = await this.srvFile?.select('kozen');
         console.log(helpText);
     }
 
@@ -134,7 +135,7 @@ export class CLIController {
     /**
      * Configures the secret controller with provided arguments and dependencies
      * @public
-     * @param {ICLIArgs} args - Secret controller configuration arguments
+     * @param {IArgs} args - Secret controller configuration arguments
      * @returns {Promise<void>} Promise that resolves when configuration is complete
      * @throws {Error} When configuration fails due to invalid configuration or dependency registration errors
      *
@@ -143,7 +144,7 @@ export class CLIController {
      * 2. Setting up the IoC container for dependency injection
      * 3. Registering all service dependencies defined in the configuration
      */
-    public async configure(args: ICLIArgs): Promise<IConfig | null> {
+    public async configure(args: IArgs): Promise<IConfig | null> {
         try {
             const config = args.config && await this.load(args.config);
             if (!config) {
@@ -154,7 +155,7 @@ export class CLIController {
             }
             config.dependencies && await this.assistant.register(config.dependencies);
             this.logger = this.logger || await this.assistant.resolve<ILoggerService>('LoggerService');
-            this.fileSrv = this.fileSrv || await this.assistant.resolve<FileService>('FileService');
+            this.srvFile = this.srvFile || await this.assistant.resolve<FileService>('FileService');
             return config;
         } catch (error) {
             throw new Error(`Failed to configure: ${error instanceof Error ? error.message : String(error)}`);
@@ -165,14 +166,14 @@ export class CLIController {
      * Initializes the CLI controller by parsing arguments and loading configuration
      * This method combines argument parsing and configuration loading in a single operation
      *
-     * @template T - Type of arguments to return, defaults to ICLIArgs
-     * @param {string[] | ICLIArgs} [argv] - Command line arguments or pre-parsed arguments
+     * @template T - Type of arguments to return, defaults to IArgs
+     * @param {string[] | IArgs} [argv] - Command line arguments or pre-parsed arguments
      * @returns {Promise<{args?: T, config?: IConfig | null}>} Promise resolving to parsed arguments and loaded configuration
      * @throws {Error} When argument parsing or configuration loading fails
      * @public
      */
-    public async init<T = ICLIArgs>(argv?: string[] | ICLIArgs): Promise<{ args?: T, config?: IConfig | null }> {
-        const args = await this.fillout(argv ?? process.argv);
+    public async init<T = IArgs>(argv?: string[] | IArgs): Promise<{ args?: T, config?: IConfig | null }> {
+        const args = await this.fill(argv ?? process.argv);
         const config = await this.configure(args);
         this.args = args;
         return { args: args as T, config };
@@ -182,12 +183,12 @@ export class CLIController {
      * Parses and processes command line arguments into structured format with environment variable fallbacks
      * Handles both string array arguments and pre-parsed argument objects, applying defaults from environment variables
      *
-     * @param {string[] | ICLIArgs} args - Raw command line arguments array or pre-parsed arguments object
-     * @returns {Promise<ICLIArgs>} Promise resolving to structured CLI arguments with all defaults applied
+     * @param {string[] | IArgs} args - Raw command line arguments array or pre-parsed arguments object
+     * @returns {Promise<IArgs>} Promise resolving to structured CLI arguments with all defaults applied
      * @public
      */
-    public async fillout(args: string[] | ICLIArgs): Promise<ICLIArgs> {
-        let parsed: Partial<ICLIArgs> = this.extract(args);
+    public async fill(args: string[] | IArgs): Promise<IArgs> {
+        let parsed: Partial<IArgs> = this.extract(args);
         parsed.action = parsed.action || process.env['KOZEN_ACTION'] || 'deploy';
         let option = parsed.action?.split(":") || [];
         parsed.stack = (parsed.stack || process.env.KOZEN_STACK || process.env["NODE_ENV"] || 'dev').toUpperCase();
@@ -195,18 +196,18 @@ export class CLIController {
         parsed.action = option?.length > 1 ? option[1] : option[0];
         parsed.controller = this.capitalizeFirstLetter(option?.length > 1 ? option[0] : (parsed.controller || process.env['KOZEN_CONTROLLER'] || '')) + 'Controller';
         parsed.config = parsed.config || process.env.KOZEN_CONFIG || 'cfg/config.json';
-        return parsed as ICLIArgs;
+        return parsed as IArgs;
     }
 
     /**
      * Extracts key-value pairs from command line arguments array using '--key=value' format
      * Supports both raw command line arrays and pre-parsed argument objects
      *
-     * @param {string[] | ICLIArgs} [argv] - Command line arguments array or parsed arguments object
+     * @param {string[] | IArgs} [argv] - Command line arguments array or parsed arguments object
      * @returns {Record<string, any>} Object containing parsed argument key-value pairs
      * @protected
      */
-    protected extract(argv?: string[] | ICLIArgs): Record<string, any> {
+    protected extract(argv?: string[] | IArgs): Record<string, any> {
         if (!Array.isArray(argv) && typeof argv === 'object') {
             return argv;
         }

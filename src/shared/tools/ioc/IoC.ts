@@ -16,13 +16,13 @@ export class IoC implements IIoC {
    * Console instance for logging container operations and debug information
    * @private
    */
-  private readonly logger: Console;
+  public logger: Console | null;
 
   /**
    * Array storing all registered dependency configurations for tracking
    * @private
    */
-  private readonly store: IDependency[] = [];
+  private readonly store: IDependencyMap = {};
 
   /**
    * Cache map storing auto-registration patterns by regex keys
@@ -41,67 +41,80 @@ export class IoC implements IIoC {
    */
   constructor(logger?: Console) {
     this.container = createContainer();
-    this.logger = logger ?? console;
+    this.logger = logger ?? null;
     this.tpl = new Tpl();
 
     // Auto-register IoC instance as "assistant" for reuse principle
     this.container.register('IoC', asValue(this));
-    // this.logger.info({ src: 'IoC', message: 'Container initialized with assistant auto-registration' });
+    this.logger?.info({ src: 'IoC', message: 'Container initialized with assistant auto-registration' });
   }
 
   /**
    * Gets all registered dependency configurations as readonly array.
    */
-  get config(): IDependency[] {
-    return [...this.store];
+  get config(): IDependencyMap {
+    return { ...this.store };
   }
 
   /**
    * Registers dependencies with recursive processing and auto-registration support.
    */
   async register(dependencies: IDependency[] | IDependencyMap): Promise<void> {
-    dependencies = this.toList(dependencies);
-
-    // this.logger.info({ src: 'IoC', message: `Starting registration of ${dependencies.length} dependencies` });
-
-    for (const dependency of dependencies) {
+    // dependencies = this.toList(dependencies);
+    this.logger?.info({ src: 'IoC', message: `Starting registration of ${dependencies.length} dependencies` });
+    let deps = dependencies as IDependencyMap;
+    for (const key in deps) {
+      const dependency = deps[key];
+      !Array.isArray(dependencies) && ((dependency as IDependency).key = key);
       await this.enroll(dependency);
     }
-
-    // this.logger.info({ src: 'IoC', message: 'All dependencies registered successfully' });
+    this.logger?.info({ src: 'IoC', message: 'All dependencies registered successfully' });
   }
 
   /**
    * Enrolls single dependency with key determination and recursive processing.
    */
   private async enroll(dependency: IDependency): Promise<void> {
+    try {
+      // Determine dependency key if not provided
+      (!dependency.key) && (dependency.key = this.getKey(dependency.target, dependency.type));
 
-    // Determine dependency key if not provided
-    (!dependency.key) && (dependency.key = this.getKey(dependency.target, dependency.type));
+      if (this.store[dependency.key!]) {
+        this.logger?.info({ src: 'IoC', message: `Cached dependency: ${dependency.key}` });
+        return;
+      }
 
-    // Store dependency configuration
-    this.store.push(dependency);
+      if (!dependency.target) {
+        dependency.target = dependency.key?.split(':').pop() || '';
+      }
 
-    // Handle auto-registration storage
-    if (dependency.type === 'auto') {
-      this.storeAutoRegistration(dependency);
-      return;
+      // Store dependency configuration
+      this.store[dependency.key!] = dependency;
+
+      // Handle auto-registration storage
+      if (dependency.type === 'auto') {
+        this.storeAutoRegistration(dependency);
+        return;
+      }
+
+      // Use template for file path resolution
+      if (dependency.template && !dependency.file) {
+        dependency.file = this.tpl.resolve(dependency.template, dependency as ITplVars);
+      }
+
+      // Process nested dependencies recursively
+      if (dependency.dependencies) {
+        await this.register(dependency.dependencies);
+      }
+
+      // Execute registration strategy
+      await this.executeRegistrationStrategy(dependency);
+
+      this.logger?.info({ src: 'IoC', message: `Enrolled dependency: ${dependency.key}` });
     }
-
-    // Use template for file path resolution
-    if (dependency.template && !dependency.file) {
-      dependency.file = this.tpl.resolve(dependency.template, dependency as ITplVars);
+    catch (error) {
+      this.logger?.error({ src: 'IoC', message: `Failed to enroll dependency: ${error instanceof Error ? error.message : String(error)}` });
     }
-
-    // Process nested dependencies recursively
-    if (dependency.dependencies) {
-      await this.register(dependency.dependencies);
-    }
-
-    // Execute registration strategy
-    await this.executeRegistrationStrategy(dependency);
-
-    // this.logger.info({ src: 'IoC', message: `Enrolled dependency: ${dependency.key}` });
   }
 
   /**
@@ -120,7 +133,7 @@ export class IoC implements IIoC {
   protected storeAutoRegistration(dependency: IDependency): void {
     const regex = dependency.regex ?? '.*';
     this.cache.set(regex, dependency);
-    // this.logger.info({ src: 'IoC', message: `Auto-registration pattern stored: ${regex}` });
+    this.logger?.info({ src: 'IoC', message: `Auto-registration pattern stored: ${regex}` });
   }
 
   /**
@@ -251,16 +264,28 @@ export class IoC implements IIoC {
    * Builds dependencies object for constructor injection.
    */
   protected build(cradle: any, dependencies: IDependency[] | IDependencyMap): Record<string, any> {
-    const dependenciesObject: Record<string, any> = {};
-    const dependencyArray = this.toList(dependencies);
-
-    for (const dep of dependencyArray) {
-      const propertyKey = dep.key!;
-      const targetKey = dep.type === 'ref' ? dep.target : propertyKey;
-      dependenciesObject[propertyKey] = cradle[targetKey];
+    const depMap: Record<string, any> = {};
+    const deps = dependencies as IDependencyMap;
+    for (const key in deps) {
+      let dep = deps[key];
+      !Array.isArray(dependencies) && (dep.key = key);
+      let propertyKey = dep.key!;
+      let targetKey = dep.type === 'ref' ? dep.target : propertyKey;
+      depMap[propertyKey] = cradle[targetKey];
     }
+    return depMap;
+  }
 
-    return dependenciesObject;
+  /**
+   * Safely resolve dependency with auto-registration support.
+   */
+  public async get<T = any>(key: string): Promise<T | null> {
+    try {
+      return await this.resolve<T>(key);
+    } catch (error) {
+      this.logger?.error({ src: 'IoC', message: `Failed to save get dependency: ${error instanceof Error ? error.message : String(error)}` });
+      return null;
+    }
   }
 
   /**
@@ -294,10 +319,10 @@ export class IoC implements IIoC {
       if (new RegExp(regex).test(key)) {
         try {
           await this.performAutoRegistration(key, pattern);
-          this.logger.info({ src: 'IoC', message: `Auto-registered dependency: ${key}` });
+          this.logger?.info({ src: 'IoC', message: `Auto-registered dependency: ${key}` });
           return true;
         } catch (error) {
-          this.logger.warn({ src: 'IoC', message: `Auto-registration failed for ${key}: ${error instanceof Error ? error.message : String(error)}` });
+          this.logger?.warn({ src: 'IoC', message: `Auto-registration failed for ${key}: ${error instanceof Error ? error.message : String(error)}` });
         }
       }
     }
@@ -331,19 +356,12 @@ export class IoC implements IIoC {
   public unregister(keys: string[]): void {
     for (const key of keys) {
       if (!this.container.registrations[key]) {
-        this.logger.warn({ src: 'IoC', message: `Cannot unregister non-existent dependency: ${key}` });
+        this.logger?.warn({ src: 'IoC', message: `Cannot unregister non-existent dependency: ${key}` });
         continue;
       }
-
       delete this.container.registrations[key];
-
-      // Remove from registered dependencies list
-      const index = this.store.findIndex(dep => dep.key === key);
-      if (index !== -1) {
-        this.store.splice(index, 1);
-      }
-
-      this.logger.info({ src: 'IoC', message: `Unregistered dependency: ${key}` });
+      delete this.store[key];
+      this.logger?.info({ src: 'IoC', message: `Unregistered dependency: ${key}` });
     }
   }
 } 

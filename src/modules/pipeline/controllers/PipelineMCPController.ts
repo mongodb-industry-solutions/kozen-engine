@@ -36,7 +36,7 @@ export class PipelineController extends MCPController {
                 throw new Error('Template name is required for get operation');
             }
 
-            const templateManager = await this.assistant?.resolve<ITemplateManager>('TemplateManager');
+            const templateManager = await this.assistant?.resolve<ITemplateManager>('template:manager');
             if (!templateManager) {
                 throw new Error('Failed to resolve TemplateManager service');
             }
@@ -82,7 +82,7 @@ export class PipelineController extends MCPController {
         try {
             const { format = 'table' } = options || {};
 
-            const templateManager = await this.assistant?.resolve<ITemplateManager>('TemplateManager');
+            const templateManager = await this.assistant?.resolve<ITemplateManager>('template:manager');
             if (!templateManager) {
                 throw new Error('Failed to resolve TemplateManager service');
             }

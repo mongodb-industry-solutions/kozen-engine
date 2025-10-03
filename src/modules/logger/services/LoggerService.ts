@@ -74,7 +74,7 @@ export class LoggerService implements ILoggerService {
             type: logType
         }));
         config.mdb?.enabled && processors.push(new MongoDBLogProcessor({
-            level: ILogLevel[(config.mdb?.level as unknown) as keyof typeof ILogLevel] ?? level,
+            level: ILogLevel[(process.env.KOZEN_LOG_LEVEL_REMOTE || config.mdb?.level as unknown) as keyof typeof ILogLevel] ?? level,
             uri: process.env[config.mdb.uri] || config.mdb.uri,
             database: config.mdb.database || 'kozen',
             collection: config.mdb.collection || 'logs',

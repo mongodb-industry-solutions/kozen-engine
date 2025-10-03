@@ -7,12 +7,13 @@
  * @since 1.0.0
  * @version 1.1.0
  */
+import path from 'path';
 import { CLIController } from '../../../shared/controllers/CLIController';
-import { ICLIArgs } from '../../../shared/models/Types';
+import { IArgs } from '../../../shared/models/Args';
 import { FileService } from '../../../shared/services/FileService';
 import { IIoC } from '../../../shared/tools';
+import { IConfig } from '../../app/models/Config';
 import { ILoggerService } from '../../logger/models/Logger';
-import { IConfig } from '../../pipeline/models/Pipeline';
 import { IIAMRectification, IRectificationResponse, IRectificationScramArg, IRectificationX509Arg } from '../models/IAMRectification';
 
 /**
@@ -31,7 +32,7 @@ export class RectificationCLIController extends CLIController {
      * @constructor
      * @param {PipelineManager} pipeline - Optional pipeline manager instance
      */
-    constructor(dependency?: { srvIAMScram?: IIAMRectification, srvIAMX509?: IIAMRectification, assistant: IIoC; logger: ILoggerService; fileSrv?: FileService }) {
+    constructor(dependency?: { srvIAMScram?: IIAMRectification, srvIAMX509?: IIAMRectification, assistant: IIoC; logger: ILoggerService; srvFile?: FileService }) {
         super(dependency);
         this.srvIAMScram = dependency?.srvIAMScram;
         this.srvIAMX509 = dependency?.srvIAMX509;
@@ -89,11 +90,12 @@ export class RectificationCLIController extends CLIController {
      * @public
      */
     public async help(): Promise<void> {
-        const helpText = await this.fileSrv?.select('iam-rectification');
+        const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
+        const helpText = await this.srvFile?.select('iam-rectification', dir);
         console.log(helpText);
     }
 
-    public async fillout(args: string[] | ICLIArgs): Promise<IRectificationScramArg> {
+    public async fill(args: string[] | IArgs): Promise<IRectificationScramArg> {
         let parsed: Partial<IRectificationScramArg> = this.extract(args);
         parsed.method = parsed.method?.toLocaleUpperCase() || process.env.KOZEN_IAM_METHOD?.toLocaleUpperCase() || "SCRAM";
         parsed.isCluster = parsed.isCluster !== undefined ? parsed.isCluster : true;

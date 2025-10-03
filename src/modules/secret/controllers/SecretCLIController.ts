@@ -7,9 +7,11 @@
  * @since 1.0.0
  * @version 1.1.0
  */
+import path from 'path';
 import { CLIController } from '../../../shared/controllers/CLIController';
-import { IAction, ICLIArgs } from '../../../shared/models/Types';
-import { IConfig } from '../../pipeline/models/Pipeline';
+import { IArgs } from '../../../shared/models/Args';
+import { IAction } from '../../../shared/models/Types';
+import { IConfig } from '../../app/models/Config';
 import { ISecretArgs, ISecretManager } from '../models/Secret';
 
 /**
@@ -44,7 +46,7 @@ export class SecretController extends CLIController {
     public async set(options: { key: string, value: string }): Promise<boolean> {
         try {
             const { key, value } = options;
-            const srvSecret = await this.assistant?.resolve<ISecretManager>('SecretManager');
+            const srvSecret = await this.assistant?.resolve<ISecretManager>('secret:manager');
             const result = await srvSecret!.save(key, value);
             this.logger?.info({
                 flow: this.getId(options as unknown as IConfig),
@@ -75,7 +77,7 @@ export class SecretController extends CLIController {
     public async get(options: { key: string }): Promise<string | null> {
         try {
             const { key } = options;
-            const srvSecret = await this.assistant?.resolve<ISecretManager>('SecretManager');
+            const srvSecret = await this.assistant?.resolve<ISecretManager>('secret:manager');
             const value = await srvSecret!.resolve(key);
             if (value) {
                 this.logger?.info({
@@ -112,7 +114,7 @@ export class SecretController extends CLIController {
      */
     public async metadata(options: { key: string }) {
         try {
-            const srvSecret = await this.assistant?.resolve<ISecretManager>('SecretManager');
+            const srvSecret = await this.assistant?.resolve<ISecretManager>('secret:manager');
             return srvSecret?.options;
         } catch (error) {
             this.logger?.error({
@@ -132,7 +134,8 @@ export class SecretController extends CLIController {
      * @public
      */
     public async help(): Promise<void> {
-        const helpText = await this.fileSrv?.select('secret');
+        const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
+        const helpText = await this.srvFile?.select('secret', dir);
         console.log(helpText);
     }
 
@@ -140,11 +143,11 @@ export class SecretController extends CLIController {
      * Parses and processes command line arguments specific to secret management operations
      * Extends base argument parsing with secret-specific defaults and environment variable fallbacks
      * 
-     * @param {string[] | ICLIArgs} args - Raw command line arguments array or pre-parsed arguments
+     * @param {string[] | IArgs} args - Raw command line arguments array or pre-parsed arguments
      * @returns {Promise<ISecretArgs>} Promise resolving to structured secret arguments with defaults applied
      * @public
      */
-    public async fillout(args: string[] | ICLIArgs): Promise<ISecretArgs> {
+    public async fill(args: string[] | IArgs): Promise<ISecretArgs> {
         let parsed: Partial<ISecretArgs> = this.extract(args);
         parsed.action !== 'metadata' && (parsed.key = parsed.key || (process.env.KOZEN_SM_KEY as IAction));
         parsed.action === 'set' && (parsed.value = parsed.value || process.env.KOZEN_SM_VAL);
