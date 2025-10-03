@@ -46,7 +46,7 @@ export class IoC implements IIoC {
 
     // Auto-register IoC instance as "assistant" for reuse principle
     this.container.register('IoC', asValue(this));
-    this.logger?.info({ src: 'IoC', message: 'Container initialized with assistant auto-registration' });
+    // this.logger?.info({ src: 'IoC', message: 'Container initialized with assistant auto-registration' });
   }
 
   /**
@@ -61,14 +61,14 @@ export class IoC implements IIoC {
    */
   async register(dependencies: IDependency[] | IDependencyMap): Promise<void> {
     // dependencies = this.toList(dependencies);
-    this.logger?.info({ src: 'IoC', message: `Starting registration of ${dependencies.length} dependencies` });
+    // this.logger?.info({ src: 'IoC', message: `Starting registration of ${dependencies.length} dependencies` });
     let deps = dependencies as IDependencyMap;
     for (const key in deps) {
       const dependency = deps[key];
       !Array.isArray(dependencies) && ((dependency as IDependency).key = key);
       await this.enroll(dependency);
     }
-    this.logger?.info({ src: 'IoC', message: 'All dependencies registered successfully' });
+    // this.logger?.info({ src: 'IoC', message: 'All dependencies registered successfully' });
   }
 
   /**
@@ -80,7 +80,7 @@ export class IoC implements IIoC {
       (!dependency.key) && (dependency.key = this.getKey(dependency.target, dependency.type));
 
       if (this.store[dependency.key!]) {
-        this.logger?.info({ src: 'IoC', message: `Cached dependency: ${dependency.key}` });
+        // this.logger?.info({ src: 'IoC', message: `Cached dependency: ${dependency.key}` });
         return;
       }
 
@@ -110,7 +110,7 @@ export class IoC implements IIoC {
       // Execute registration strategy
       await this.executeRegistrationStrategy(dependency);
 
-      this.logger?.info({ src: 'IoC', message: `Enrolled dependency: ${dependency.key}` });
+      // this.logger?.info({ src: 'IoC', message: `Enrolled dependency: ${dependency.key}` });
     }
     catch (error) {
       this.logger?.error({ src: 'IoC', message: `Failed to enroll dependency: ${error instanceof Error ? error.message : String(error)}` });
@@ -133,7 +133,7 @@ export class IoC implements IIoC {
   protected storeAutoRegistration(dependency: IDependency): void {
     const regex = dependency.regex ?? '.*';
     this.cache.set(regex, dependency);
-    this.logger?.info({ src: 'IoC', message: `Auto-registration pattern stored: ${regex}` });
+    // this.logger?.info({ src: 'IoC', message: `Auto-registration pattern stored: ${regex}` });
   }
 
   /**
@@ -319,7 +319,7 @@ export class IoC implements IIoC {
       if (new RegExp(regex).test(key)) {
         try {
           await this.performAutoRegistration(key, pattern);
-          this.logger?.info({ src: 'IoC', message: `Auto-registered dependency: ${key}` });
+          // this.logger?.info({ src: 'IoC', message: `Auto-registered dependency: ${key}` });
           return true;
         } catch (error) {
           this.logger?.warn({ src: 'IoC', message: `Auto-registration failed for ${key}: ${error instanceof Error ? error.message : String(error)}` });
@@ -361,7 +361,7 @@ export class IoC implements IIoC {
       }
       delete this.container.registrations[key];
       delete this.store[key];
-      this.logger?.info({ src: 'IoC', message: `Unregistered dependency: ${key}` });
+      // this.logger?.info({ src: 'IoC', message: `Unregistered dependency: ${key}` });
     }
   }
 } 
