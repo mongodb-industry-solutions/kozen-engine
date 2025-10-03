@@ -1,6 +1,6 @@
 import { KzModule } from "../../shared/controllers/KzModule";
+import { IConfig } from "../../shared/models/Config";
 import { IDependency } from "../../shared/tools";
-import { IConfig } from "../app/models/Config";
 import cli from "./configs/cli.json";
 import mcp from "./configs/mcp.json";
 

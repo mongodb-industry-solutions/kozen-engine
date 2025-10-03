@@ -113,7 +113,7 @@ export class IoC implements IIoC {
       // this.logger?.info({ src: 'IoC', message: `Enrolled dependency: ${dependency.key}` });
     }
     catch (error) {
-      this.logger?.error({ src: 'IoC', message: `Failed to enroll dependency: ${error instanceof Error ? error.message : String(error)}` });
+      // this.logger?.error({ src: 'IoC', message: `Failed to enroll dependency: ${error instanceof Error ? error.message : String(error)}` });
     }
   }
 
@@ -283,7 +283,7 @@ export class IoC implements IIoC {
     try {
       return await this.resolve<T>(key);
     } catch (error) {
-      this.logger?.error({ src: 'IoC', message: `Failed to save get dependency: ${error instanceof Error ? error.message : String(error)}` });
+      // this.logger?.error({ src: 'IoC', message: `Failed to save get dependency: ${error instanceof Error ? error.message : String(error)}` });
       return null;
     }
   }
@@ -322,7 +322,7 @@ export class IoC implements IIoC {
           // this.logger?.info({ src: 'IoC', message: `Auto-registered dependency: ${key}` });
           return true;
         } catch (error) {
-          this.logger?.warn({ src: 'IoC', message: `Auto-registration failed for ${key}: ${error instanceof Error ? error.message : String(error)}` });
+          // this.logger?.warn({ src: 'IoC', message: `Auto-registration failed for ${key}: ${error instanceof Error ? error.message : String(error)}` });
         }
       }
     }

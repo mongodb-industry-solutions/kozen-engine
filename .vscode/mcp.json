@@ -6,7 +6,8 @@
             "args": [
                 "-y",
                 "ts-node",
-                "bin/kozen_mcp.ts"
+                "bin/kozen.ts",
+                "--type=mcp"
             ],
             "env": {
                 "MDB_URI": "<MDB_URI>",

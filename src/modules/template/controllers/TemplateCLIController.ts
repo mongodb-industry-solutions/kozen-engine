@@ -10,8 +10,8 @@
 import path from 'path';
 import { CLIController } from '../../../shared/controllers/CLIController';
 import { IArgs } from '../../../shared/models/Args';
+import { IConfig } from '../../../shared/models/Config';
 import { readFrom } from '../../../shared/tools/util';
-import { IConfig } from '../../app/models/Config';
 import { ITemplateArgs, ITemplateManager } from '../models/Template';
 
 /**

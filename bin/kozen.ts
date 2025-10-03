@@ -8,21 +8,11 @@
  */
 
 import dotenv from 'dotenv';
+import { IArgs } from '../src';
 import { AppModule } from '../src/modules/app';
 import { CLIServer } from '../src/modules/app/services/CLIServer';
 import { VCategory } from '../src/shared/models/Types';
-
-// Load environment variables
-try {
-    dotenv.config();
-}
-catch (error) {
-    console.error({
-        src: 'bin:Kozen',
-        category: VCategory.cli.tool,
-        message: `❌ Load local environment failed:` + (error as Error).message || error
-    });
-}
+import { ServerMCP } from '../src/shared/tools/mcp/ServerMCP';
 
 /**
  * Main CLI entry point for secret management operations
@@ -34,25 +24,52 @@ catch (error) {
     const app = new AppModule();
 
     // Initialize application (parse args and load config)
-    process.argv.push('--type=cli');
-    const { args, config } = await app.init(process.argv);
+    const opts = app.extract(process.argv);
+
+    if (opts.type !== 'mcp') {
+        // Load environment variables
+        try {
+            dotenv.config();
+        }
+        catch (error) {
+            console.error({
+                src: 'bin:Kozen',
+                category: VCategory.cli.tool,
+                message: `❌ Load local environment failed:` + (error as Error).message || error
+            });
+        }
+    }
+
+    const { args, config } = await app.init(opts as IArgs);
 
     try {
         if (!args || !config) {
             throw new Error('No valid configuration was specified');
         }
-
         await app.register(config);
-        const { result, options } = await (new CLIServer(app)).dispatch(args);
 
-        args.action !== 'help' && app.log({
-            flow: (config && app.getId(config)) || undefined,
-            src: 'bin:Kozen',
-            data: {
-                params: options,
-                result
-            }
-        });
+        switch (config.type) {
+            case 'cli':
+                const { result, options } = await (new CLIServer(app)).dispatch(args);
+                args.action !== 'help' && app.log({
+                    flow: (config && app.getId(config)) || undefined,
+                    src: 'bin:Kozen',
+                    data: {
+                        params: options,
+                        result
+                    }
+                });
+                break;
+
+            case 'mcp':
+                const server = new ServerMCP({ name: "kozen", version: "1.0.0" });
+                await server.init(config, app);
+                server.start();
+                break;
+
+            default:
+                break;
+        }
 
         await app.wait();
         process.exit(0);
@@ -63,7 +80,6 @@ catch (error) {
             category: VCategory.cli.secret,
             message: `❌ CLI execution failed:` + (error as Error).message || error
         });
-        // app.help()
         process.exit(1);
     }
-})();  
+})();

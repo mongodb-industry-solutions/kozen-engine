@@ -67,10 +67,10 @@ export { IComponent, IComponentInput, IComponentOutput, ITransformFn } from './m
 export { ILogArgs, ILoggerService } from './modules/logger/models/Logger';
 export { IPipelineArgs } from './modules/pipeline/models/Pipeline';
 
-export { IConfig } from './modules/app/models/Config';
 export { ISecretArgs, ISecretManager } from './modules/secret/models/Secret';
 export { ITemplate, ITemplateArgs, ITemplateConfig, ITemplateManager } from './modules/template/models/Template';
 export { IArgs } from './shared/models/Args';
+export { IConfig } from './shared/models/Config';
 export { IMetadata } from './shared/models/Metadata';
 export { IResult } from './shared/models/Result';
 export { IAction, IStruct, VCategory } from './shared/models/Types';

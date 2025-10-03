@@ -9,9 +9,9 @@
  */
 
 import * as fs from 'fs';
-import { IConfig } from '../../modules/app/models/Config';
 import { ILoggerService } from '../../modules/logger/models/Logger';
 import { IArgs } from '../models/Args';
+import { IConfig } from '../models/Config';
 import { VCategory } from '../models/Types';
 import { FileService } from '../services/FileService';
 import { getID, IIoC, ILogInput, ILogLevel, IoC } from '../tools';

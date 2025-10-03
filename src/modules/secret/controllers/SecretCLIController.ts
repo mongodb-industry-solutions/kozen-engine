@@ -10,8 +10,8 @@
 import path from 'path';
 import { CLIController } from '../../../shared/controllers/CLIController';
 import { IArgs } from '../../../shared/models/Args';
+import { IConfig } from '../../../shared/models/Config';
 import { IAction } from '../../../shared/models/Types';
-import { IConfig } from '../../app/models/Config';
 import { ISecretArgs, ISecretManager } from '../models/Secret';
 
 /**
