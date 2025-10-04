@@ -1,16 +1,30 @@
-import { AppModule } from "..";
-import { IArgs } from "../../../shared/models/Args";
 
-export class CLIServer {
+import { KzApplication } from "../../shared/controllers/KzApplication";
+import { IArgs } from "../../shared/models/Args";
+import { IModule } from "../../shared/models/Module";
 
-    private app?: AppModule;
+export class CLIServer extends KzApplication {
 
-    constructor(app: AppModule) {
+    async register(app: IModule): Promise<void> {
         this.app = app;
     }
 
-    async register(app: AppModule): Promise<void> {
-        this.app = app;
+    async start(args?: IArgs): Promise<void> {
+        if (!this.app) {
+            throw new Error("App Module not properly initialized.");
+        }
+
+        const { result, options } = await this.dispatch(args);
+        args?.action !== 'help' && this.app.log({
+            flow: (this.config && this.app.getId(this.config)) || undefined,
+            src: 'bin:Kozen',
+            data: {
+                params: options,
+                result
+            }
+        });
+        await this.app.wait();
+        process.exit(0);
     }
 
     /**
@@ -19,7 +33,7 @@ export class CLIServer {
      * @param args
      * @returns {Promise<{ result: T; options: O; }>}
      */
-    async dispatch<T = any, O = any>(args: IArgs): Promise<{ result: T; options: O }> {
+    async dispatch<T = any, O = any>(args?: IArgs): Promise<{ result: T; options: O }> {
         try {
             if (!args?.controller) {
                 throw new Error('No valid controller was specified');

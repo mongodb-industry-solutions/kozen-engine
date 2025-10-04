@@ -8,12 +8,12 @@
  * @version 1.1.0
  */
 import path from 'path';
-import { CLIController } from '../../../shared/controllers/CLIController';
+import { CLIController } from '../../../applications/cli/controllers/CLIController';
 import { IArgs } from '../../../shared/models/Args';
 import { IConfig } from '../../../shared/models/Config';
 import { FileService } from '../../../shared/services/FileService';
 import { IIoC } from '../../../shared/tools';
-import { ILoggerService } from '../../logger/models/Logger';
+import { ILogger } from '../../../shared/tools/log/types';
 import { IIAMRectification, IRectificationResponse, IRectificationScramArg, IRectificationX509Arg } from '../models/IAMRectification';
 
 /**
@@ -32,7 +32,7 @@ export class RectificationCLIController extends CLIController {
      * @constructor
      * @param {PipelineManager} pipeline - Optional pipeline manager instance
      */
-    constructor(dependency?: { srvIAMScram?: IIAMRectification, srvIAMX509?: IIAMRectification, assistant: IIoC; logger: ILoggerService; srvFile?: FileService }) {
+    constructor(dependency?: { srvIAMScram?: IIAMRectification, srvIAMX509?: IIAMRectification, assistant: IIoC; logger: ILogger; srvFile?: FileService }) {
         super(dependency);
         this.srvIAMScram = dependency?.srvIAMScram;
         this.srvIAMX509 = dependency?.srvIAMX509;

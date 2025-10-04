@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
 import { z } from "zod";
-import { MCPController } from "../../../shared/controllers/MCPController";
+import { MCPController } from "../../../applications/mcp/controllers/MCPController";
 import { IReportManager } from "../models/Report";
 
 export class ReportController extends MCPController {

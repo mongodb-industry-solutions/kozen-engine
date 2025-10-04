@@ -7,8 +7,8 @@
  */
 
 import { ClientEncryption, KMSProviders, MongoClient } from "mongodb";
-import { ILoggerService } from "../../../modules/logger/models/Logger";
 import { IIoC } from "../ioc";
+import { ILogger } from "../log/types";
 import { IMdbClientOpt, IMdbClientOpts } from "./MdbClientOpt";
 
 /**
@@ -21,9 +21,9 @@ export class MdbClient {
 
     /**
      * Logger service instance for recording service operations and errors
-     * @type {ILoggerService | null}
+     * @type {ILogger | null}
      */
-    public logger?: ILoggerService | null;
+    public logger?: ILogger | null;
 
     /**
      * report manager configuration options

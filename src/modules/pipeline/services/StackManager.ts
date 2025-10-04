@@ -11,7 +11,7 @@ import { IResult } from "../../../shared/models/Result";
 import { IStruct, VCategory } from "../../../shared/models/Types";
 import { BaseService } from "../../../shared/services/BaseService";
 import { IIoC } from "../../../shared/tools";
-import { ILoggerService } from "../../logger/models/Logger";
+import { ILogger } from "../../../shared/tools/log/types";
 import { IStackManager, IStackOptions } from "../models/Stack";
 
 /**
@@ -37,7 +37,7 @@ export class StackManager extends BaseService implements IStackManager {
      * @constructor
      * @param {IStackOptions} [config] - Optional stack configuration options
      */
-    constructor(config?: IStackOptions | null, dep?: { assistant: IIoC, logger: ILoggerService }) {
+    constructor(config?: IStackOptions | null, dep?: { assistant: IIoC, logger: ILogger }) {
         super(dep);
         this._config = config || {};
         this.prefix = "pipeline:stack:manager:";

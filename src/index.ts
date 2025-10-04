@@ -10,33 +10,6 @@
  * @author MongoDB Solution Assurance Team (SAT)
  * @version 1.1.0
  * @since 2025-07-01
- * 
- * @example
- * ```typescript
- * import { PipelineManager, IoC, CLIController } from 'kozen-engine';
- * 
- * // Initialize IoC container and pipeline manager
- * const ioc = new IoC();
- * const pipeline = new PipelineManager(ioc);
- * 
- * // Deploy infrastructure template
- * await pipeline.deploy({
- *   template: 'atlas.basic',
- *   action: 'deploy',
- *   stack: 'production'
- * });
- * 
- * // Run validation and tests
- * await pipeline.validate({
- *   template: 'demo',
- *   action: 'validate',
- *   stack: 'test'
- * });
- * 
- * // CLI usage
- * const cli = new CLIController();
- * const { args, config } = await cli.init();
- * ```
  */
 
 // Core Pipeline Management
@@ -53,7 +26,6 @@ export { LoggerController } from './modules/logger/controllers/LoggerCLIControll
 export { PipelineController } from './modules/pipeline/controllers/PipelineCLIController';
 export { SecretController } from './modules/secret/controllers/SecretCLIController';
 export { TemplateController } from './modules/template/controllers/TemplateCLIController';
-export { CLIController } from './shared/controllers/CLIController';
 export { KzComponent } from './shared/controllers/KzComponent';
 
 // IoC Container and Utilities

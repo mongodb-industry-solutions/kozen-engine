@@ -1,21 +1,24 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { MCPController } from "../../controllers/MCPController";
-import { IConfig } from "../../models/Config";
-import { IModule } from "../../models/Module";
+import { KzApplication } from "../../shared/controllers/KzApplication";
+import { IConfig } from "../../shared/models/Config";
+import { IModule } from "../../shared/models/Module";
+import { MCPController } from "./controllers/MCPController";
+
 console.log = (...args) => console.error(...args);
 console.info = console.log;
 console.warn = console.log;
 console.debug = console.log;
 
-export class ServerMCP {
+export class ServerMCP extends KzApplication {
     private _node: McpServer;
 
     get node(): McpServer {
         return this._node;
     }
 
-    constructor(options?: { name: string; version: string }) {
+    constructor(config?: IConfig, app?: IModule, options?: { name: string; version: string }) {
+        super(config, app);
         this._node = new McpServer({
             name: options?.name || "kozen",
             version: options?.version || "1.0.0"
@@ -34,6 +37,7 @@ export class ServerMCP {
     async init(config: IConfig, app: IModule, node?: McpServer): Promise<void> {
         const modules = [Promise.resolve()];
         node = node || this._node;
+        app = app || this.app;
 
         if (!config || config.modules?.load === undefined) {
             throw new Error("App Module not properly initialized: missing config.");
@@ -43,9 +47,7 @@ export class ServerMCP {
             let item = config.modules?.load[key];
             let name = typeof item === 'string' ? item : item.name;
             let module = name && await app.helper?.get<MCPController>(name + ":controller:mcp") || null;
-            if (module) {
-                modules.push(module.register(node));
-            }
+            module && modules.push(module.register(node));
         }
 
         await Promise.all(modules);
