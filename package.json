@@ -19,7 +19,7 @@
         "test:validate": "ts-node bin/pipeline.ts --action=validate",
         "test:undeploy": "ts-node bin/pipeline.ts --action=undeploy",
         "test:status": "ts-node bin/pipeline.ts --action=status",
-        "mcp:dev": "npx -y @modelcontextprotocol/inspector npx -y ts-node bin/mcp.ts --type=mcp",
+        "mcp:dev": "npx -y @modelcontextprotocol/inspector npx -y ts-node bin/kozen.ts --type=mcp",
         "mcp:start": "ts-node bin/kozen.ts --type=mcp"
     },
     "keywords": [
