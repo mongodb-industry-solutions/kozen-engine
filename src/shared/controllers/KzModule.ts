@@ -3,6 +3,15 @@ import { IConfig } from "../models/Config";
 import { IModule } from "../models/Module";
 import { IDependency, IIoC } from "../tools";
 
+/**
+ * Base class for Kozen modules, providing structure for initialization and registration of dependencies.
+ * Modules can override the init and register methods to customize behavior
+ * @abstract
+ * @class Kozen Module Controller
+ * @author MDB SAT
+ * @since 1.0.4
+ * @version 1.0.5
+ */
 export class KzModule implements IModule {
 
     /**

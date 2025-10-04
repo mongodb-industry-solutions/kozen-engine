@@ -7,7 +7,7 @@ export interface IController {
     /**
      * Configures the controller with the provided component configuration.
      * @param {IComponent} config - The component configuration object containing deployment parameters, instructions, and metadata.
-     * @returns {BaseController} The configured controller instance for method chaining.
+     * @returns {KzComponent} The configured controller instance for method chaining.
      */
     configure(config: IComponent): IController;
 
