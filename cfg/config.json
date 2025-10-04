@@ -9,7 +9,6 @@
       "logger",
       "secret",
       "template",
-      "component",
       "pipeline",
       "rectification",
       "report",

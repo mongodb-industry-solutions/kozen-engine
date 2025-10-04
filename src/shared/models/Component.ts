@@ -14,8 +14,8 @@
  * @version 1.1.0
  */
 
-import { IMetadata } from "../../../shared/models/Metadata";
-import { IStruct } from "../../../shared/models/Types";
+import { IMetadata } from "./Metadata";
+import { IStruct } from "./Types";
 
 /**
  * Component output data structure containing metadata and results from component execution

@@ -1,7 +1,7 @@
-import { IResult } from "../../../shared/models/Result";
-import { IStruct } from "../../../shared/models/Types";
-import { IPipeline } from '../../pipeline/models/Pipeline';
+import { IPipeline } from '../../modules/pipeline/models/Pipeline';
 import { IComponent } from "./Component";
+import { IResult } from "./Result";
+import { IStruct } from "./Types";
 
 export interface IController {
     /**

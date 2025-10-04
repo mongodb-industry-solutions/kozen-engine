@@ -13,10 +13,10 @@ import {
     ProjectRuntime,
     Stack
 } from "@pulumi/pulumi/automation";
+import { ITransformOption } from "../../../shared/models/Component";
 import { IMetadata } from "../../../shared/models/Metadata";
 import { IResult } from "../../../shared/models/Result";
 import { IStruct, VCategory } from "../../../shared/models/Types";
-import { ITransformOption } from "../../component/models/Component";
 import { IStackConfig, IStackOptions } from "../models/Stack";
 import StackManager from "./StackManager";
 

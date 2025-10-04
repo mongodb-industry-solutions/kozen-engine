@@ -1,11 +1,11 @@
 import * as fs from 'fs';
+import { IComponent, ITransformFn } from '../../../shared/models/Component';
 import { IConfig } from '../../../shared/models/Config';
+import { IController } from '../../../shared/models/Controller';
 import { IResult } from '../../../shared/models/Result';
 import { IAction, IStruct, VCategory } from "../../../shared/models/Types";
 import { BaseService } from '../../../shared/services/BaseService';
 import { Env, IEnv, IIoC, IoC } from "../../../shared/tools";
-import { IComponent, ITransformFn } from '../../component/models/Component';
-import { IController } from '../../component/models/Controller';
 import { ILoggerService } from '../../logger/models/Logger';
 import { ITemplate, ITemplateManager } from '../../template/models/Template';
 import { IPipeline, IPipelineArgs } from '../models/Pipeline';
