@@ -6,8 +6,8 @@
  * @version 1.0.5
  */
 import { VCategory } from "../../../shared/models/Types";
+import { BaseService } from "../../../shared/services/BaseService";
 import { IIoC } from "../../../shared/tools";
-import { BaseService } from "../../component/services/BaseService";
 import { ILoggerService } from "../../logger/models/Logger";
 import { IReportManager, IReportManagerOptions, PipelineResult } from "../models/Report";
 
@@ -53,7 +53,7 @@ export class ReportManager extends BaseService implements IReportManager {
     constructor(options?: IReportManagerOptions, dep?: { assistant: IIoC, logger: ILoggerService }) {
         super(dep);
         this.options = options!;
-        this.prefix = 'ReportManager';
+        this.prefix = 'report:manager:';
     }
 
     /**
@@ -83,10 +83,8 @@ export class ReportManager extends BaseService implements IReportManager {
                 throw new Error("Incorrect dependency injection configuration.");
             }
             options = { ...this.options, ...options };
-            if (!this.options?.type) {
-                throw new Error("ReportManager options or type is not defined.");
-            }
-            const controller = await this.getDelegate<IReportManager>(options.type || 'AWS');
+            options.type = (options.type || 'mdb').toLowerCase();
+            const controller = await this.getDelegate<IReportManager>(options.type);
             return await controller.resolve(key, options);
         }
         catch (error) {

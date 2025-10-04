@@ -51,7 +51,7 @@ export class TemplateManagerMDB extends TemplateManager {
                 throw new Error("Incorrect dependency injection configuration.");
             }
 
-            const secret = await this.assistant.resolve<ISecretManager>(`SecretManager`) || null;
+            const secret = await this.assistant.resolve<ISecretManager>(`secret:manager`) || null;
             // Use provided options or fallback to the default options
             options = options || this.options;
 
@@ -128,7 +128,7 @@ export class TemplateManagerMDB extends TemplateManager {
                 throw new Error("Incorrect dependency injection configuration.");
             }
 
-            const secret = await this.assistant.resolve<ISecretManager>(`SecretManager`) || null;
+            const secret = await this.assistant.resolve<ISecretManager>(`secret:manager`) || null;
             // Use provided options or fallback to the default options
             options = options || this.options;
 
@@ -219,7 +219,7 @@ export class TemplateManagerMDB extends TemplateManager {
                 throw new Error("Incorrect dependency injection configuration.");
             }
 
-            const secret = await this.assistant.resolve<ISecretManager>(`SecretManager`) || null;
+            const secret = await this.assistant.resolve<ISecretManager>(`secret:manager`) || null;
             // Use provided options or fallback to the default options
             options = options || this.options;
 
@@ -284,7 +284,7 @@ export class TemplateManagerMDB extends TemplateManager {
                 throw new Error("Incorrect dependency injection configuration.");
             }
 
-            const secret = await this.assistant.resolve<ISecretManager>(`SecretManager`) || null;
+            const secret = await this.assistant.resolve<ISecretManager>(`secret:manager`) || null;
             // Use provided options or fallback to the default options
             options = options || this.options;
 

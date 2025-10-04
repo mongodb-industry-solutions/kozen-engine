@@ -1,6 +1,6 @@
 {
     "component:autoload": {
-        "path": "../../components",
+        "path": "../../../components",
         "type": "auto",
         "lifetime": "singleton",
         "args": [
