@@ -6,7 +6,7 @@
         "path": "../../../modules/report/services",
         "args": [
             {
-                "type": "MDB",
+                "type": "mdb",
                 "mdb": {
                     "enabled": true,
                     "database": "kozen",
