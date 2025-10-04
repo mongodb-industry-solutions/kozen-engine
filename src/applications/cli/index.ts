@@ -35,19 +35,19 @@ export class CLIServer extends KzApplication {
      */
     async dispatch<T = any, O = any>(args?: IArgs): Promise<{ result: T; options: O }> {
         try {
-            if (!args?.controller) {
-                throw new Error('No valid controller was specified');
+            if (!args?.module) {
+                throw new Error('No valid module controller was specified');
             }
 
             if (!args?.action) {
                 throw new Error('No valid action was specified');
             }
 
-            if (args.controller === 'controller' && args.action === 'help') {
-                args.controller = 'help:controller:cli';
+            if (args.module === 'controller' && args.action === 'help') {
+                args.module = 'help:controller:cli';
             }
 
-            const controller = await this.app?.helper?.get(args.controller) as any;
+            const controller = await this.app?.helper?.get(args.module) as any;
 
             if (!controller) {
                 throw new Error('No valid controller found');

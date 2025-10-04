@@ -9,7 +9,7 @@
 #
 #    Kozen Engine - Task Execution Framework
 ...............................................................................
-TOOL: Pipeline Manager
+TOOL: Pipeline Manager Module
 ===============================================================================
 
 Description:
@@ -19,7 +19,7 @@ Description:
 
 Usage:
     kozen --action=pipeline:<action> --template=<name> [options]
-    kozen --controller=pipeline --action=<action> --template=<name> [options]
+    kozen --module=pipeline --action=<action> --template=<name> [options]
 
 Core Options:
     --stack=<id>                    Environment identifier (dev, test, staging, prod)
@@ -28,10 +28,10 @@ Core Options:
                                     (default: auto-generated timestamp ID)
     --config=<file>                 Configuration file path containing service definitions
                                     (default: cfg/config.json)
-    --controller=pipeline           Explicitly set controller to pipeline
+    --module=pipeline               Explicitly set module controller to pipeline
     --template=<name>               Template name for pipeline execution (REQUIRED)
                                     Examples: atlas.basic, k8s.standard, demo
-    --action=<[controller:]action>  Pipeline operation to perform:
+    --action=<[module:]action>      Pipeline operation to perform:
 
 Available Actions:
     deploy                          Provision and launch all pipeline resources
@@ -81,7 +81,7 @@ Examples:
     kozen --action=pipeline:validate --template=k8s.standard
     
     # Check status of demo pipeline
-    kozen --controller=pipeline --action=status --template=demo --stack=dev
+    kozen --module=pipeline --action=status --template=demo --stack=dev
     
     # Undeploy development environment
     kozen --action=pipeline:undeploy --template=atlas.basic --stack=dev

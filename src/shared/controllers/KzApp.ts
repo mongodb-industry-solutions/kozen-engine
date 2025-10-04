@@ -154,7 +154,7 @@ export class KzApp extends KzModule {
         parsed.project = parsed.project || process.env.KOZEN_PROJECT || getID();
         parsed.action = option?.length > 1 ? option[1] : option[0];
         parsed.type = parsed.type || (process.env.KOZEN_TYPE as IAppType) || 'cli' as IAppType;
-        parsed.controller = `${(parsed.controller || process.env['KOZEN_CONTROLLER'] || option?.length && option[0] || '')}:controller` + (parsed.type ? `:${parsed.type}` : '');
+        parsed.module = `${(parsed.module || process.env['KOZEN_MODULE'] || option?.length && option[0] || '')}:controller` + (parsed.type ? `:${parsed.type}` : '');
         parsed.config = parsed.config || process.env.KOZEN_CONFIG || 'cfg/config.json';
         return parsed as IArgs;
     }

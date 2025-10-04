@@ -18,16 +18,16 @@ export interface IArgs {
     config?: string;
 
     /**
-     * CLI operation type to execute. Supported actions: deploy, undeploy, validate, status
+     * Operation type to execute. Supported actions: deploy, undeploy, validate, status
      * @type {string}
      */
     action: string;
 
     /**
-     * CLI controller to execute
+     * Module controller to execute
      * @type {string}
      */
-    controller?: string;
+    module?: string;
 
     /**
      * Optional unique stack identifier for environment isolation
