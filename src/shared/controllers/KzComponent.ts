@@ -1,4 +1,3 @@
-import { ILoggerService } from '../../modules/logger/models/Logger';
 import { IPipeline } from '../../modules/pipeline/models/Pipeline';
 import { IComponent, ITransformOption } from '../models/Component';
 import { IController } from '../models/Controller';
@@ -6,6 +5,7 @@ import { IProcessorService } from '../models/Processor';
 import { IResult } from '../models/Result';
 import { IStruct } from '../models/Types';
 import { IIoC } from '../tools';
+import { ILogger } from '../tools/log/types';
 
 /**
  * @fileoverview Kozen Component Controller - Abstract Bridge Component
@@ -41,9 +41,9 @@ export abstract class KzComponent implements IController {
     /**
      * Logger service instance for recording pipeline operations and errors
      * @public
-     * @type {ILoggerService | null}
+     * @type {ILogger | null}
      */
-    public logger?: ILoggerService | null;
+    public logger?: ILogger | null;
 
     /**
      * Current pipeline context containing arguments, template, and execution state
@@ -71,7 +71,7 @@ export abstract class KzComponent implements IController {
      * @param {IComponent} [config] - Optional initial component configuration
      * @param {Object} [dependency] - Optional dependency injection object
      */
-    constructor(config?: IComponent, dependency?: { assistant: IIoC, logger: ILoggerService }) {
+    constructor(config?: IComponent, dependency?: { assistant: IIoC, logger: ILogger }) {
         this.config = config || {};
         this.assistant = dependency?.assistant ?? null;
         this.logger = dependency?.logger ?? null;
@@ -88,7 +88,7 @@ export abstract class KzComponent implements IController {
      * @param {Object} [dependency] - Optional dependency injection object
      * @returns {KzComponent} Returns the configured controller instance for method chaining
      */
-    public configure(config: IComponent, dependency?: { assistant: IIoC, logger: ILoggerService }): KzComponent {
+    public configure(config: IComponent, dependency?: { assistant: IIoC, logger: ILogger }): KzComponent {
         this.config = config;
         dependency?.assistant && (this.assistant = dependency.assistant);
         dependency?.logger && (this.logger = dependency.logger);
@@ -203,7 +203,7 @@ export abstract class KzComponent implements IController {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        const srvVar = await this.assistant.resolve<IProcessorService>('app:processor');
+        const srvVar = await this.assistant.resolve<IProcessorService>('core:processor');
         const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output, flow));
         return input || {};
     }

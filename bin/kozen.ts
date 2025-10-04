@@ -9,10 +9,9 @@
 
 import dotenv from 'dotenv';
 import { IArgs } from '../src';
-import { AppModule } from '../src/modules/app';
-import { CLIServer } from '../src/modules/app/services/CLIServer';
+import { KzApp } from '../src/shared/controllers/KzApp';
+import { IKzApplication } from '../src/shared/models/App';
 import { VCategory } from '../src/shared/models/Types';
-import { ServerMCP } from '../src/shared/tools/mcp/ServerMCP';
 
 /**
  * Main CLI entry point for secret management operations
@@ -21,13 +20,13 @@ import { ServerMCP } from '../src/shared/tools/mcp/ServerMCP';
 (async function main(): Promise<void> {
 
     // Create controller and parse arguments
-    const app = new AppModule();
+    const app = new KzApp();
 
     // Initialize application (parse args and load config)
     const opts = app.extract(process.argv);
 
+    // Load environment variables from .env file for non-MCP types
     if (opts.type !== 'mcp') {
-        // Load environment variables
         try {
             dotenv.config();
         }
@@ -48,36 +47,20 @@ import { ServerMCP } from '../src/shared/tools/mcp/ServerMCP';
         }
         await app.register(config);
 
-        switch (config.type) {
-            case 'mcp':
-                const server = new ServerMCP({ name: "kozen", version: "1.0.0" });
-                await server.init(config, app);
-                server.start();
-                break;
+        const srv = await app.helper?.get<IKzApplication>({
+            "key": config.type,
+            "path": process.env.KOZEN_APP_PATH || "../../../applications",
+            "args": [config, app],
+            "lifetime": "singleton"
+        });
 
-            case 'cli':
-                const { result, options } = await (new CLIServer(app)).dispatch(args);
-                args.action !== 'help' && app.log({
-                    flow: (config && app.getId(config)) || undefined,
-                    src: 'bin:Kozen',
-                    data: {
-                        params: options,
-                        result
-                    }
-                });
-                await app.wait();
-                process.exit(0);
-
-            default:
-                app.log({
-                    flow: (config && app.getId(config)) || undefined,
-                    src: 'bin:Kozen',
-                    category: VCategory.cli.tool,
-                    level: 'warn',
-                    message: `❌ Unsupported execution type: ${config.type}`
-                });
-                process.exit(1);
+        if (!srv) {
+            throw new Error(`No valid application found for type: ${config.type}`);
         }
+
+        await srv.init(config, app);
+        await srv.start(args);
+
     } catch (error) {
         console.error({
             flow: config && app.getId(config),

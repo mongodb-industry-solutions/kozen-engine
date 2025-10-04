@@ -1,8 +1,8 @@
-import { ILoggerService } from "../../modules/logger/models/Logger";
 import { IOutputResult, ITransformOption } from "../models/Component";
 import { IProcessorService } from "../models/Processor";
 import { IStruct } from "../models/Types";
 import { IIoC } from "../tools";
+import { ILogger } from "../tools/log/types";
 
 /**
  * @fileoverview Base Service - Foundation Class for All Services
@@ -45,14 +45,14 @@ export class BaseService {
 
     /**
      * Logger service instance for recording service operations and errors
-     * @type {ILoggerService | null}
+     * @type {ILogger | null}
      */
-    public logger?: ILoggerService | null;
+    public logger?: ILogger | null;
 
-    constructor(dependency?: { assistant: IIoC, logger: ILoggerService }) {
+    constructor(dependency?: { assistant: IIoC, logger: ILogger }) {
         this.assistant = dependency?.assistant ?? null;
         this.logger = dependency?.logger ?? null;
-        // this.assistant?.resolve<ILoggerService>('logger:service').then(obj => this.logger = obj);
+        // this.assistant?.resolve<ILogger>('logger:service').then(obj => this.logger = obj);
     }
 
     /**
@@ -66,7 +66,7 @@ export class BaseService {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        const srvVar = await this.assistant.resolve<IProcessorService>('app:processor');
+        const srvVar = await this.assistant.resolve<IProcessorService>('core:processor');
         const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output, flow));
         return input || {};
     }
@@ -82,7 +82,7 @@ export class BaseService {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        const srvVar = await this.assistant.resolve<IProcessorService>('app:processor');
+        const srvVar = await this.assistant.resolve<IProcessorService>('core:processor');
         const meta = (srvVar && Array.isArray(component[key]) && await srvVar.map(component[key], flow)) as IOutputResult;
         output.items = { ...output.items, ...meta?.items };
         output.warns = { ...output.warns, ...meta?.warns };

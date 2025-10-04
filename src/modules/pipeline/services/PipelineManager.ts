@@ -6,7 +6,7 @@ import { IResult } from '../../../shared/models/Result';
 import { IAction, IStruct, VCategory } from "../../../shared/models/Types";
 import { BaseService } from '../../../shared/services/BaseService';
 import { Env, IEnv, IIoC, IoC } from "../../../shared/tools";
-import { ILoggerService } from '../../logger/models/Logger';
+import { ILogger } from '../../../shared/tools/log/types';
 import { ITemplate, ITemplateManager } from '../../template/models/Template';
 import { IPipeline, IPipelineArgs } from '../models/Pipeline';
 import { IStackManager } from '../models/Stack';
@@ -41,13 +41,13 @@ export class PipelineManager extends BaseService {
      * @param {IConfig} [config] - Optional initial pipeline configuration
      * @param {IoC} [ioc] - Optional IoC container for dependency management
      */
-    constructor(config?: IConfig, dependency?: { assistant?: IIoC, logger?: ILoggerService, envSrv?: IEnv }) {
+    constructor(config?: IConfig, dependency?: { assistant?: IIoC, logger?: ILogger, envSrv?: IEnv }) {
         // Ensure assistant is always present for BaseService
         if (!dependency?.assistant) {
             dependency = dependency || {};
             dependency.assistant = new IoC();
         }
-        super(dependency as { assistant: IIoC, logger: ILoggerService } | undefined);
+        super(dependency as { assistant: IIoC, logger: ILogger } | undefined);
         this.config = config || null;
         this.envSrv = dependency?.envSrv;
     }
@@ -69,7 +69,7 @@ export class PipelineManager extends BaseService {
             config && (this.config = config);
             ioc && (this.assistant = ioc);
             this.config?.dependencies && await this.assistant.register(this.config.dependencies);
-            this.logger = this.logger || await this.assistant.resolve<ILoggerService>('logger:service');
+            this.logger = this.logger || await this.assistant.resolve<ILogger>('logger:service');
             this.envSrv = this.envSrv || new Env({ logger: this.logger as unknown as Console });
             return this;
         } catch (error) {

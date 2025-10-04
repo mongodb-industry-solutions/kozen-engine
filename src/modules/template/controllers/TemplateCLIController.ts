@@ -8,7 +8,7 @@
  * @version 1.1.0
  */
 import path from 'path';
-import { CLIController } from '../../../shared/controllers/CLIController';
+import { CLIController } from '../../../applications/cli/controllers/CLIController';
 import { IArgs } from '../../../shared/models/Args';
 import { IConfig } from '../../../shared/models/Config';
 import { readFrom } from '../../../shared/tools/util';

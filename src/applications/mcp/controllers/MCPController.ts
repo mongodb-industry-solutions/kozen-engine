@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
-import { CLIController } from "./CLIController";
+import { KzController } from "../../../shared/controllers/KzController";
 
-export abstract class MCPController extends CLIController {
+export abstract class MCPController extends KzController {
 
     public abstract register(server: McpServer): Promise<void>;
 }

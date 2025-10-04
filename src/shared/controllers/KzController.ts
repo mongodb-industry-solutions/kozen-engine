@@ -1,15 +1,30 @@
-import { promises as fs } from 'fs';
-import defConfig from "../../../cfg/config.json";
-import { IArgs } from '../../shared/models/Args';
-import { IConfig } from '../../shared/models/Config';
-import { IModule, IModuleOpt } from '../../shared/models/Module';
-import { IAppType, VCategory } from "../../shared/models/Types";
-import { getID, IDependency, IDependencyMap, IIoC, ILogInput, ILogLevel, IoC } from "../../shared/tools";
-import { ILoggerService } from "../logger/models/Logger";
-import ioc from "./configs/ioc.json";
+/**
+ * @fileoverview CLI Controller bridge component
+ * Controller for managing secrets in MongoDB through CLI interactions using SecretManagerMDB.
+ * Supports operations like saving and resolving secrets using encryption.
+ *
+ * @author IaC Pipeline Team
+ * @since 1.0.0
+ * @version 1.1.0
+ */
 
-export class AppModule implements IModule {
+import * as fs from 'fs';
+import { IArgs } from '../models/Args';
+import { IConfig } from '../models/Config';
+import { VCategory } from '../models/Types';
+import { FileService } from '../services/FileService';
+import { getID, IIoC, ILogInput, ILogLevel, IoC } from '../tools';
+import { ILogger } from '../tools/log/types';
 
+/**
+ * @class CLIController
+ * @description Base controller class for CLI operations providing common functionality
+ * for argument parsing, configuration management, and dependency injection.
+ * 
+ * This controller serves as the foundation for all CLI-based controllers in the Kozen Engine,
+ * providing standardized interfaces for command-line interaction, logging, and service resolution.
+ */
+export class KzController {
     /**
      * IoC container instance for dependency injection and service resolution
      * @type {IIoC | null}
@@ -29,7 +44,7 @@ export class AppModule implements IModule {
      * @returns {IIoC | null | undefined} The IoC container instance
      * @public
      */
-    public get helper(): IIoC | null | undefined {
+    public get helper() {
         return this.assistant;
     }
 
@@ -45,12 +60,13 @@ export class AppModule implements IModule {
 
     /**
      * Logger service instance for recording CLI operations and errors
-     * @type {ILoggerService | null}
+     * @type {ILogger | null}
      * @public
      */
-    public get logger(): ILoggerService | null {
-        return this.assistant?.logger as unknown as ILoggerService || null;
-    }
+    public logger?: ILogger | null;
+
+
+    public srvFile?: FileService | null;
 
     /**
      * Creates a new CLIController instance with dependency injection support
@@ -58,10 +74,23 @@ export class AppModule implements IModule {
      * @constructor
      * @param {Object} [dependency] - Optional dependency injection configuration
      * @param {IIoC} [dependency.assistant] - IoC container for service resolution
-     * @param {ILoggerService} [dependency.logger] - Logger service for operation tracking
+     * @param {ILogger} [dependency.logger] - Logger service for operation tracking
      */
-    constructor(dependency?: { assistant: IIoC }) {
+    constructor(dependency?: { assistant: IIoC, logger: ILogger, srvFile?: FileService }) {
         this.assistant = dependency?.assistant ?? new IoC();
+        this.logger = dependency?.logger ?? null;
+        this.srvFile = dependency?.srvFile ?? null;
+    }
+
+    /**
+     * Displays comprehensive CLI usage information and command examples
+     * Shows available options, environment variables, and usage patterns for the Kozen Engine CLI tool
+     * 
+     * @public
+     * @returns {void}
+     */
+    public async help(): Promise<void> {
+        console.log(`Kozen is a Framework for automated task execution focused on CI/CD pipelines supporting IaC & Test, check it out at https://github.com/mongodb-industry-solutions/kozen-engine/wiki`);
     }
 
     /**
@@ -70,14 +99,23 @@ export class AppModule implements IModule {
      * @param {string} configPath - File system path to the configuration file
      * @returns {Promise<IConfig>} Promise resolving to the loaded and parsed pipeline configuration
      * @throws {Error} When file reading fails, JSON parsing errors occur, or file access is denied
+     *
+     * Loads and parses pipeline configuration from a JSON file, providing error handling
+     * for common file system and parsing issues. The configuration includes service dependencies,
+     * deployment settings, and environment-specific parameters.
      */
-    public async load(configPath: string): Promise<IConfig | null> {
+    public async load(configPath: string): Promise<IConfig> {
         try {
-            const configContent = await fs.readFile(configPath, 'utf8');
+            const configContent = fs.readFileSync(configPath, 'utf8');
             const config = JSON.parse(configContent) as IConfig;
+            // config.id = this.getId(arg);
+            config.name = config.name || 'Default';
+            config.engine = config.engine || 'default';
+            config.version = config.version || '1.0.0';
+            config.description = config.description || 'Kozen Engine Default Configuration';
             return config;
-        } catch (_) {
-            return null;
+        } catch (error) {
+            throw new Error(`Failed to load configuration: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
 
@@ -99,26 +137,24 @@ export class AppModule implements IModule {
      * @param {IArgs} args - Secret controller configuration arguments
      * @returns {Promise<void>} Promise that resolves when configuration is complete
      * @throws {Error} When configuration fails due to invalid configuration or dependency registration errors
+     *
+     * This method sets up the secret controller by:
+     * 1. Loading the configuration file if provided
+     * 2. Setting up the IoC container for dependency injection
+     * 3. Registering all service dependencies defined in the configuration
      */
     public async configure(args: IArgs): Promise<IConfig | null> {
         try {
-            const config = (args.config && await this.load(args.config)) || defConfig as unknown as IConfig;
-            // config.id = this.getId(arg);
-            config.name = config.name || 'Default';
-            config.engine = config.engine || 'default';
-            config.version = config.version || '1.0.0';
-            config.description = config.description || 'Kozen Engine Default Configuration';
-            config.type = args.type || config.type || 'cli';
-
+            const config = args.config && await this.load(args.config);
             if (!config) {
                 return null;
             }
-
             if (!this.assistant) {
                 throw new Error("Incorrect dependency injection configuration.");
             }
-
             config.dependencies && await this.assistant.register(config.dependencies);
+            this.logger = this.logger || await this.assistant.resolve<ILogger>('logger:service');
+            this.srvFile = this.srvFile || await this.assistant.resolve<FileService>('core:file');
             return config;
         } catch (error) {
             throw new Error(`Failed to configure: ${error instanceof Error ? error.message : String(error)}`);
@@ -142,51 +178,6 @@ export class AppModule implements IModule {
         return { args: args as T, config };
     }
 
-    public async register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null> {
-        if (!config?.modules?.load?.length) {
-            return null;
-        }
-        if (!this.assistant) {
-            throw new Error("Incorrect dependency injection configuration.");
-        }
-        await this.assistant.register(ioc as IDependencyMap);
-        for (const key in config.modules.load || []) {
-            let module = config?.modules?.load[key];
-            if (module) {
-                const mod = await this.getModule(module, config);
-                if (mod?.register instanceof Function) {
-                    const dependencies = await mod.register(config, opts);
-                    dependencies && await this.assistant.register(dependencies);
-                }
-                if (!this.assistant.logger) {
-                    this.assistant.logger = await this.assistant.get<ILoggerService>('logger:service') as unknown as Console;
-                }
-            }
-        }
-        return null;
-    }
-
-    public async getModule(mod: IModuleOpt | string, config: IConfig | null): Promise<IModule | null> {
-        mod = typeof mod === 'string' ? { name: mod } : mod;
-        mod.path = mod.path || config?.modules?.path || "../../../modules";
-        let namespace = "module:" + mod.name;
-        await this.assistant?.register({
-            [namespace]: {
-                "path": mod.path,
-                "lifetime": "singleton",
-                "args": [{}],
-                "dependencies": [
-                    {
-                        "key": "assistant",
-                        "target": "IoC",
-                        "type": "ref"
-                    }
-                ]
-            }
-        });
-        return await this.assistant?.get<IModule>(namespace) || null;
-    }
-
     /**
      * Parses and processes command line arguments into structured format with environment variable fallbacks
      * Handles both string array arguments and pre-parsed argument objects, applying defaults from environment variables
@@ -197,13 +188,12 @@ export class AppModule implements IModule {
      */
     public async fill(args: string[] | IArgs): Promise<IArgs> {
         let parsed: Partial<IArgs> = this.extract(args);
-        parsed.action = parsed.action || process.env['KOZEN_ACTION'] || 'help';
+        parsed.action = parsed.action || process.env['KOZEN_ACTION'] || 'deploy';
         let option = parsed.action?.split(":") || [];
         parsed.stack = (parsed.stack || process.env.KOZEN_STACK || process.env["NODE_ENV"] || 'dev').toUpperCase();
         parsed.project = parsed.project || process.env.KOZEN_PROJECT || getID();
         parsed.action = option?.length > 1 ? option[1] : option[0];
-        parsed.type = parsed.type || (process.env.KOZEN_TYPE as IAppType) || 'cli' as IAppType;
-        parsed.controller = `${(parsed.controller || process.env['KOZEN_CONTROLLER'] || option?.length && option[0] || '')}:controller` + (parsed.type ? `:${parsed.type}` : '');
+        parsed.controller = this.capitalizeFirstLetter(option?.length > 1 ? option[0] : (parsed.controller || process.env['KOZEN_CONTROLLER'] || '')) + 'Controller';
         parsed.config = parsed.config || process.env.KOZEN_CONFIG || 'cfg/config.json';
         return parsed as IArgs;
     }
@@ -216,7 +206,7 @@ export class AppModule implements IModule {
      * @returns {Record<string, any>} Object containing parsed argument key-value pairs
      * @protected
      */
-    public extract(argv?: string[] | IArgs): Record<string, any> {
+    protected extract(argv?: string[] | IArgs): Record<string, any> {
         if (!Array.isArray(argv) && typeof argv === 'object') {
             return argv;
         }

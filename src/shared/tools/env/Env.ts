@@ -40,7 +40,7 @@ export class Env {
 
     /**
      * Logger service instance for recording service operations and errors
-     * @type {ILoggerService | null}
+     * @type {ILogger | null}
      */
     public logger?: Console | null;
 

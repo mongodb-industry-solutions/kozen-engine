@@ -22,7 +22,7 @@
             },
             {
                 "key": "srvFile",
-                "target": "app:file",
+                "target": "core:file",
                 "type": "ref"
             }
         ]
