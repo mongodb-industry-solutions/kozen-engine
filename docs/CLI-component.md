@@ -16,10 +16,10 @@ The CLI Component is a versatile execution component that enables the execution 
 
 ## Architecture
 
-The CLI component extends the `BaseController` and implements the standard component lifecycle:
+The CLI component extends the `KzComponent` and implements the standard component lifecycle:
 
 ```typescript
-export class CLI extends BaseController {
+export class CLI extends KzComponent {
   async run(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
   async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
   async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;

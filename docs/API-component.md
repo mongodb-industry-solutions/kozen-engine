@@ -17,10 +17,10 @@ The API Component is a powerful HTTP client component designed for making REST A
 
 ## Architecture
 
-The API component extends the `BaseController` and implements the standard component lifecycle:
+The API component extends the `KzComponent` and implements the standard component lifecycle:
 
 ```typescript
-export class API extends BaseController {
+export class API extends KzComponent {
   async run(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
   async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;
   async undeploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult>;

@@ -2,7 +2,7 @@ import * as mongodbatlas from "@pulumi/mongodbatlas";
 import * as pulumi from "@pulumi/pulumi";
 
 import { IPipeline } from '../../modules/pipeline/models/Pipeline';
-import { BaseController } from '../../shared/controllers/BaseController';
+import { KzComponent } from '../../shared/controllers/KzComponent';
 import { IComponent } from '../../shared/models/Component';
 import { IResult } from "../../shared/models/Result";
 import { IStruct, VCategory } from '../../shared/models/Types';
@@ -12,7 +12,7 @@ import { IAtlasConfig } from "./IAtlasConfig";
  * Atlas component controller for MongoDB Atlas cluster deployments
  * Manages the creation and removal of Atlas clusters using Pulumi
  */
-export class Atlas extends BaseController {
+export class Atlas extends KzComponent {
   private atlasProvider?: mongodbatlas.Provider;
 
   /**

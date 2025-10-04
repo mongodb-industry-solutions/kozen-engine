@@ -53,8 +53,8 @@ export { LoggerController } from './modules/logger/controllers/LoggerCLIControll
 export { PipelineController } from './modules/pipeline/controllers/PipelineCLIController';
 export { SecretController } from './modules/secret/controllers/SecretCLIController';
 export { TemplateController } from './modules/template/controllers/TemplateCLIController';
-export { BaseController } from './shared/controllers/BaseController';
 export { CLIController } from './shared/controllers/CLIController';
+export { KzComponent } from './shared/controllers/KzComponent';
 
 // IoC Container and Utilities
 export { Env } from './shared/tools/env/Env';

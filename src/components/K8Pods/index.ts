@@ -1,5 +1,5 @@
 import { IPipeline } from '../../modules/pipeline/models/Pipeline';
-import { BaseController } from '../../shared/controllers/BaseController';
+import { KzComponent } from '../../shared/controllers/KzComponent';
 import { IComponent } from '../../shared/models/Component';
 import { IResult } from '../../shared/models/Result';
 import { IStruct, VCategory } from '../../shared/models/Types';
@@ -12,7 +12,7 @@ import * as pulumi from '@pulumi/pulumi';
  * Simple demo component controller for testing pipeline functionality
  * This component demonstrates basic deployment, validation, and cleanup operations
  */
-export class K8Pods extends BaseController {
+export class K8Pods extends KzComponent {
   /**
    * Provides metadata for K8s Pod and Service deployment.
    * @returns {Promise<IComponent>} Component metadata definition.
@@ -101,7 +101,7 @@ export class K8Pods extends BaseController {
     }
 
     if (!input?.image) {
-      const srvK8Registry = await this.assistant?.resolve<BaseController>('ECR');
+      const srvK8Registry = await this.assistant?.resolve<KzComponent>('ECR');
       if (srvK8Registry) {
         const registry = await srvK8Registry.deploy(
           {

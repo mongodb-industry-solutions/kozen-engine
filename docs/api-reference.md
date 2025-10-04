@@ -137,7 +137,7 @@ const status = await pipeline.status({
 });
 ```
 
-### BaseController
+### Kozen Component
 
 Abstract base class for all component controllers.
 
@@ -206,7 +206,7 @@ Component configuration object.
 #### Example Implementation
 
 ```typescript
-export class CustomComponent extends BaseController {
+export class CustomComponent extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     try {
       // Component-specific deployment logic

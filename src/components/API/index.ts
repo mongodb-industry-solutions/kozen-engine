@@ -1,5 +1,5 @@
 import { IPipeline } from '../../modules/pipeline/models/Pipeline';
-import { BaseController } from '../../shared/controllers/BaseController';
+import { KzComponent } from '../../shared/controllers/KzComponent';
 import { IComponent } from '../../shared/models/Component';
 import { IResult } from '../../shared/models/Result';
 import { IStruct, VCategory } from '../../shared/models/Types';
@@ -8,7 +8,7 @@ import { IStruct, VCategory } from '../../shared/models/Types';
  * API Component Controller for executing REST API calls
  * This component demonstrates API request execution and response retrieval logic
  */
-export class API extends BaseController {
+export class API extends KzComponent {
 
     public metadata(): Promise<IComponent> {
         return Promise.resolve({
