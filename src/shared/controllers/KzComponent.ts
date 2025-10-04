@@ -8,7 +8,7 @@ import { IStruct } from '../models/Types';
 import { IIoC } from '../tools';
 
 /**
- * @fileoverview Base Controller - Abstract Bridge Component
+ * @fileoverview Kozen Component Controller - Abstract Bridge Component
  * Abstract base controller that implements the Bridge pattern to decouple
  * infrastructure component abstractions from their specific implementations.
  * 
@@ -22,12 +22,12 @@ import { IIoC } from '../tools';
  * at runtime through dependency injection.
  * 
  * @abstract
- * @class BaseController
+ * @class Kozen Component Controller
  * @author MDB SAT
  * @since 1.0.4
  * @version 1.0.5
  */
-export abstract class BaseController implements IController {
+export abstract class KzComponent implements IController {
     /**
      * IoC container instance for dependency management
      * Protected IoC container providing dependency injection capabilities.
@@ -63,7 +63,7 @@ export abstract class BaseController implements IController {
     protected config: IComponent;
 
     /**
-     * Constructs a new BaseController instance
+     * Constructs a new KzComponent instance
      * Initializes the base controller with default or provided configuration.
      * When no configuration is provided, initializes with a clearly defined invalid state
      * to ensure proper configuration before use.
@@ -86,9 +86,9 @@ export abstract class BaseController implements IController {
      * @param {IComponent} config - The component configuration object containing
      *                              deployment parameters, setup instructions, and metadata
      * @param {Object} [dependency] - Optional dependency injection object
-     * @returns {BaseController} Returns the configured controller instance for method chaining
+     * @returns {KzComponent} Returns the configured controller instance for method chaining
      */
-    public configure(config: IComponent, dependency?: { assistant: IIoC, logger: ILoggerService }): BaseController {
+    public configure(config: IComponent, dependency?: { assistant: IIoC, logger: ILoggerService }): KzComponent {
         this.config = config;
         dependency?.assistant && (this.assistant = dependency.assistant);
         dependency?.logger && (this.logger = dependency.logger);

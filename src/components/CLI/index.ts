@@ -1,6 +1,6 @@
 import { exec } from 'child_process';
 import { IPipeline } from '../../modules/pipeline/models/Pipeline';
-import { BaseController } from '../../shared/controllers/BaseController';
+import { KzComponent } from '../../shared/controllers/KzComponent';
 import { IComponent } from '../../shared/models/Component';
 import { IResult } from '../../shared/models/Result';
 import { IStruct, VCategory } from '../../shared/models/Types';
@@ -9,7 +9,7 @@ import { IStruct, VCategory } from '../../shared/models/Types';
  * CLI Component Controller for executing commands in the CLI
  * This component demonstrates command execution and output retrieval logic
  */
-export class CLI extends BaseController {
+export class CLI extends KzComponent {
 
     /**
      * Returns metadata describing CLI inputs and outputs.

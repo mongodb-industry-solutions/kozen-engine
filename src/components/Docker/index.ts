@@ -1,12 +1,12 @@
 import path from 'path';
 import { IPipeline } from '../../modules/pipeline/models/Pipeline';
-import { BaseController } from '../../shared/controllers/BaseController';
+import { KzComponent } from '../../shared/controllers/KzComponent';
 import { IComponent } from '../../shared/models/Component';
 import { IResult } from '../../shared/models/Result';
 import { VCategory } from '../../shared/models/Types';
 import { IDockerConfig } from "./IDockerConfig";
 
-export class Docker extends BaseController {
+export class Docker extends KzComponent {
   public metadata(): Promise<IComponent> {
     return Promise.resolve({
       description: 'Build and push a Docker image to AWS ECR from a Git repository using shell commands',

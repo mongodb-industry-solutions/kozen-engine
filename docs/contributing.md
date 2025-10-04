@@ -186,12 +186,12 @@ export class TemplateManagerCustom
 
 ### Creating New Components
 
-Components are the building blocks of pipelines. Each component implements the `BaseController` interface.
+Components are the building blocks of pipelines. Each component implements the `KzComponent` interface.
 
 **Component Structure Example:**
 
 ```typescript
-import { BaseController } from "../controllers/BaseController";
+import { KzComponent } from "../controllers/KzComponent";
 import { IPipeline } from "../models/Pipeline";
 import { IResult, IStruct } from "../models/Types";
 
@@ -199,7 +199,7 @@ import { IResult, IStruct } from "../models/Types";
  * Custom component for specific functionality
  * Example: Integration with external APIs, custom testing, data processing
  */
-export class CustomComponent extends BaseController {
+export class CustomComponent extends KzComponent {
   /**
    * Deploy/Execute the component functionality
    */
@@ -881,7 +881,7 @@ npm run dev -- --template=your-template --action=deploy
 
 ### Component Development
 
-- [ ] Implements BaseController interface
+- [ ] Implements KzComponent interface
 - [ ] Includes proper error handling
 - [ ] Has comprehensive JSDoc documentation
 - [ ] Includes input validation
