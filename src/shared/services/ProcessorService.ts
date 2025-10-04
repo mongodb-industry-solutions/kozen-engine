@@ -1,10 +1,10 @@
 
-import { IMetadata } from "../../../shared/models/Metadata";
-import { IStruct, VCategory } from "../../../shared/models/Types";
-import { IIoC } from "../../../shared/tools";
-import { ILoggerService } from "../../logger/models/Logger";
-import { ISecretManager } from "../../secret/models/Secret";
+import { ILoggerService } from "../../modules/logger/models/Logger";
+import { ISecretManager } from "../../modules/secret/models/Secret";
+import { IMetadata } from "../models/Metadata";
 import { IProcessorService } from "../models/Processor";
+import { IStruct, VCategory } from "../models/Types";
+import { IIoC } from "../tools";
 
 /**
  * @fileoverview Variable Processor Service - Variable Resolution Bridge Component

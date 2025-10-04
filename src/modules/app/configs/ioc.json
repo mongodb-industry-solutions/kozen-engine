@@ -11,5 +11,51 @@
                 "encoding": "utf-8"
             }
         ]
+    },
+    "app:components": {
+        "path": "../../../components",
+        "type": "auto",
+        "lifetime": "singleton",
+        "args": [
+            {}
+        ],
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
+    },
+    "app:processor": {
+        "target": "ProcessorService",
+        "type": "class",
+        "lifetime": "singleton",
+        "path": "../../services",
+        "args": [
+            {}
+        ],
+        "dependencies": [
+            {
+                "key": "srvSecret",
+                "target": "secret:manager",
+                "type": "ref"
+            },
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
     }
 }
