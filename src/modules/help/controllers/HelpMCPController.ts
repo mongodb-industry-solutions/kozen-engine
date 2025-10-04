@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
 import path from "path";
 import { z } from "zod";
-import { MCPController } from "../../../shared/controllers/MCPController";
+import { MCPController } from "../../../applications/mcp/controllers/MCPController";
 import { FileService } from "../../../shared/services/FileService";
 
 export class HelpController extends MCPController {
@@ -26,7 +26,7 @@ export class HelpController extends MCPController {
             this.list.bind(this)
         );
 
-        this.srvFile = this.srvFile || await this.assistant?.resolve<FileService>('app:file');
+        this.srvFile = this.srvFile || await this.assistant?.resolve<FileService>('core:file');
     }
 
     async select(args: { name: string, format?: string }, extra?: any) {

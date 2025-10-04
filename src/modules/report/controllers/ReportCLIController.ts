@@ -8,7 +8,7 @@
  * @version 1.1.0
  */
 import path from 'path';
-import { CLIController } from '../../../shared/controllers/CLIController';
+import { CLIController } from '../../../applications/cli/controllers/CLIController';
 import { IConfig } from '../../../shared/models/Config';
 import { IReportManager, PipelineResult } from '../models/Report';
 

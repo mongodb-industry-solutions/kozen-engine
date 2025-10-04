@@ -9,7 +9,7 @@ import { Binary } from "mongodb";
 import { VCategory } from "../../../shared/models/Types";
 import { BaseService } from "../../../shared/services/BaseService";
 import { IIoC } from "../../../shared/tools";
-import { ILoggerService } from "../../logger/models/Logger";
+import { ILogger } from "../../../shared/tools/log/types";
 import { ISecretManager, ISecretManagerOptions } from "../models/Secret";
 
 /**
@@ -51,7 +51,7 @@ export class SecretManager extends BaseService implements ISecretManager {
      * @constructor
      * @param {ISecretManagerOptions} [options] - Optional secret manager configuration
      */
-    constructor(options?: ISecretManagerOptions, dep?: { assistant: IIoC, logger: ILoggerService }) {
+    constructor(options?: ISecretManagerOptions, dep?: { assistant: IIoC, logger: ILogger }) {
         super(dep);
         this.options = options!;
         this.prefix = 'secret:manager:';

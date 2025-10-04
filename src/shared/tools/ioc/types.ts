@@ -86,7 +86,7 @@ export interface IDependency {
   /**
    * Constructor arguments passed before dependencies.
    */
-  args?: IJSON[];
+  args?: IJSON[] | any[];
 
   /**
    * Nested dependencies for injection.
@@ -114,7 +114,7 @@ export interface IIoC {
   /**
    * Safely resolve dependency with auto-registration support.
    */
-  get<T = any>(key: string): Promise<T | null>;
+  get<T = any>(key: string | IDependency): Promise<T | null>;
 
   /**
    * Resolves dependency with auto-registration support.

@@ -14,14 +14,14 @@
  */
 import * as fs from 'fs';
 import path from 'path';
-import { CLIController } from '../../../shared/controllers/CLIController';
+import { CLIController } from '../../../applications/cli/controllers/CLIController';
 import { IArgs } from '../../../shared/models/Args';
 import { IConfig } from '../../../shared/models/Config';
 import { IResult } from '../../../shared/models/Result';
 import { IAction, VCategory } from '../../../shared/models/Types';
 import { FileService } from '../../../shared/services/FileService';
 import { IIoC } from '../../../shared/tools';
-import { ILoggerService } from '../../logger/models/Logger';
+import { ILogger } from '../../../shared/tools/log/types';
 import { IPipelineArgs } from '../models/Pipeline';
 import { PipelineManager } from '../services/PipelineManager';
 
@@ -62,7 +62,7 @@ export class PipelineController extends CLIController {
    * @constructor
    * @param {PipelineManager} pipeline - Optional pipeline manager instance
    */
-  constructor(dependency?: { assistant: IIoC, logger: ILoggerService, pipeline?: PipelineManager, srvFile?: FileService }) {
+  constructor(dependency?: { assistant: IIoC, logger: ILogger, pipeline?: PipelineManager, srvFile?: FileService }) {
     super(dependency);
     this.pipeline = dependency?.pipeline;
   }

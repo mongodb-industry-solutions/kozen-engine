@@ -216,14 +216,7 @@ export class IoC implements IIoC {
       // Add dependencies object as final parameter if dependencies exist
       if (dependencies) {
         const dependenciesObject = this.build(cradle, dependencies);
-
-        // If no args, pass dependencies object as first parameter
-        // If args exist, pass dependencies object as final parameter
-        if (!args?.length) {
-          constructorArgs.push(dependenciesObject);
-        } else {
-          constructorArgs.push(dependenciesObject);
-        }
+        constructorArgs.push(dependenciesObject)
       }
 
       return new Cls(...constructorArgs);
@@ -279,8 +272,13 @@ export class IoC implements IIoC {
   /**
    * Safely resolve dependency with auto-registration support.
    */
-  public async get<T = any>(key: string): Promise<T | null> {
+  public async get<T = any>(key: string | IDependency): Promise<T | null> {
     try {
+      if (typeof key !== 'string') {
+        let index = key.key || this.getKey(key.target, key.type);
+        await this.register({ [index]: key });
+        key = index;
+      }
       return await this.resolve<T>(key);
     } catch (error) {
       // this.logger?.error({ src: 'IoC', message: `Failed to save get dependency: ${error instanceof Error ? error.message : String(error)}` });

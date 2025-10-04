@@ -1,7 +1,7 @@
 import { VCategory } from "../../../shared/models/Types";
 import { BaseService } from "../../../shared/services/BaseService";
 import { IIoC } from "../../../shared/tools";
-import { ILoggerService } from "../../logger/models/Logger";
+import { ILogger } from "../../../shared/tools/log/types";
 import { ITemplateConfig, ITemplateManager } from "../models/Template";
 
 /**
@@ -57,7 +57,7 @@ export class TemplateManager extends BaseService implements TemplateManager {
      * @constructor
      * @param {ITemplateConfig} [options] - Optional template configuration
      */
-    constructor(options?: ITemplateConfig | null, dep?: { assistant: IIoC, logger: ILoggerService }) {
+    constructor(options?: ITemplateConfig | null, dep?: { assistant: IIoC, logger: ILogger }) {
         super(dep);
         this._options = options ?? null;
         this.prefix = "template:manager:";

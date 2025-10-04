@@ -8,7 +8,7 @@
 import { VCategory } from "../../../shared/models/Types";
 import { BaseService } from "../../../shared/services/BaseService";
 import { IIoC } from "../../../shared/tools";
-import { ILoggerService } from "../../logger/models/Logger";
+import { ILogger } from "../../../shared/tools/log/types";
 import { IReportManager, IReportManagerOptions, PipelineResult } from "../models/Report";
 
 /**
@@ -50,7 +50,7 @@ export class ReportManager extends BaseService implements IReportManager {
      * @constructor
      * @param {IReportManagerOptions} [options] - Optional report manager configuration
      */
-    constructor(options?: IReportManagerOptions, dep?: { assistant: IIoC, logger: ILoggerService }) {
+    constructor(options?: IReportManagerOptions, dep?: { assistant: IIoC, logger: ILogger }) {
         super(dep);
         this.options = options!;
         this.prefix = 'report:manager:';

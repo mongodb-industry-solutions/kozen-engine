@@ -1,10 +1,9 @@
-
-import { ILoggerService } from "../../modules/logger/models/Logger";
 import { ISecretManager } from "../../modules/secret/models/Secret";
 import { IMetadata } from "../models/Metadata";
 import { IProcessorService } from "../models/Processor";
 import { IStruct, VCategory } from "../models/Types";
 import { IIoC } from "../tools";
+import { ILogger } from "../tools/log/types";
 
 /**
  * @fileoverview Variable Processor Service - Variable Resolution Bridge Component
@@ -51,9 +50,9 @@ export class ProcessorService implements IProcessorService {
 
     /**
      * Logger service instance for recording variable processing operations
-     * @type {ILoggerService | null}
+     * @type {ILogger | null}
      */
-    public logger?: ILoggerService | null;
+    public logger?: ILogger | null;
 
     /**
      * Variable scope for reference resolution
@@ -102,7 +101,7 @@ export class ProcessorService implements IProcessorService {
      * });
      * ```
      */
-    constructor(scope: IStruct = {}, dep?: { assistant: IIoC, logger: ILoggerService, srvSecret?: ISecretManager }) {
+    constructor(scope: IStruct = {}, dep?: { assistant: IIoC, logger: ILogger, srvSecret?: ISecretManager }) {
         this.scope = scope;
         this.assistant = dep?.assistant;
         this.logger = dep?.logger;

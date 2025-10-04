@@ -1,4 +1,4 @@
-import { IDependency, IIoC } from "../tools";
+import { IDependency, IIoC, ILogInput, ILogLevel } from "../tools";
 import { IArgs } from "./Args";
 import { IConfig } from "./Config";
 
@@ -25,4 +25,10 @@ export interface IModule {
      * @returns A promise resolving with the registered dependencies
      */
     register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null>;
+
+    getId(opt?: IConfig): string;
+
+    wait(): Promise<void>;
+
+    log(input: ILogInput, level?: ILogLevel): void;
 }
