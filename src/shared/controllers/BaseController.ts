@@ -1,11 +1,11 @@
-import { IResult } from '../../../shared/models/Result';
-import { IStruct } from '../../../shared/models/Types';
-import { IIoC } from '../../../shared/tools';
-import { ILoggerService } from '../../logger/models/Logger';
-import { IPipeline } from '../../pipeline/models/Pipeline';
+import { ILoggerService } from '../../modules/logger/models/Logger';
+import { IPipeline } from '../../modules/pipeline/models/Pipeline';
 import { IComponent, ITransformOption } from '../models/Component';
 import { IController } from '../models/Controller';
 import { IProcessorService } from '../models/Processor';
+import { IResult } from '../models/Result';
+import { IStruct } from '../models/Types';
+import { IIoC } from '../tools';
 
 /**
  * @fileoverview Base Controller - Abstract Bridge Component
@@ -203,7 +203,7 @@ export abstract class BaseController implements IController {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        const srvVar = await this.assistant.resolve<IProcessorService>('component:processor');
+        const srvVar = await this.assistant.resolve<IProcessorService>('app:processor');
         const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output, flow));
         return input || {};
     }

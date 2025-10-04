@@ -6,11 +6,11 @@
  * @version 1.0.5
  */
 
+import { ITransformOption } from "../../../shared/models/Component";
 import { IResult } from "../../../shared/models/Result";
 import { IStruct, VCategory } from "../../../shared/models/Types";
 import { BaseService } from "../../../shared/services/BaseService";
 import { IIoC } from "../../../shared/tools";
-import { ITransformOption } from "../../component/models/Component";
 import { ILoggerService } from "../../logger/models/Logger";
 import { IStackManager, IStackOptions } from "../models/Stack";
 

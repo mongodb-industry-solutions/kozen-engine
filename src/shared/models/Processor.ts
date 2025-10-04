@@ -1,6 +1,6 @@
-import { IMetadata } from "../../../shared/models/Metadata";
-import { IStruct } from "../../../shared/models/Types";
-import { IIoC } from "../../../shared/tools";
+import { IIoC } from "../tools";
+import { IMetadata } from "./Metadata";
+import { IStruct } from "./Types";
 
 export interface IProcessorService {
     /**

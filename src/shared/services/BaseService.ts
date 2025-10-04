@@ -1,6 +1,6 @@
-import { IOutputResult, ITransformOption } from "../../modules/component/models/Component";
-import { IProcessorService } from "../../modules/component/models/Processor";
 import { ILoggerService } from "../../modules/logger/models/Logger";
+import { IOutputResult, ITransformOption } from "../models/Component";
+import { IProcessorService } from "../models/Processor";
 import { IStruct } from "../models/Types";
 import { IIoC } from "../tools";
 
@@ -66,7 +66,7 @@ export class BaseService {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        const srvVar = await this.assistant.resolve<IProcessorService>('component:processor');
+        const srvVar = await this.assistant.resolve<IProcessorService>('app:processor');
         const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output, flow));
         return input || {};
     }
@@ -82,7 +82,7 @@ export class BaseService {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        const srvVar = await this.assistant.resolve<IProcessorService>('component:processor');
+        const srvVar = await this.assistant.resolve<IProcessorService>('app:processor');
         const meta = (srvVar && Array.isArray(component[key]) && await srvVar.map(component[key], flow)) as IOutputResult;
         output.items = { ...output.items, ...meta?.items };
         output.warns = { ...output.warns, ...meta?.warns };
