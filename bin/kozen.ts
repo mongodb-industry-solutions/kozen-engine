@@ -26,7 +26,7 @@ import { VCategory } from '../src/shared/models/Types';
     const opts = app.extract(process.argv);
 
     // Load environment variables from .env file for non-MCP types
-    if (opts.type !== 'mcp') {
+    if (opts.type !== 'mcp' && !process.env.KOZEN_SKIP_DOTENV) {
         try {
             dotenv.config();
         }
