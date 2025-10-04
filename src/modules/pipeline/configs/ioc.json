@@ -1,0 +1,102 @@
+{
+    "pipeline:stack:manager": {
+        "target": "StackManager",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/pipeline/services",
+        "args": [
+            {
+                "workspace": {
+                    "url": "s3://kozen-pulumi-stacks",
+                    "runtime": "nodejs"
+                }
+            }
+        ],
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
+    },
+    "pipeline:stack:manager:node": {
+        "target": "StackManagerNode",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/pipeline/services",
+        "args": [
+            null
+        ],
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
+    },
+    "pipeline:stack:manager:pulumi": {
+        "target": "StackManagerPulumi",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/pipeline/services",
+        "args": [
+            null
+        ],
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
+    },
+    "pipeline:manager": {
+        "target": "PipelineManager",
+        "type": "class",
+        "lifetime": "singleton",
+        "path": "../../../modules/pipeline/services",
+        "args": [
+            null
+        ],
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            },
+            {
+                "key": "envSrv",
+                "target": "Env",
+                "type": "class",
+                "path": "../../tools/env",
+                "args": [
+                    {
+                        "prefix": ""
+                    }
+                ]
+            }
+        ]
+    }
+}

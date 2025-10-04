@@ -22,7 +22,7 @@ Kozen Engine integrates testing at multiple levels:
 All testing components extend the base controller pattern:
 
 ```typescript
-export abstract class BaseTestController extends BaseController {
+export abstract class BaseTestController extends KzComponent {
   abstract executeTests(config: TestConfig): Promise<TestResult>;
   abstract generateReport(results: TestResult): Promise<TestReport>;
   abstract collectMetrics(results: TestResult): Promise<TestMetrics>;
@@ -102,7 +102,7 @@ E2E testing validates complete user workflows through the application interface.
 #### E2E Test Implementation
 
 ```typescript
-export class E2ETestComponent extends BaseController {
+export class E2ETestComponent extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     const config = {
       targetUrl: input?.targetUrl,
@@ -211,7 +211,7 @@ API testing validates service endpoints, data contracts, and integration points.
 #### API Test Implementation
 
 ```typescript
-export class APITestComponent extends BaseController {
+export class APITestComponent extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     const config = {
       apiEndpoint: input?.apiEndpoint,
@@ -362,7 +362,7 @@ Performance testing validates system behavior under various load conditions.
 #### Performance Test Implementation
 
 ```typescript
-export class PerformanceTestComponent extends BaseController {
+export class PerformanceTestComponent extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     const config = {
       targetUrl: input?.targetUrl,
@@ -478,95 +478,95 @@ Validates deployed infrastructure components and configurations.
   "stack": {
     "orchestrator": "Node",
     "components": [
-    {
-      "name": "InfrastructureTestComponent",
-      "description": "Validate infrastructure deployment",
-      "input": [
-        {
-          "name": "connectionString",
-          "type": "environment",
-          "value": "DATABASE_URL"
-        },
-        {
-          "name": "serviceUrl",
-          "type": "environment",
-          "value": "APP_URL"
-        }
-      ],
-      "output": [
-        {
-          "name": "infrastructureStatus",
-          "description": "Infrastructure validation results"
-        }
-      ]
-    },
-    {
-      "name": "APITestComponent",
-      "description": "API integration testing",
-      "input": [
-        {
-          "name": "apiEndpoint",
-          "type": "environment",
-          "value": "APP_URL"
-        },
-        {
-          "name": "infrastructureReady",
-          "type": "reference",
-          "value": "infrastructureStatus"
-        }
-      ],
-      "output": [
-        {
-          "name": "apiTestResults",
-          "description": "API test execution results"
-        }
-      ]
-    },
-    {
-      "name": "E2ETestComponent",
-      "description": "End-to-end user workflow testing",
-      "input": [
-        {
-          "name": "targetUrl",
-          "type": "environment",
-          "value": "APP_URL"
-        },
-        {
-          "name": "apiValidation",
-          "type": "reference",
-          "value": "apiTestResults"
-        }
-      ],
-      "output": [
-        {
-          "name": "e2eResults",
-          "description": "E2E test results"
-        }
-      ]
-    },
-    {
-      "name": "PerformanceTestComponent",
-      "description": "Load and performance testing",
-      "input": [
-        {
-          "name": "targetUrl",
-          "type": "environment",
-          "value": "APP_URL"
-        },
-        {
-          "name": "functionalTestsPassed",
-          "type": "reference",
-          "value": "e2eResults"
-        }
-      ],
-      "output": [
-        {
-          "name": "performanceResults",
-          "description": "Performance test results"
-        }
-      ]
-    }
-  ]
+      {
+        "name": "InfrastructureTestComponent",
+        "description": "Validate infrastructure deployment",
+        "input": [
+          {
+            "name": "connectionString",
+            "type": "environment",
+            "value": "DATABASE_URL"
+          },
+          {
+            "name": "serviceUrl",
+            "type": "environment",
+            "value": "APP_URL"
+          }
+        ],
+        "output": [
+          {
+            "name": "infrastructureStatus",
+            "description": "Infrastructure validation results"
+          }
+        ]
+      },
+      {
+        "name": "APITestComponent",
+        "description": "API integration testing",
+        "input": [
+          {
+            "name": "apiEndpoint",
+            "type": "environment",
+            "value": "APP_URL"
+          },
+          {
+            "name": "infrastructureReady",
+            "type": "reference",
+            "value": "infrastructureStatus"
+          }
+        ],
+        "output": [
+          {
+            "name": "apiTestResults",
+            "description": "API test execution results"
+          }
+        ]
+      },
+      {
+        "name": "E2ETestComponent",
+        "description": "End-to-end user workflow testing",
+        "input": [
+          {
+            "name": "targetUrl",
+            "type": "environment",
+            "value": "APP_URL"
+          },
+          {
+            "name": "apiValidation",
+            "type": "reference",
+            "value": "apiTestResults"
+          }
+        ],
+        "output": [
+          {
+            "name": "e2eResults",
+            "description": "E2E test results"
+          }
+        ]
+      },
+      {
+        "name": "PerformanceTestComponent",
+        "description": "Load and performance testing",
+        "input": [
+          {
+            "name": "targetUrl",
+            "type": "environment",
+            "value": "APP_URL"
+          },
+          {
+            "name": "functionalTestsPassed",
+            "type": "reference",
+            "value": "e2eResults"
+          }
+        ],
+        "output": [
+          {
+            "name": "performanceResults",
+            "description": "Performance test results"
+          }
+        ]
+      }
+    ]
   }
 }
 ```
@@ -584,107 +584,107 @@ Validates deployed infrastructure components and configurations.
   "stack": {
     "orchestrator": "Pulumi",
     "components": [
-    {
-      "name": "AtlasController",
-      "description": "Deploy MongoDB Atlas cluster",
-      "input": [
-        {
-          "name": "projectId",
-          "type": "secret",
-          "value": "mongodb-atlas/project-id"
-        }
-      ],
-      "output": [
-        {
-          "name": "connectionString",
-          "description": "Database connection string"
-        }
-      ]
-    },
-    {
-      "name": "KubernetesController",
-      "description": "Deploy application to Kubernetes",
-      "input": [
-        {
-          "name": "databaseUrl",
-          "type": "reference",
-          "value": "connectionString"
-        }
-      ],
-      "output": [
-        {
-          "name": "serviceUrl",
-          "description": "Application service URL"
-        }
-      ]
-    },
-    {
-      "name": "InfrastructureTestComponent",
-      "description": "Validate deployment",
-      "input": [
-        {
-          "name": "databaseConnection",
-          "type": "reference",
-          "value": "connectionString"
-        },
-        {
-          "name": "applicationUrl",
-          "type": "reference",
-          "value": "serviceUrl"
-        }
-      ],
-      "output": [
-        {
-          "name": "deploymentValidation",
-          "description": "Deployment validation results"
-        }
-      ]
-    },
-    {
-      "name": "E2ETestComponent",
-      "description": "End-to-end testing",
-      "input": [
-        {
-          "name": "targetUrl",
-          "type": "reference",
-          "value": "serviceUrl"
-        },
-        {
-          "name": "deploymentStatus",
-          "type": "reference",
-          "value": "deploymentValidation"
-        }
-      ],
-      "output": [
-        {
-          "name": "functionalTestResults",
-          "description": "Functional test results"
-        }
-      ]
-    },
-    {
-      "name": "PerformanceTestComponent",
-      "description": "Performance validation",
-      "input": [
-        {
-          "name": "targetUrl",
-          "type": "reference",
-          "value": "serviceUrl"
-        },
-        {
-          "name": "functionalTestStatus",
-          "type": "reference",
-          "value": "functionalTestResults"
-        }
-      ],
-      "output": [
-        {
-          "name": "performanceValidation",
-          "description": "Performance test results"
-        }
-      ]
-    }
-  ]
+      {
+        "name": "AtlasController",
+        "description": "Deploy MongoDB Atlas cluster",
+        "input": [
+          {
+            "name": "projectId",
+            "type": "secret",
+            "value": "mongodb-atlas/project-id"
+          }
+        ],
+        "output": [
+          {
+            "name": "connectionString",
+            "description": "Database connection string"
+          }
+        ]
+      },
+      {
+        "name": "KubernetesController",
+        "description": "Deploy application to Kubernetes",
+        "input": [
+          {
+            "name": "databaseUrl",
+            "type": "reference",
+            "value": "connectionString"
+          }
+        ],
+        "output": [
+          {
+            "name": "serviceUrl",
+            "description": "Application service URL"
+          }
+        ]
+      },
+      {
+        "name": "InfrastructureTestComponent",
+        "description": "Validate deployment",
+        "input": [
+          {
+            "name": "databaseConnection",
+            "type": "reference",
+            "value": "connectionString"
+          },
+          {
+            "name": "applicationUrl",
+            "type": "reference",
+            "value": "serviceUrl"
+          }
+        ],
+        "output": [
+          {
+            "name": "deploymentValidation",
+            "description": "Deployment validation results"
+          }
+        ]
+      },
+      {
+        "name": "E2ETestComponent",
+        "description": "End-to-end testing",
+        "input": [
+          {
+            "name": "targetUrl",
+            "type": "reference",
+            "value": "serviceUrl"
+          },
+          {
+            "name": "deploymentStatus",
+            "type": "reference",
+            "value": "deploymentValidation"
+          }
+        ],
+        "output": [
+          {
+            "name": "functionalTestResults",
+            "description": "Functional test results"
+          }
+        ]
+      },
+      {
+        "name": "PerformanceTestComponent",
+        "description": "Performance validation",
+        "input": [
+          {
+            "name": "targetUrl",
+            "type": "reference",
+            "value": "serviceUrl"
+          },
+          {
+            "name": "functionalTestStatus",
+            "type": "reference",
+            "value": "functionalTestResults"
+          }
+        ],
+        "output": [
+          {
+            "name": "performanceValidation",
+            "description": "Performance test results"
+          }
+        ]
+      }
+    ]
   }
 }
 ```
@@ -850,7 +850,7 @@ Create MongoDB Charts dashboards for test analytics:
 Design tests to be independent and not rely on external state:
 
 ```typescript
-export class AutonomousTestComponent extends BaseController {
+export class AutonomousTestComponent extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     // Setup test environment
     await this.setupTestEnvironment();
@@ -975,7 +975,7 @@ async executeTestSuite(tests: TestCase[]): Promise<TestSuiteResult> {
 Properly manage test resources:
 
 ```typescript
-export class ResourceManagedTestComponent extends BaseController {
+export class ResourceManagedTestComponent extends KzComponent {
   private testResources: TestResource[] = [];
 
   async deploy(input?: IStruct): Promise<IResult> {

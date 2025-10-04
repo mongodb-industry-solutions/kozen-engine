@@ -1,7 +1,8 @@
-import { BaseController } from '../../controllers/BaseController';
-import { IComponent } from '../../models/Component';
-import { IPipeline } from '../../models/Pipeline';
-import { IResult, IStruct, VCategory } from '../../models/Types';
+import { IPipeline } from '../../modules/pipeline/models/Pipeline';
+import { KzComponent } from '../../shared/controllers/KzComponent';
+import { IComponent } from '../../shared/models/Component';
+import { IResult } from '../../shared/models/Result';
+import { IStruct, VCategory } from '../../shared/models/Types';
 import { IEcrConfig } from "./IEcrConfig";
 
 import * as aws from "@pulumi/aws";
@@ -10,7 +11,7 @@ import * as pulumi from "@pulumi/pulumi";
 /**
  * AWS ECR component - creates a container registry repository
  */
-export class ECR extends BaseController {
+export class ECR extends KzComponent {
   private awsProvider?: aws.Provider;
 
   /**

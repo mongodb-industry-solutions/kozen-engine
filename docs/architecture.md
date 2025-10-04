@@ -20,7 +20,7 @@ Kozen Engine implements a layered, extensible architecture designed for scalabil
 
 **Purpose**: Handle HTTP-like request/response patterns for CLI operations
 
-- `BaseController.ts` - Abstract base for all controllers
+- `KzComponent.ts` - Abstract base for all component controllers
 - `PipelineController.ts` - Main pipeline operation orchestration
 - Input validation and sanitization
 - Response formatting and error handling
@@ -97,15 +97,15 @@ class SecretManagerMDB extends SecretManager {}
 IoC container acts as a factory for creating and managing component instances:
 
 ```typescript
-const component = await this.assistant.resolve<BaseController>(componentName);
+const component = await this.assistant.resolve<KzComponent>(componentName);
 ```
 
 ### 4. Template Method Pattern
 
-BaseController provides template method structure:
+KzComponent provides template method structure:
 
 ```typescript
-abstract class BaseController {
+abstract class KzComponent {
   abstract deploy(input?: IStruct): Promise<IResult>;
   abstract validate(input?: IStruct): Promise<IResult>;
   abstract undeploy(input?: IStruct): Promise<IResult>;
@@ -159,7 +159,7 @@ export class SecretManagerAzure extends SecretManager {
 Create custom infrastructure or testing components:
 
 ```typescript
-export class CustomTestComponent extends BaseController {
+export class CustomTestComponent extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     // Custom test execution logic
   }

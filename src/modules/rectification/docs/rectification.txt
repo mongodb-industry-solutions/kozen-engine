@@ -1,0 +1,69 @@
+===============================================================================
+#    ##....##..#######..########.########.##....##
+#    ##...##..##.....##......##..##.......###...##
+#    ##..##...##.....##.....##...##.......####..##
+#    #####....##.....##....##....######...##.##.##
+#    ##..##...##.....##...##.....##.......##..####
+#    ##...##..##.....##..##......##.......##...###
+#    ##....##..#######..########.########.##....##
+#
+#    Kozen Engine - Task Execution Framework
+...............................................................................
+TOOL: IAM Rectification Module
+===============================================================================
+
+Description:
+    Perform role and permission rectification within the Kozen IAM infrastructure using the verify tool.
+    Enables audit and validation of authentication methods (e.g., SCRAM, X509) and ensures permissions
+    match specified CSV values. Designed for systems integrating MongoDB with robust security practices.
+
+Usage:
+    kozen --action=rectification:verify [options] [--flow=<id>]
+    kozen --module=rectification --action=verify [options]
+
+Core Options:
+    --stack=<id>                    Environment identifier (dev, test, prod)
+                                    (default: from NODE_ENV or 'dev')
+    --project=<id>                  Project identifier for log organization
+                                    (default: auto-generated timestamp ID)
+    --config=<file>                 Configuration file path
+                                    (default: cfg/config.json)
+    --module=logger                 Explicitly set module controller to logger
+    --action=<[module:]action>      Action to perform. Available actions:
+                                    - verify: Check for extra, missing, and required permissions, including the username and associated roles.
+
+SCRAM-Specific Options:
+    --host=<hostname>               MongoDB host to connect with (e.g., IP or domain name).
+    --app=<application>             Application identifier for contextual validation.
+    --uri=<connection_uri>          MongoDB connection string.
+    --uriEnv=<env_variable>         Environment variable containing the connection URI.
+    --username=<name>               Authentication username.
+    --password=<password>           Authentication password.
+    --method=<auth_method>          Authentication method (SCRAM, X509).
+    --protocol=<type>               MongoDB protocol (mongodb, mongodb+srv).
+    --isCluster=<bool>              Whether the connection is part of a cluster (true or false).
+    --permissions=<csv>             Comma-separated list of permissions to rectify (e.g., read,write,admin).
+
+X509-Specific Options:
+    --key=<private_key>             Path to the X509 private key file.
+    --cert=<certificate>            Path to the X509 certificate file.
+    --ca=<certificate_authority>    Path to the CA certificate file.
+    --certPath=<cert_folder>        Directory containing certificates.
+    --caPath=<ca_folder>            Directory containing CA certificates.
+
+Environment Variables:
+    KOZEN_CONFIG                    Default value assigned to the --config property
+    KOZEN_ACTION                    Default value assigned to the --action property
+    KOZEN_STACK                     Default value assigned to the --stack property
+    KOZEN_PROJECT                   Default value assigned to the --project property
+
+    KOZEN_IAM_METHOD                Default value assigned to the --method property, e.g.,SCRAM, X509
+    KOZEN_IAM_URI_ENV               Default value assigned to the --uriEnv property, e.g.,MONGO_URI
+
+Examples:
+    # Perform IAM rectification using SCRAM:
+    kozen --module=rectification --action=verify --method=SCRAM --permissions=read,write,admin --uriEnv=MONGO_URI_TMP
+    
+    # Perform IAM rectification using X509
+    kozen --tool=iam_rectification --action=verify --method=X509 --permissions=read,write,admin --cert=/path/to/cert.pem --key=/path/to/key.pem --ca=/path/to/ca.pem
+===============================================================================

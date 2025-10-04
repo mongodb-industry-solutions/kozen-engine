@@ -3,12 +3,14 @@
 ## Component Documentation Menu
 
 ### Generic Components
+
 These components can be reused across multiple pipelines and are designed for maximum flexibility:
 
 - **[API Component](./API-component.md)** - HTTP REST API client for making web service calls
 - **[CLI Component](./CLI-component.md)** - Command-line interface executor for running shell commands
 
 ### Infrastructure Components
+
 Specialized components for specific infrastructure deployment tasks:
 
 - **[Atlas Component](#atlas-component-srccomponentsatlasts)** - MongoDB Atlas cluster management
@@ -16,6 +18,7 @@ Specialized components for specific infrastructure deployment tasks:
 - **[Ops Manager Component](#ops-manager-component-srccomponentsopsmanagerts)** - MongoDB Ops Manager deployment
 
 ### Testing Components
+
 Components designed for testing and demonstration purposes:
 
 - **[Demo Components](#demo-components-srccomponentsdemofirstts-srccomponentsdemsecondts)** - Example components for testing pipelines
@@ -32,10 +35,10 @@ Kozen Engine's component system is the heart of the platform's extensibility. Co
 
 ### Base Component Structure
 
-All components extend the `BaseController` abstract class:
+All components extend the `KzComponent` abstract class:
 
 ```typescript
-export abstract class BaseController {
+export abstract class KzComponent {
   protected assistant!: IIoC;
   protected config: IComponent;
 
@@ -65,7 +68,7 @@ export abstract class BaseController {
 **Purpose**: MongoDB Atlas cluster deployment and management
 
 ```typescript
-export class AtlasController extends BaseController {
+export class AtlasController extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     // Deploy MongoDB Atlas cluster using Pulumi
     const cluster = await this.createAtlasCluster();
@@ -98,7 +101,7 @@ export class AtlasController extends BaseController {
 **Purpose**: Kubernetes resource deployment and management
 
 ```typescript
-export class KubernetesController extends BaseController {
+export class KubernetesController extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     // Deploy Kubernetes resources
     const resources = await this.deployKubernetesResources();
@@ -131,7 +134,7 @@ export class KubernetesController extends BaseController {
 **Purpose**: MongoDB Ops Manager deployment on Kubernetes
 
 ```typescript
-export class OpsManagerController extends BaseController {
+export class OpsManagerController extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     // Deploy Ops Manager on Kubernetes
     const deployment = await this.deployOpsManager();
@@ -153,7 +156,7 @@ export class OpsManagerController extends BaseController {
 **Purpose**: Example components for testing and demonstration
 
 ```typescript
-export class DemoFirst extends BaseController {
+export class DemoFirst extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     // Simulate testing or processing operation
     console.log(`Executing test with: ${input?.message}`);
@@ -226,10 +229,10 @@ interface IResult {
 ### 1. Basic Component Structure
 
 ```typescript
-import { BaseController } from "../controllers/BaseController";
+import { KzComponent } from "../controllers/KzComponent";
 import { IResult, IStruct } from "../models/Types";
 
-export class CustomComponent extends BaseController {
+export class CustomComponent extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     try {
       // 1. Validate input
@@ -280,7 +283,7 @@ export class CustomComponent extends BaseController {
 ### 2. Testing Component Example
 
 ```typescript
-export class E2ETestComponent extends BaseController {
+export class E2ETestComponent extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     const testSuite = input?.testSuite || "default";
     const targetUrl = input?.targetUrl;
@@ -316,7 +319,7 @@ export class E2ETestComponent extends BaseController {
 ### 3. API Integration Component
 
 ```typescript
-export class APITestComponent extends BaseController {
+export class APITestComponent extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     const apiEndpoint = input?.endpoint;
     const testCases = input?.testCases || [];
@@ -353,7 +356,7 @@ export class APITestComponent extends BaseController {
 ### 4. Performance Test Component
 
 ```typescript
-export class PerformanceTestComponent extends BaseController {
+export class PerformanceTestComponent extends KzComponent {
   async deploy(input?: IStruct): Promise<IResult> {
     const targetUrl = input?.targetUrl;
     const loadConfig = {
@@ -572,7 +575,7 @@ private errorResult(error: Error): IResult {
 ### Resource Management
 
 ```typescript
-export class ResourceManagedComponent extends BaseController {
+export class ResourceManagedComponent extends KzComponent {
   private resources: any[] = [];
 
   async deploy(input?: IStruct): Promise<IResult> {
