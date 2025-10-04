@@ -9,7 +9,7 @@
 #
 #    Kozen Engine - Task Execution Framework
 ...............................................................................
-TOOL: IAM Rectification
+TOOL: IAM Rectification Module
 ===============================================================================
 
 Description:
@@ -19,7 +19,7 @@ Description:
 
 Usage:
     kozen --action=rectification:verify [options] [--flow=<id>]
-    kozen --controller=rectification --action=verify [options]
+    kozen --module=rectification --action=verify [options]
 
 Core Options:
     --stack=<id>                    Environment identifier (dev, test, prod)
@@ -28,8 +28,8 @@ Core Options:
                                     (default: auto-generated timestamp ID)
     --config=<file>                 Configuration file path
                                     (default: cfg/config.json)
-    --controller=logger             Explicitly set controller to logger
-    --action=<[controller:]action>  Action to perform. Available actions:
+    --module=logger                 Explicitly set module controller to logger
+    --action=<[module:]action>      Action to perform. Available actions:
                                     - verify: Check for extra, missing, and required permissions, including the username and associated roles.
 
 SCRAM-Specific Options:
@@ -62,7 +62,7 @@ Environment Variables:
 
 Examples:
     # Perform IAM rectification using SCRAM:
-    kozen --controller=rectification --action=verify --method=SCRAM --permissions=read,write,admin --uriEnv=MONGO_URI_TMP
+    kozen --module=rectification --action=verify --method=SCRAM --permissions=read,write,admin --uriEnv=MONGO_URI_TMP
     
     # Perform IAM rectification using X509
     kozen --tool=iam_rectification --action=verify --method=X509 --permissions=read,write,admin --cert=/path/to/cert.pem --key=/path/to/key.pem --ca=/path/to/ca.pem
