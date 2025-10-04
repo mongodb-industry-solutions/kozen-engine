@@ -1,7 +1,8 @@
-import { BaseController } from '../../controllers/BaseController';
-import { IComponent } from '../../models/Component';
-import { IPipeline } from '../../models/Pipeline';
-import { IResult, IStruct } from '../../models/Types';
+import { IPipeline } from '../../modules/pipeline/models/Pipeline';
+import { KzComponent } from '../../shared/controllers/KzComponent';
+import { IComponent } from '../../shared/models/Component';
+import { IResult } from '../../shared/models/Result';
+import { IStruct } from '../../shared/models/Types';
 import { IEksConfig } from "./IEksConfig";
 
 import * as aws from "@pulumi/aws";
@@ -13,7 +14,7 @@ import * as pulumi from "@pulumi/pulumi";
  * Atlas component controller for MongoDB Atlas cluster deployments
  * Manages the creation and removal of Atlas clusters using Pulumi
  */
-export class K8AwsEks extends BaseController {
+export class K8AwsEks extends KzComponent {
   private awsProvider?: aws.Provider;
 
   /**

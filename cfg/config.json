@@ -1,288 +1,23 @@
 {
-  "name": "kozen-iac",
+  "name": "kozen",
   "version": "1.0.0",
   "engine": ">=1.0.0",
-  "description": "Infrastructure as Code Pipeline with configurable templates",
-  "dependencies": [
-    {
-      "target": "StackManager",
-      "type": "class",
-      "lifetime": "transient",
-      "path": "../../services",
-      "args": [
-        {
-          "workspace": {
-            "url": "s3://kozen-pulumi-stacks",
-            "runtime": "nodejs"
-          }
-        }
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "StackManagerNode",
-      "type": "class",
-      "lifetime": "transient",
-      "path": "../../services",
-      "args": [
-        null
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "StackManagerPulumi",
-      "type": "class",
-      "lifetime": "transient",
-      "path": "../../services",
-      "args": [
-        null
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "TemplateManager",
-      "type": "class",
-      "lifetime": "singleton",
-      "path": "../../services",
-      "args": [
-        {
-          "type": "MDB",
-          "file": {
-            "path": "./cfg/templates"
-          },
-          "mdb": {
-            "enabled": true,
-            "database": "kozen",
-            "collection": "templates",
-            "uri": "MDB_URI"
-          }
-        }
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "TemplateManagerFile",
-      "type": "class",
-      "path": "../../services",
-      "args": [
-        null
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "TemplateManagerMDB",
-      "type": "class",
-      "path": "../../services",
-      "args": [
-        null
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "SecretManager",
-      "type": "class",
-      "lifetime": "singleton",
-      "path": "../../services",
-      "args": [
-        {
-          "type": "MDB",
-          "cloud": {
-            "region": "us-east-1",
-            "accessKeyId": "AWS_ACCESS_KEY_ID",
-            "secretAccessKey": "AWS_SECRET_ACCESS_KEY"
-          },
-          "mdb": {
-            "enabled": true,
-            "database": "kozen",
-            "collection": "secrets",
-            "uri": "MDB_URI"
-          }
-        }
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "SecretManagerAWS",
-      "type": "class",
-      "lifetime": "singleton",
-      "path": "../../services",
-      "args": [
-        null
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "SecretManagerMDB",
-      "type": "class",
-      "lifetime": "singleton",
-      "path": "../../services",
-      "args": [
-        null
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "PipelineManager",
-      "type": "class",
-      "lifetime": "singleton",
-      "path": "../../services",
-      "args": [
-        null
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        },
-        {
-          "key": "envSrv",
-          "target": "Env",
-          "type": "class",
-          "path": "../../tools/env",
-          "args": [
-            {
-              "prefix": ""
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "target": "LoggerService",
-      "type": "class",
-      "lifetime": "singleton",
-      "path": "../../services",
-      "args": [
-        {
-          "mdb": {
-            "enabled": true,
-            "database": "kozen",
-            "collection": "logs",
-            "uri": "MDB_URI",
-            "level": "DEBUG"
-          },
-          "console": {
-            "enabled": true,
-            "level": "all",
-            "skip": "Stack output: \\."
-          }
-        }
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "path": "../../components",
+  "description": "Default configuration for Kozen as Task Execution Framework",
+  "modules": {
+    "path": "../../../modules",
+    "load": [
+      "logger",
+      "secret",
+      "template",
+      "pipeline",
+      "rectification",
+      "report",
+      "help"
+    ]
+  },
+  "dependencies": {
+    "core:components": {
+      "path": "../../../components",
       "type": "auto",
       "lifetime": "singleton",
       "args": [
@@ -296,186 +31,12 @@
         },
         {
           "key": "logger",
-          "target": "LoggerService",
+          "target": "logger:service",
           "type": "ref"
         }
       ]
     },
-    {
-      "target": "ProcessorService",
-      "type": "class",
-      "lifetime": "singleton",
-      "path": "../../services",
-      "args": [
-        {}
-      ],
-      "dependencies": [
-        {
-          "key": "srvSecret",
-          "target": "SecretManager",
-          "type": "ref"
-        },
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "LoggerController",
-      "type": "class",
-      "lifetime": "transient",
-      "path": "../../controllers/cli",
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        },
-        {
-          "key": "fileSrv",
-          "target": "FileService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "PipelineController",
-      "type": "class",
-      "lifetime": "transient",
-      "path": "../../controllers/cli",
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        },
-        {
-          "key": "pipeline",
-          "target": "PipelineManager",
-          "type": "ref"
-        },
-        {
-          "key": "fileSrv",
-          "target": "FileService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "SecretController",
-      "type": "class",
-      "lifetime": "transient",
-      "path": "../../controllers/cli",
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        },
-        {
-          "key": "fileSrv",
-          "target": "FileService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "TemplateController",
-      "type": "class",
-      "lifetime": "transient",
-      "path": "../../controllers/cli",
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        },
-        {
-          "key": "fileSrv",
-          "target": "FileService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "RectificationController",
-      "type": "class",
-      "lifetime": "transient",
-      "path": "../../controllers/cli",
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        },
-        {
-          "key": "srvIAMScram",
-          "target": "IAMRectificationScram",
-          "type": "ref"
-        },
-        {
-          "key": "srvIAMX509",
-          "target": "IAMRectificationX509",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "ReportController",
-      "type": "class",
-      "lifetime": "transient",
-      "path": "../../controllers/cli",
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        },
-        {
-          "key": "fileSrv",
-          "target": "FileService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
+    "core:file": {
       "target": "FileService",
       "type": "class",
       "lifetime": "transient",
@@ -488,35 +49,20 @@
         }
       ]
     },
-    {
-      "target": "IAMRectificationScram",
-      "type": "class",
-      "lifetime": "transient",
-      "path": "../../services"
-    },
-    {
-      "target": "IAMRectificationX509",
-      "type": "class",
-      "lifetime": "transient",
-      "path": "../../services"
-    },
-    {
-      "target": "ReportManager",
+    "core:processor": {
+      "target": "ProcessorService",
       "type": "class",
       "lifetime": "singleton",
       "path": "../../services",
       "args": [
-        {
-          "type": "MDB",
-          "mdb": {
-            "enabled": true,
-            "database": "kozen",
-            "collection": "logs",
-            "uri": "MDB_URI"
-          }
-        }
+        {}
       ],
       "dependencies": [
+        {
+          "key": "srvSecret",
+          "target": "secret:manager",
+          "type": "ref"
+        },
         {
           "key": "assistant",
           "target": "IoC",
@@ -524,31 +70,10 @@
         },
         {
           "key": "logger",
-          "target": "LoggerService",
-          "type": "ref"
-        }
-      ]
-    },
-    {
-      "target": "ReportManagerMDB",
-      "type": "class",
-      "lifetime": "singleton",
-      "path": "../../services",
-      "args": [
-        null
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "LoggerService",
+          "target": "logger:service",
           "type": "ref"
         }
       ]
     }
-  ]
+  }
 }

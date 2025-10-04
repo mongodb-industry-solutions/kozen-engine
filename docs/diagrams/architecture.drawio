@@ -498,19 +498,19 @@
         <mxCell id="ValidationEngine_methods" value="+ validateTemplate(template: Template): ValidationResult&lt;br&gt;+ validateComponent(component: any): boolean&lt;br&gt;- validateRequiredFields(obj: any): string[]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="ValidationEngine" vertex="1">
           <mxGeometry y="74" width="240" height="66" as="geometry" />
         </mxCell>
-        <mxCell id="4PhUyEJqkk0CWcJ_IVXU-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;startArrow=diamond;startFill=1;" edge="1" parent="1" source="BaseController" target="BaseConfig">
+        <mxCell id="4PhUyEJqkk0CWcJ_IVXU-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;startArrow=diamond;startFill=1;" edge="1" parent="1" source="KzComponent" target="BaseConfig">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BaseController" value="&lt;&lt;abstract&gt;&gt;&lt;br&gt;&lt;b&gt;BaseController&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+        <mxCell id="KzComponent" value="&lt;&lt;abstract&gt;&gt;&lt;br&gt;&lt;b&gt;KzComponent&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
           <mxGeometry x="330" y="410" width="220" height="160" as="geometry" />
         </mxCell>
-        <mxCell id="BaseController_props" value="# config: BaseConfig&lt;br&gt;# logger: any" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="BaseController" vertex="1">
+        <mxCell id="BaseController_props" value="# config: BaseConfig&lt;br&gt;# logger: any" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="KzComponent" vertex="1">
           <mxGeometry y="40" width="220" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="BaseController_line" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="BaseController" vertex="1">
+        <mxCell id="BaseController_line" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="KzComponent" vertex="1">
           <mxGeometry y="80" width="220" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="BaseController_methods" value="+ abstract configure(config: BaseConfig): void&lt;br&gt;+ abstract deploy(): Promise&lt;DeploymentResult&gt;&lt;br&gt;+ abstract undeploy(): Promise&lt;void&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="BaseController" vertex="1">
+        <mxCell id="BaseController_methods" value="+ abstract configure(config: BaseConfig): void&lt;br&gt;+ abstract deploy(): Promise&lt;DeploymentResult&gt;&lt;br&gt;+ abstract undeploy(): Promise&lt;void&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="KzComponent" vertex="1">
           <mxGeometry y="88" width="220" height="72" as="geometry" />
         </mxCell>
         <mxCell id="AtlasController" value="&lt;b&gt;AtlasController&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
@@ -552,7 +552,7 @@
         <mxCell id="PipelineController" value="&lt;b&gt;PipelineController&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
           <mxGeometry x="820" y="330" width="280" height="180" as="geometry" />
         </mxCell>
-        <mxCell id="PipelineController_props" value="- templateLoader: TemplateLoader&lt;br&gt;- validationEngine: ValidationEngine&lt;br&gt;- componentControllers: Map&lt;string, BaseController&gt;&lt;br&gt;- deploymentResults: Map&lt;string, DeploymentResult&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="PipelineController" vertex="1">
+        <mxCell id="PipelineController_props" value="- templateLoader: TemplateLoader&lt;br&gt;- validationEngine: ValidationEngine&lt;br&gt;- componentControllers: Map&lt;string, KzComponent&gt;&lt;br&gt;- deploymentResults: Map&lt;string, DeploymentResult&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="PipelineController" vertex="1">
           <mxGeometry y="26" width="280" height="80" as="geometry" />
         </mxCell>
         <mxCell id="PipelineController_line" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="PipelineController" vertex="1">
@@ -591,19 +591,19 @@
             <mxPoint x="190" y="10" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="inherit4" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="AtlasController" target="BaseController" edge="1">
+        <mxCell id="inherit4" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="AtlasController" target="KzComponent" edge="1">
           <mxGeometry width="160" relative="1" as="geometry">
             <mxPoint x="160" y="620" as="sourcePoint" />
             <mxPoint x="150" y="600" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="inherit5" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="KubernetesController" target="BaseController" edge="1">
+        <mxCell id="inherit5" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="KubernetesController" target="KzComponent" edge="1">
           <mxGeometry width="160" relative="1" as="geometry">
             <mxPoint x="450" y="620" as="sourcePoint" />
             <mxPoint x="150" y="600" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="inherit6" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="OpsManagerController" target="BaseController" edge="1">
+        <mxCell id="inherit6" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="OpsManagerController" target="KzComponent" edge="1">
           <mxGeometry width="160" relative="1" as="geometry">
             <mxPoint x="750" y="620" as="sourcePoint" />
             <mxPoint x="150" y="600" as="targetPoint" />

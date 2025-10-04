@@ -1,0 +1,20 @@
+{
+    "pipeline:controller:mcp": {
+        "target": "PipelineMCPController",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/pipeline/controllers",
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "report:controller:mcp": {
+        "target": "ReportMCPController",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/report/controllers",
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
+    }
+}

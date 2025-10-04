@@ -7,20 +7,21 @@
         "pipeline": "./dist/bin/pipeline.js"
     },
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && npm run copy:txt",
         "start": "node dist/bin/kozen.js",
         "help": "ts-node bin/kozen.ts --action=help",
         "dev": "ts-node bin/kozen.ts",
         "log": "ts-node bin/kozen.ts --action=logger:log",
-        "secret": "ts-node bin/kozen.ts --controller=secret",
+        "secret": "ts-node bin/kozen.ts --module=secret",
         "lint": "tslint -p tsconfig.json",
         "clean": "rm -rf dist",
         "test:deploy": "ts-node bin/pipeline.ts --action=deploy",
         "test:validate": "ts-node bin/pipeline.ts --action=validate",
         "test:undeploy": "ts-node bin/pipeline.ts --action=undeploy",
         "test:status": "ts-node bin/pipeline.ts --action=status",
-        "mcp:dev": "npx -y @modelcontextprotocol/inspector npx -y ts-node bin/mcp.ts",
-        "mcp:start": "ts-node bin/mcp.ts"
+        "mcp:dev": "npx -y @modelcontextprotocol/inspector npx -y ts-node bin/kozen.ts --type=mcp",
+        "mcp:start": "ts-node bin/kozen.ts --type=mcp",
+        "copy:txt": "copyfiles -u 1 src/**/*.txt dist/src"
     },
     "keywords": [
         "iac",
@@ -38,6 +39,7 @@
     "license": "MIT",
     "devDependencies": {
         "@types/node": "^18.19.127",
+        "copyfiles": "^2.4.1",
         "cross-env": "^7.0.3",
         "ts-node": "^10.9.0",
         "tslint": "^6.1.3",
@@ -53,7 +55,7 @@
         "@pulumi/mongodbatlas": "^3.34.0",
         "@pulumi/pulumi": "^3.113.0",
         "awilix": "^8.0.1",
-        "dotenv": "^17.0.1",
+        "dotenv": "^16.0.3",
         "mongodb": "^6.17.0",
         "mongodb-client-encryption": "^6.4.0",
         "ora": "^8.2.0",
