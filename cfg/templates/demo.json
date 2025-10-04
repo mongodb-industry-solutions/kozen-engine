@@ -6,7 +6,7 @@
     "release": "20241201",
     "requires": [],
     "stack": {
-        "orchestrator": "Node",
+        "orchestrator": "node",
         "input": [
             {
                 "type": "environment",
