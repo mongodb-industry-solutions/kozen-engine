@@ -23,7 +23,7 @@ Description:
     tools directly in your projects.
 
 Usage:
-    kozen --action=<value> [--controller=<value>] [options]
+    kozen --action=<value> [--module=<value>] [options]
 
 Core Options:
     --stack=<id>                    Environment identifier (dev, test, prod)
@@ -32,7 +32,7 @@ Core Options:
                                     (default: auto-generated timestamp ID)
     --config=<file>                 Path to configuration file
                                     (default: cfg/config.json)
-    --controller=<name>             Specify tool controller explicitly. Available tool controllers:
+    --module=<name>                 Explicitly specify the tool or module controller. Available tool controllers:
                                     - pipeline: Manage infrastructure and testing pipelines
                                     - template: Manage templates from different data sources like MongoDB, Files, etc.
                                     - secret: Manage encrypted secrets and credentials
@@ -49,12 +49,12 @@ Environment Variables:
     KOZEN_PROJECT                   Default value assigned to the --project property
 
 Controller-Specific Help:
-    kozen --action=help --controller=pipeline    # Pipeline management help
-    kozen --action=help --controller=secret      # Secret management help
-    kozen --action=help --controller=logger      # Logging system help
+    kozen --action=help --module=pipeline    # Pipeline management help
+    kozen --action=help --module=secret      # Secret management help
+    kozen --action=help --module=logger      # Logging system help
 
 Quick Start Examples:
     kozen --action=pipeline:help                 # Get pipeline help
     kozen --action=secret:help                   # Get secret management help
-    kozen --controller=pipeline --action=help    # Alternative syntax
+    kozen --module=pipeline --action=help    # Alternative syntax
 ===============================================================================

@@ -9,7 +9,7 @@
 #
 #    Kozen Engine - Task Execution Framework
 ...............................................................................
-TOOL: Template Manager
+TOOL: Template Manager Module
 ===============================================================================
 
 Description:
@@ -19,7 +19,7 @@ Description:
 
 Usage:
     kozen --action=template:<action> --name=<template> [options]
-    kozen --controller=template --action=<action> --name=<template> [options]
+    kozen --module=template --action=<action> --name=<template> [options]
 
 Core Options:
     --stack=<id>                    Environment identifier (dev, test, staging, prod)
@@ -28,8 +28,8 @@ Core Options:
                                     (default: auto-generated timestamp ID)
     --config=<file>                 Configuration file path containing template manager settings
                                     (default: cfg/config.json)
-    --controller=template           Explicitly set controller to template
-    --action=<[controller:]action>  Template management operation to perform:
+    --module=template               Explicitly set module controller to template
+    --action=<[module:]action>      Template management operation to perform:
 
 Available Actions:
     set                             Store a new template or update existing one
@@ -113,7 +113,7 @@ Examples:
     kozen --action=template:list --format=json
     
     # Alternative syntax with explicit controller
-    kozen --controller=template --action=get --name=demo.template
+    kozen --module=template --action=get --name=demo.template
     
     # Get template manager configuration details
     kozen --action=template:metadata
@@ -122,7 +122,7 @@ Examples:
     kozen --action=template:save --name=prod.atlas --file=./prod-atlas.json --stack=production
     
     # Delete template with explicit controller syntax
-    kozen --controller=template --action=delete --name=old.template
+    kozen --module=template --action=delete --name=old.template
     
     # Using environment variables for convenience
     export KOZEN_TM_NAME=my.template

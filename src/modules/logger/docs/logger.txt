@@ -9,7 +9,7 @@
 #
 #    Kozen Engine - Task Execution Framework
 ...............................................................................
-TOOL: Logger Manager
+TOOL: Logger Manager Module
 ===============================================================================
 
 Description:
@@ -20,7 +20,7 @@ Description:
 Usage:
     kozen --action=logger:log [options] --message=<text>
     kozen --action=logger:log [options] --file=<path>
-    kozen --controller=logger --action=log [options]
+    kozen --module=logger --action=log [options]
 
 Core Options:
     --stack=<id>                    Environment identifier (dev, test, prod)
@@ -29,8 +29,8 @@ Core Options:
                                     (default: auto-generated timestamp ID)
     --config=<file>                 Configuration file path
                                     (default: cfg/config.json)
-    --controller=logger             Explicitly set controller to logger
-    --action=<[controller:]action>  Action to perform. Available actions:
+    --module=logger                 Explicitly set module controller to logger
+    --action=<[module:]action>      Action to perform. Available actions:
                                     - log: Write a log entry to the logging system
                                     - help: Display this help information
 
@@ -67,7 +67,7 @@ Examples:
     kozen --action=logger:log --level=error --file=./logs/error-report.json
     
     # Alternative syntax with explicit controller
-    kozen --controller=logger --action=log --level=warn --message="Configuration updated"
+    kozen --module=logger --action=log --level=warn --message="Configuration updated"
     
     # Categorized logging for filtering
     kozen --action=logger:log --category=SECURITY --level=warn --message="Failed login attempt"

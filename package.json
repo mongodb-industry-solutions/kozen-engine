@@ -12,7 +12,7 @@
         "help": "ts-node bin/kozen.ts --action=help",
         "dev": "ts-node bin/kozen.ts",
         "log": "ts-node bin/kozen.ts --action=logger:log",
-        "secret": "ts-node bin/kozen.ts --controller=secret",
+        "secret": "ts-node bin/kozen.ts --module=secret",
         "lint": "tslint -p tsconfig.json",
         "clean": "rm -rf dist",
         "test:deploy": "ts-node bin/pipeline.ts --action=deploy",
