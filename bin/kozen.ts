@@ -3,7 +3,7 @@
 /**
  * @fileoverview CLI entry point for SecretController
  * @description Handles command-line operations for managing secrets
- * @author MongoDB SA Team
+ * @author MongoDB Solution Assurance Team (SAT)
  * @since 1.0.0
  */
 
@@ -49,6 +49,12 @@ import { ServerMCP } from '../src/shared/tools/mcp/ServerMCP';
         await app.register(config);
 
         switch (config.type) {
+            case 'mcp':
+                const server = new ServerMCP({ name: "kozen", version: "1.0.0" });
+                await server.init(config, app);
+                server.start();
+                break;
+
             case 'cli':
                 const { result, options } = await (new CLIServer(app)).dispatch(args);
                 args.action !== 'help' && app.log({
@@ -59,20 +65,19 @@ import { ServerMCP } from '../src/shared/tools/mcp/ServerMCP';
                         result
                     }
                 });
-                break;
-
-            case 'mcp':
-                const server = new ServerMCP({ name: "kozen", version: "1.0.0" });
-                await server.init(config, app);
-                server.start();
-                break;
+                await app.wait();
+                process.exit(0);
 
             default:
-                break;
+                app.log({
+                    flow: (config && app.getId(config)) || undefined,
+                    src: 'bin:Kozen',
+                    category: VCategory.cli.tool,
+                    level: 'warn',
+                    message: `❌ Unsupported execution type: ${config.type}`
+                });
+                process.exit(1);
         }
-
-        await app.wait();
-        process.exit(0);
     } catch (error) {
         console.error({
             flow: config && app.getId(config),
