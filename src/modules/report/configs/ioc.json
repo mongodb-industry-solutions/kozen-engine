@@ -1,0 +1,52 @@
+{
+    "report:manager": {
+        "target": "ReportManager",
+        "type": "class",
+        "lifetime": "singleton",
+        "path": "../../../modules/report/services",
+        "args": [
+            {
+                "type": "mdb",
+                "mdb": {
+                    "enabled": true,
+                    "database": "kozen",
+                    "collection": "logs",
+                    "uri": "MDB_URI"
+                }
+            }
+        ],
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
+    },
+    "report:manager:mdb": {
+        "target": "ReportManagerMDB",
+        "type": "class",
+        "lifetime": "singleton",
+        "path": "../../../modules/report/services",
+        "args": [
+            null
+        ],
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
+    }
+}

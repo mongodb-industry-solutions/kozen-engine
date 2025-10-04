@@ -3,25 +3,15 @@
 /**
  * @fileoverview CLI entry point for SecretController
  * @description Handles command-line operations for managing secrets
- * @author MongoDB SA Team
+ * @author MongoDB Solution Assurance Team (SAT)
  * @since 1.0.0
  */
 
 import dotenv from 'dotenv';
-import { CLIController } from '../src/controllers/CLIController';
-import { VCategory } from '../src/models/Types';
-
-// Load environment variables
-try {
-    dotenv.config();
-}
-catch (error) {
-    console.error({
-        src: 'bin:Kozen',
-        category: VCategory.cli.tool,
-        message: `❌ Load local environment failed:` + (error as Error).message || error
-    });
-}
+import { IArgs } from '../src';
+import { KzApp } from '../src/shared/controllers/KzApp';
+import { IKzApplication } from '../src/shared/models/App';
+import { VCategory } from '../src/shared/models/Types';
 
 /**
  * Main CLI entry point for secret management operations
@@ -30,55 +20,54 @@ catch (error) {
 (async function main(): Promise<void> {
 
     // Create controller and parse arguments
-    const cli = new CLIController();
-    const { args } = await cli.init(process.argv);
+    const app = new KzApp();
+
+    // Initialize application (parse args and load config)
+    const opts = app.extract(process.argv);
+
+    // Load environment variables from .env file for non-MCP types
+    if (opts.type !== 'mcp' && !process.env.KOZEN_SKIP_DOTENV) {
+        try {
+            dotenv.config();
+        }
+        catch (error) {
+            console.error({
+                src: 'bin:Kozen',
+                category: VCategory.cli.tool,
+                message: `❌ Load local environment failed:` + (error as Error).message || error
+            });
+        }
+    }
+
+    const { args, config } = await app.init(opts as IArgs);
 
     try {
-        if (!args?.controller) {
-            throw new Error('No valid controller was specified');
+        if (!args || !config) {
+            throw new Error('No valid configuration was specified');
         }
+        await app.register(config);
 
-        if (!args?.action) {
-            throw new Error('No valid action was specified');
-        }
-
-        if (args.controller === 'Controller' && args.action === 'help') {
-            return cli.help();
-        }
-
-        const controller = await cli.helper?.resolve(args.controller) as any;
-
-        if (!controller) {
-            throw new Error('No valid controller found');
-        }
-
-        const options = { ...args, ...(await controller.fillout(args)) };
-        const action = controller[args.action];
-        if (!action) {
-            throw new Error('No valid action found');
-        }
-
-        const result = await action.apply(controller, [options]);
-
-        args.action !== 'help' && cli.log({
-            flow: cli.getId(args),
-            src: 'bin:Kozen',
-            data: {
-                params: options,
-                result
-            }
+        const srv = await app.helper?.get<IKzApplication>({
+            "key": config.type,
+            "path": process.env.KOZEN_APP_PATH || "../../../applications",
+            "args": [config, app],
+            "lifetime": "singleton"
         });
 
-        await cli.wait();
-        process.exit(0);
+        if (!srv) {
+            throw new Error(`No valid application found for type: ${config.type}`);
+        }
+
+        await srv.init(config, app);
+        await srv.start(args);
+
     } catch (error) {
         console.error({
-            flow: cli.getId(args),
+            flow: config && app.getId(config),
             src: 'bin:Kozen',
             category: VCategory.cli.secret,
             message: `❌ CLI execution failed:` + (error as Error).message || error
         });
-        cli.help()
         process.exit(1);
     }
-})();  
+})();

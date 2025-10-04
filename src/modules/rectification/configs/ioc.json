@@ -1,0 +1,14 @@
+{
+    "iam:rectification:scram": {
+        "target": "IAMRectificationScram",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/rectification/services"
+    },
+    "iam:rectification:x509": {
+        "target": "IAMRectificationX509",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/rectification/services"
+    }
+}

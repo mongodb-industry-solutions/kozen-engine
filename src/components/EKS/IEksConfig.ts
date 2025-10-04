@@ -1,4 +1,4 @@
-import { IStruct } from "../../models/Types";
+import { IStruct } from "../../shared/models/Types";
 
 export interface IEksConfig extends IStruct {
   message?: string;

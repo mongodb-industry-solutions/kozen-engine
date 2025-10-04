@@ -1,13 +1,14 @@
-import { BaseController } from '../../controllers/BaseController';
-import { IComponent } from '../../models/Component';
-import { IPipeline } from '../../models/Pipeline';
-import { IResult, IStruct, VCategory } from '../../models/Types';
+import { IPipeline } from '../../modules/pipeline/models/Pipeline';
+import { KzComponent } from '../../shared/controllers/KzComponent';
+import { IComponent } from '../../shared/models/Component';
+import { IResult } from '../../shared/models/Result';
+import { IStruct, VCategory } from '../../shared/models/Types';
 
 /**
  * Simple HelloWorld component controller for testing pipeline functionality
  * This component demonstrates basic deployment, validation, and cleanup operations
  */
-export class DemoSecond extends BaseController {
+export class DemoSecond extends KzComponent {
 
   /**
    * Supplies concise metadata for DemoSecond simple component.
@@ -32,7 +33,7 @@ export class DemoSecond extends BaseController {
    * @returns Promise resolving to deployment result with success status
    */
   async deploy(input?: IStruct, pipeline?: IPipeline): Promise<IResult> {
-    this.logger?.info({
+    this.logger?.debug({
       flow: pipeline?.id,
       category: VCategory.cmp.iac,
       src: 'component:DemoSecond:deploy',
