@@ -90,8 +90,7 @@ export class CLIController {
      * @returns {void}
      */
     public async help(): Promise<void> {
-        console.log(`Kozen is a Framework for automated task execution focused on CI/CD pipelines supporting IaC & Test, check it out at
-           https://github.com/mongodb-industry-solutions/kozen-engine/wiki`);
+        console.log(`Kozen is a Framework for automated task execution focused on CI/CD pipelines supporting IaC & Test, check it out at https://github.com/mongodb-industry-solutions/kozen-engine/wiki`);
     }
 
     /**
@@ -154,8 +153,8 @@ export class CLIController {
                 throw new Error("Incorrect dependency injection configuration.");
             }
             config.dependencies && await this.assistant.register(config.dependencies);
-            this.logger = this.logger || await this.assistant.resolve<ILoggerService>('LoggerService');
-            this.srvFile = this.srvFile || await this.assistant.resolve<FileService>('FileService');
+            this.logger = this.logger || await this.assistant.resolve<ILoggerService>('logger:service');
+            this.srvFile = this.srvFile || await this.assistant.resolve<FileService>('app:file');
             return config;
         } catch (error) {
             throw new Error(`Failed to configure: ${error instanceof Error ? error.message : String(error)}`);

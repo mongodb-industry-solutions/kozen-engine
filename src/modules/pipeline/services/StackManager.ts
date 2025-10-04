@@ -8,9 +8,9 @@
 
 import { IResult } from "../../../shared/models/Result";
 import { IStruct, VCategory } from "../../../shared/models/Types";
+import { BaseService } from "../../../shared/services/BaseService";
 import { IIoC } from "../../../shared/tools";
 import { ITransformOption } from "../../component/models/Component";
-import { BaseService } from "../../component/services/BaseService";
 import { ILoggerService } from "../../logger/models/Logger";
 import { IStackManager, IStackOptions } from "../models/Stack";
 
@@ -40,7 +40,7 @@ export class StackManager extends BaseService implements IStackManager {
     constructor(config?: IStackOptions | null, dep?: { assistant: IIoC, logger: ILoggerService }) {
         super(dep);
         this._config = config || {};
-        this.prefix = "StackManager";
+        this.prefix = "pipeline:stack:manager:";
     }
 
     /**
@@ -52,7 +52,7 @@ export class StackManager extends BaseService implements IStackManager {
      * @returns Promise resolving to operation result with status and metadata
      */
     protected async execute(config: IStackOptions, action: string, args: Array<any>): Promise<IResult> {
-        const controller = await this.getDelegate<IStackManager>(config.orchestrator || 'Node');
+        const controller = await this.getDelegate<IStackManager>(config.orchestrator || 'node');
         const method = controller[action as keyof IStackManager] as Function;
         return await method?.apply(controller, args);
     }

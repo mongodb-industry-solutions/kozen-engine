@@ -1,8 +1,8 @@
-import { IStruct } from "../../../shared/models/Types";
-import { IIoC } from "../../../shared/tools";
-import { ILoggerService } from "../../logger/models/Logger";
-import { IOutputResult, ITransformOption } from "../models/Component";
-import { IProcessorService } from "../models/Processor";
+import { IOutputResult, ITransformOption } from "../../modules/component/models/Component";
+import { IProcessorService } from "../../modules/component/models/Processor";
+import { ILoggerService } from "../../modules/logger/models/Logger";
+import { IStruct } from "../models/Types";
+import { IIoC } from "../tools";
 
 /**
  * @fileoverview Base Service - Foundation Class for All Services
@@ -17,22 +17,6 @@ import { IProcessorService } from "../models/Processor";
  * @author MDB SAT
  * @since 1.0.4
  * @version 1.0.5
- *
- * @example
- * ```typescript
- * // Implementing a custom service
- * export class MyCustomService extends BaseService {
- *   public async processData(data: any): Promise<any> {
- *     // Access IoC container through inherited assistant property
- *     const logger = await this.assistant.resolve<Logger>('Logger');
- *
- *     logger.info('Processing data...');
- *     // Custom service logic here
- *
- *     return processedData;
- *   }
- * }
- * ```
  */
 export class BaseService {
     /**
@@ -82,7 +66,7 @@ export class BaseService {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        const srvVar = await this.assistant.resolve<IProcessorService>('ProcessorService');
+        const srvVar = await this.assistant.resolve<IProcessorService>('component:processor');
         const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output, flow));
         return input || {};
     }
@@ -98,7 +82,7 @@ export class BaseService {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        const srvVar = await this.assistant.resolve<IProcessorService>('ProcessorService');
+        const srvVar = await this.assistant.resolve<IProcessorService>('component:processor');
         const meta = (srvVar && Array.isArray(component[key]) && await srvVar.map(component[key], flow)) as IOutputResult;
         output.items = { ...output.items, ...meta?.items };
         output.warns = { ...output.warns, ...meta?.warns };

@@ -6,7 +6,7 @@
     "release": "20241201",
     "requires": [],
     "stack": {
-        "orchestrator": "Pulumi",
+        "orchestrator": "pulumi",
         "input": [
             {
                 "type": "environment",
@@ -38,7 +38,6 @@
             }
         ],
         "components": [
-
             {
                 "name": "EKS",
                 "input": [],

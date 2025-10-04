@@ -203,7 +203,7 @@ export abstract class BaseController implements IController {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        const srvVar = await this.assistant.resolve<IProcessorService>('ProcessorService');
+        const srvVar = await this.assistant.resolve<IProcessorService>('component:processor');
         const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output, flow));
         return input || {};
     }

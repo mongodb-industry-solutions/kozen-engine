@@ -2,10 +2,10 @@ import * as fs from 'fs';
 import { IConfig } from '../../../shared/models/Config';
 import { IResult } from '../../../shared/models/Result';
 import { IAction, IStruct, VCategory } from "../../../shared/models/Types";
+import { BaseService } from '../../../shared/services/BaseService';
 import { Env, IEnv, IIoC, IoC } from "../../../shared/tools";
 import { IComponent, ITransformFn } from '../../component/models/Component';
 import { IController } from '../../component/models/Controller';
-import { BaseService } from '../../component/services/BaseService';
 import { ILoggerService } from '../../logger/models/Logger';
 import { ITemplate, ITemplateManager } from '../../template/models/Template';
 import { IPipeline, IPipelineArgs } from '../models/Pipeline';
@@ -22,37 +22,13 @@ import { IStackManager } from '../models/Stack';
  * @author MDB SAT
  * @since 1.0.4
  * @version 1.0.5
- * 
- * @example
- * ```typescript
- * // Basic usage
- * const pipelineManager = new PipelineManager();
- * await pipelineManager.configure(config);
- * 
- * // Deploy infrastructure
- * const deployResult = await pipelineManager.deploy({
- *   template: 'atlas.basic',
- *   action: 'deploy',
- *   config: 'cfg/config.json'
- * });
- * 
- * // Validate template
- * const validateResult = await pipelineManager.validate({
- *   template: 'atlas.basic',
- *   action: 'validate',
- *   config: 'cfg/config.json'
- * });
- * ```
  */
 export class PipelineManager extends BaseService {
 
     /**
      * Current pipeline configuration instance
-     * 
      * @private
      * @type {IConfig | null}
-     * Stores the active pipeline configuration including dependencies,
-     * service registrations, and deployment settings. Null when not configured.
      */
     public config: IConfig | null;
 
@@ -64,20 +40,6 @@ export class PipelineManager extends BaseService {
      * @constructor
      * @param {IConfig} [config] - Optional initial pipeline configuration
      * @param {IoC} [ioc] - Optional IoC container for dependency management
-     * 
-     * Initializes the pipeline manager with an IoC container for dependency injection.
-     * The manager serves as the central bridge between CLI operations and infrastructure services.
-     * Dependencies are registered during the configure() method call.
-     * 
-     * @example
-     * ```typescript
-     * // Create with default IoC container
-     * const manager = new PipelineManager();
-     * `
-     * // Create with custom configuration and IoC
-     * const customIoC = new IoC();
-     * const manager = new PipelineManager(config, customIoC);
-     * ```
      */
     constructor(config?: IConfig, dependency?: { assistant?: IIoC, logger?: ILoggerService, envSrv?: IEnv }) {
         // Ensure assistant is always present for BaseService
@@ -98,11 +60,6 @@ export class PipelineManager extends BaseService {
      * @param {IoC} [ioc] - Optional IoC container for dependency management
      * @returns {Promise<PipelineManager>} Promise resolving to the configured PipelineManager instance
      * @throws {Error} When configuration fails due to invalid configuration or dependency registration errors
-     * 
-     * This method sets up the pipeline manager by:
-     * 1. Storing the provided configuration
-     * 2. Setting up the IoC container for dependency injection
-     * 3. Registering all service dependencies defined in the configuration
      */
     public async configure(config: IConfig, ioc?: IIoC): Promise<PipelineManager> {
         try {
@@ -112,7 +69,7 @@ export class PipelineManager extends BaseService {
             config && (this.config = config);
             ioc && (this.assistant = ioc);
             this.config?.dependencies && await this.assistant.register(this.config.dependencies);
-            this.logger = this.logger || await this.assistant.resolve<ILoggerService>('LoggerService');
+            this.logger = this.logger || await this.assistant.resolve<ILoggerService>('logger:service');
             this.envSrv = this.envSrv || new Env({ logger: this.logger as unknown as Console });
             return this;
         } catch (error) {
@@ -122,13 +79,6 @@ export class PipelineManager extends BaseService {
 
     /**
      * Deploys infrastructure using the specified template and pipeline arguments
-     * This method orchestrates the complete deployment process by:
-     * 1. Extracting deployment parameters from pipeline arguments
-     * 2. Resolving StackManager and TemplateManager from IoC container
-     * 3. Loading the specified template configuration
-     * 4. Executing the deployment through stack manager
-     * 5. Processing all template components sequentially
-     * 6. Returning comprehensive deployment results
      * 
      * @public
      * @param {IPipelineArgs} pipeline - Pipeline arguments containing template name, action, project, and stack information
@@ -142,8 +92,8 @@ export class PipelineManager extends BaseService {
             throw new Error("Incorrect dependency injection configuration.");
         }
 
-        const srvTemplate = await this.assistant.resolve<ITemplateManager>("TemplateManager");
-        const stackAdm = await this.assistant.resolve<IStackManager>("StackManager");
+        const srvTemplate = await this.assistant.resolve<ITemplateManager>("template:manager");
+        const stackAdm = await this.assistant.resolve<IStackManager>("pipeline:stack:manager");
 
         let id = this.getId(args);
         let out: IResult = {};
@@ -255,15 +205,6 @@ export class PipelineManager extends BaseService {
      * @param {ITemplate} template - The template containing components to process
      * @returns {Promise<IResult>} Promise resolving to the processing results and aggregated outputs
      * @throws {Error} When component resolution, configuration, or deployment fails
-     * 
-     * This method acts as a bridge between template definitions and component implementations by:
-     * 1. Resolving the ProcessorService for variable interpolation
-     * 2. Iterating through all template components
-     * 3. Resolving each component controller from the IoC container
-     * 4. Configuring components with their specific settings
-     * 5. Processing input variables with scope and context
-     * 6. Executing component deployment
-     * 7. Aggregating results and outputs for final response
      */
     protected async process({ components, action = 'deploy', pipeline, transform }: {
         components: IComponent[],
@@ -305,9 +246,6 @@ export class PipelineManager extends BaseService {
      * @param {IPipelineArgs} pipeline - Pipeline arguments containing template name and undeployment parameters
      * @returns {Promise<IResult>} Promise resolving to the undeployment execution result
      * @throws {Error} When undeployment fails due to stack management or component removal errors
-     * 
-     * Removes previously deployed infrastructure by reversing the deployment process.
-     * This method coordinates with stack managers and component controllers to clean up resources.
      */
     public async undeploy(pipeline: IPipelineArgs): Promise<IResult> {
         const { template: templateName, action, project, stack: name } = pipeline;
@@ -317,14 +255,14 @@ export class PipelineManager extends BaseService {
         }
 
         const id = this.getId(pipeline as any);
-        const stackAdm = await this.assistant.resolve<IStackManager>("StackManager");
+        const stackAdm = await this.assistant.resolve<IStackManager>("pipeline:stack:manager");
 
         // If a template is provided, use it to get orchestrator/workspace; otherwise default to Pulumi.
         let orchestrator = "Pulumi";
         let stackOpts: any = {};
 
         if (templateName) {
-            const srvTemplate = await this.assistant.resolve<ITemplateManager>("TemplateManager");
+            const srvTemplate = await this.assistant.resolve<ITemplateManager>("template:manager");
             const template = await srvTemplate.load<ITemplate>(templateName, { flow: id });
             orchestrator = template.stack?.orchestrator || "Pulumi";
             stackOpts = template.stack || {};
@@ -355,9 +293,6 @@ export class PipelineManager extends BaseService {
      * @param {IPipelineArgs} pipeline - Pipeline arguments containing template name and undeployment parameters
      * @returns {Promise<IResult>} Promise resolving to the undeployment execution result
      * @throws {Error} When undeployment fails due to stack management or component removal errors
-     * 
-     * Removes previously deployed infrastructure by reversing the deployment process.
-     * This method coordinates with stack managers and component controllers to clean up resources.
      */
     public async destroy(pipeline: IPipelineArgs): Promise<IResult> {
         const { template: templateName, action, project, stack: name } = pipeline;
@@ -377,10 +312,6 @@ export class PipelineManager extends BaseService {
      * @param {IPipelineArgs} pipeline - Pipeline arguments containing template name and validation parameters
      * @returns {Promise<IResult>} Promise resolving to the validation result
      * @throws {Error} When validation fails due to template loading or configuration errors
-     * 
-     * Performs comprehensive validation of template configuration, dependencies,
-     * and component settings without deploying actual infrastructure. This helps catch
-     * configuration errors early in the deployment pipeline.
      */
     public async validate(pipeline: IPipelineArgs): Promise<IResult> {
         const { template: templateName, action, project, stack: name } = pipeline;
@@ -400,9 +331,6 @@ export class PipelineManager extends BaseService {
      * @param {IPipelineArgs} pipeline - Pipeline arguments containing template name and status check parameters
      * @returns {Promise<IResult>} Promise resolving to the current infrastructure status
      * @throws {Error} When status check fails due to stack access or component query errors
-     * 
-     * Queries the current state of deployed infrastructure components and provides
-     * comprehensive status information including health, configuration, and operational metrics.
      */
     public async status(pipeline: IPipelineArgs): Promise<IResult> {
         const { template: templateName, action, project, stack: name } = pipeline;
@@ -422,20 +350,6 @@ export class PipelineManager extends BaseService {
      * @param {string} configPath - File system path to the configuration file
      * @returns {Promise<IConfig>} Promise resolving to the loaded and parsed pipeline configuration
      * @throws {Error} When file reading fails, JSON parsing errors occur, or file access is denied
-     * 
-     * Loads and parses pipeline configuration from a JSON file, providing error handling
-     * for common file system and parsing issues. The configuration includes service dependencies,
-     * deployment settings, and environment-specific parameters.
-     * 
-     * @example
-     * ```typescript
-     * try {
-     *   const config = await pipelineManager.load('cfg/production.json');
-     *   console.log('Loaded config:', config.name);
-     * } catch (error) {
-     *   console.error('Failed to load config:', error.message);
-     * }
-     * ```
      */
     public async load(configPath: string): Promise<IConfig> {
         try {
@@ -449,7 +363,7 @@ export class PipelineManager extends BaseService {
 
     /**
      * Get Pipeline ID
-     * @param {IConfig} opt 
+     * @param {IConfig} opt
      * @returns {string}
      */
     getId(opt?: IConfig) {
