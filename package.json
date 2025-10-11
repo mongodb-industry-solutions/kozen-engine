@@ -1,7 +1,7 @@
 {
-    "name": "kozen",
+    "name": "@mongodb-solution-assurance/kozen",
     "version": "1.0.5",
-    "description": "Task Execution Framework",
+    "description": "Kozen Engine is a versatile Task Execution Framework for CLI apps, REST, AI MCP, IaC, CI/CD, and testing workflows",
     "main": "dist/bin/pipeline.js",
     "bin": {
         "kozen": "./dist/bin/kozen.js",
@@ -34,6 +34,7 @@
         "infrastructure-as-code",
         "pulumi",
         "test",
+        "mcp",
         "pipeline",
         "mongodb",
         "framework",
