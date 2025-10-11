@@ -1,11 +1,17 @@
 {
-    "name": "kozen-engine",
+    "name": "kozen",
     "version": "1.0.5",
-    "description": "Infrastructure as Code Pipeline with Pulumi and configurable templates",
+    "description": "Task Execution Framework",
     "main": "dist/bin/pipeline.js",
     "bin": {
+        "kozen": "./dist/bin/kozen.js",
         "pipeline": "./dist/bin/pipeline.js"
     },
+    "files": [
+        "dist/*",
+        "LICENSE",
+        "README.md"
+    ],
     "scripts": {
         "build": "tsc && npm run copy:txt",
         "start": "node dist/bin/kozen.js",
@@ -30,13 +36,14 @@
         "test",
         "pipeline",
         "mongodb",
+        "framework",
         "atlas",
         "kubernetes",
         "ops-manager",
         "cli"
     ],
     "author": "MDB SAT",
-    "license": "MIT",
+    "license": "LGPL-3.0-or-later",
     "devDependencies": {
         "@types/node": "^18.19.127",
         "copyfiles": "^2.4.1",
