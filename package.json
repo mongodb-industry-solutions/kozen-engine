@@ -13,6 +13,9 @@
         "LICENSE",
         "README.md"
     ],
+    "publishConfig": {
+        "access": "public"
+    },
     "scripts": {
         "build": "tsc && npm run copy:txt",
         "start": "node dist/bin/kozen.js",
