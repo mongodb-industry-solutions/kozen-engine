@@ -16,6 +16,11 @@
                 "type": "ref"
             },
             {
+                "key": "srvFile",
+                "target": "core:file",
+                "type": "ref"
+            },
+            {
                 "key": "srvIAMScram",
                 "target": "iam:rectification:scram",
                 "type": "ref"
