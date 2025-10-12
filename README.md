@@ -76,6 +76,7 @@ Refer to files like `bin/pipeline.ts` or `bin/kozen.ts` for examples of building
 
 - **Official Wiki**: [Kozen Engine Wiki](https://github.com/mongodb-industry-solutions/kozen-engine/wiki)
 - **Reported Issues**: [GitHub Issues](https://github.com/mongodb-industry-solutions/kozen-engine/issues)
+- **Local Documentation**: [Explore the project’s documentation directly within the repository](./docs/README.md)
 
 ## License
 
