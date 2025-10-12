@@ -1,10 +1,10 @@
 # Kozen - Task Execution Framework
 
-Kozen Engine is an enterprise-grade framework designed for automated task execution within CI/CD pipelines, with robust support for Infrastructure as Code (IaC), testing automation, and data analytics. Developed in TypeScript for maximum flexibility, it empowers users to deploy infrastructure seamlessly, execute multi-dimensional testing workflows, and visualize insights through MongoDB Charts.
+Kozen is an enterprise-grade framework designed for automated task execution within CI/CD pipelines, with robust support for Infrastructure as Code (IaC), testing automation, and data analytics. Developed in TypeScript for maximum flexibility, it empowers users to deploy infrastructure seamlessly, execute multi-dimensional testing workflows, and visualize insights through MongoDB Charts.
 
 ## 🎯 Overview
 
-Kozen Engine simplifies the creation of dynamic, configuration-driven pipelines by transforming JSON templates into highly automated workflows for infrastructure and testing. With its extensible architecture, it serves as a versatile solution for Infrastructure as a Service (IaaS) and Testing as a Service (TaaS) platforms.
+Kozen simplifies the creation of dynamic, configuration-driven pipelines by transforming JSON templates into highly automated workflows for infrastructure and testing. With its extensible architecture, it serves as a versatile solution for Infrastructure as a Service (IaaS) and Testing as a Service (TaaS) platforms.
 
 ### Key Objectives
 
@@ -14,7 +14,7 @@ Kozen Engine simplifies the creation of dynamic, configuration-driven pipelines 
 - **Data Analytics**: Collect and store all execution data in MongoDB for visualization with MongoDB Charts
 - **NPM Distribution**: Package-ready for easy integration into existing projects and platforms
 
-![Current Scope](docs/images/kozen-architecture-Scope.Current.jpg)
+![Current Scope](images/kozen-architecture-Scope.Current.jpg)
 
 ## 🚀 Quick Start
 
@@ -37,25 +37,25 @@ npm run dev -- --template=atlas.basic --config=cfg/config.json --action=undeploy
 
 ## 🏗️ Architecture & Components
 
-The [**Kozen Engine**](https://github.com/mongodb-industry-solutions/kozen-engine) is an essential component that contains all the necessary implementation to launch and operate the testing platform.
+The [**Kozen**](https://github.com/mongodb-industry-solutions/kozen-engine) is an essential component that contains all the necessary implementation to launch and operate the testing platform.
 
-![](./docs/images/kozen-architecture-SAU.jpg)
+![](./images/kozen-architecture-SAU.jpg)
 
 As seen in the previous image, Kozen is part of the SAU project. It serves as a crucial abstraction layer built on top of Pulumi, managing and orchestrating the deployment of testing environment definition templates.
 
-![Kozen Engine Architecture Layers](docs/images/kozen-architecture-Layers.jpg)
+![Kozen Architecture Layers](images/kozen-architecture-Layers.jpg)
 
 Please keep in mind that everything observed whether it's errors, bugs, features, suggestions, ideas, etc. should be logged in the "Issues" section of the following GitHub repository: [https://github.com/mongodb-industry-solutions/kozen-engine/issues](https://github.com/mongodb-industry-solutions/kozen-engine/issues). This ensures our team can track these items effectively and helps the project evolve successfully.
 
 ### Core Extensible Components
 
-The **Kozen Engine** follows an extensible, plugin-based architecture with three core extensible managers:
+The **Kozen** follows an extensible, plugin-based architecture with three core extensible managers:
 
 - **StackManager**: Dynamic infrastructure orchestration with pluggable providers
 - **TemplateManager**: Flexible template storage and retrieval system
 - **SecretManager**: Multi-provider secret management with security abstraction
 
-![Component Architecture](docs/images/kozen-architecture-Component.jpg)
+![Component Architecture](images/kozen-architecture-Component.jpg)
 
 ### Mono-Stack Pipeline Concept
 
@@ -65,7 +65,7 @@ Each template defines a single stack instance composed of:
 - **Input/Output Configuration**: Data flow between components
 - **Setup Parameters**: Initial configuration and environment setup
 
-![Component Flow](docs/images/kozen-architecture-Component.Flow.jpg)
+![Component Flow](images/kozen-architecture-Component.Flow.jpg)
 
 Each component autonomously decides its execution behavior and can:
 
@@ -77,25 +77,25 @@ Each component autonomously decides its execution behavior and can:
 
 ### Logical System View
 
-![Logical Architecture View](docs/images/kozen-architecture-Logical.View.jpg)
+![Logical Architecture View](images/kozen-architecture-Logical.View.jpg)
 
 ## 📚 Documentation
 
-| Topic                     | Description                                       | Link                                                           |
-| ------------------------- | ------------------------------------------------- | -------------------------------------------------------------- |
-| **Architecture**          | Detailed system architecture and component design | [docs/architecture.md](docs/architecture.md)                   |
-| **Components**            | Component system and extensibility guide          | [docs/components.md](docs/components.md)                       |
-| **Configuration**         | Configuration files and environment setup         | [docs/configuration.md](docs/configuration.md)                 |
-| **Environment Variables** | Complete environment variables reference guide    | [docs/environment-variables.md](docs/environment-variables.md) |
-| **Templates**             | Template system and creation guide                | [docs/templates.md](docs/templates.md)                         |
-| **Testing**               | Testing capabilities and execution patterns       | [docs/testing.md](docs/testing.md)                             |
-| **API Reference**         | Complete API documentation                        | [docs/api-reference.md](docs/api-reference.md)                 |
-| **Deployment**            | Production deployment and NPM integration         | [docs/deployment.md](docs/deployment.md)                       |
-| **Contributing**          | Development, extension, and contribution guide    | [docs/contributing.md](docs/contributing.md)                   |
+| Topic                     | Description                                       | Link                                                 |
+| ------------------------- | ------------------------------------------------- | ---------------------------------------------------- |
+| **Architecture**          | Detailed system architecture and component design | [architecture.md](architecture.md)                   |
+| **Components**            | Component system and extensibility guide          | [components.md](components.md)                       |
+| **Configuration**         | Configuration files and environment setup         | [configuration.md](configuration.md)                 |
+| **Environment Variables** | Complete environment variables reference guide    | [environment-variables.md](environment-variables.md) |
+| **Templates**             | Template system and creation guide                | [templates.md](templates.md)                         |
+| **Testing**               | Testing capabilities and execution patterns       | [testing.md](testing.md)                             |
+| **API Reference**         | Complete API documentation                        | [api-reference.md](api-reference.md)                 |
+| **Deployment**            | Production deployment and NPM integration         | [deployment.md](deployment.md)                       |
+| **Contributing**          | Development, extension, and contribution guide    | [contributing.md](contributing.md)                   |
 
 ### Template System Architecture
 
-![Template System](docs/images/kozen-architecture-Template.drawio.svg)
+![Template System](images/kozen-architecture-Template.drawio.svg)
 
 ## 🔧 Core Features
 
@@ -173,7 +173,7 @@ Notes:
 
 ## 📦 NPM Package Integration
 
-Kozen Engine is designed for distribution as an NPM package, enabling:
+Kozen is designed for distribution as an NPM package, enabling:
 
 ```typescript
 import { PipelineManager, IoC } from "kozen-engine";
@@ -219,12 +219,12 @@ kozen-engine/
 │   ├── models/            # Data models and interfaces
 │   ├── services/          # Core business logic
 │   └── tools/             # Utility libraries (IoC, logging)
-└── docs/                  # Comprehensive documentation
+└──                   # Comprehensive documentation
 ```
 
 ## 🤝 Contributing
 
-Kozen Engine is designed for extensibility and welcomes contributions! Whether you're adding new components, extending services, or improving documentation, we have comprehensive guides to help you.
+Kozen is designed for extensibility and welcomes contributions! Whether you're adding new components, extending services, or improving documentation, we have comprehensive guides to help you.
 
 ### Quick Start for Contributors
 
@@ -272,7 +272,7 @@ Kozen Engine is designed for extensibility and welcomes contributions! Whether y
 - **🔐 Secret Managers**: Integrate with additional secret providers (HashiCorp Vault, Azure Key Vault)
 - **📄 Template Managers**: Add new template storage backends (Git, S3, HTTP APIs)
 
-**📚 Complete Guide**: See [docs/contributing.md](docs/contributing.md) for detailed development instructions, VSCode debugging setup, and extension patterns.
+**📚 Complete Guide**: See [docs/contributing.md](contributing.md) for detailed development instructions, VSCode debugging setup, and extension patterns.
 
 ## 📄 License
 
@@ -280,9 +280,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔮 Future Vision
 
-![Next Generation Architecture](docs/images/kozen-architecture-Next.jpg)
+![Next Generation Architecture](images/kozen-architecture-Next.jpg)
 
-The next generation of Kozen Engine will expand capabilities to support multi-cloud deployments, advanced AI-driven testing, and enhanced analytics dashboards.
+The next generation of Kozen will expand capabilities to support multi-cloud deployments, advanced AI-driven testing, and enhanced analytics dashboards.
 
 ## 🆘 Support
 
