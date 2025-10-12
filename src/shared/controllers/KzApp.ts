@@ -53,23 +53,19 @@ export class KzApp extends KzModule {
      */
     public async configure(args: IArgs): Promise<IConfig | null> {
         try {
-            const config = (args.config && await this.load(args.config)) || defConfig as unknown as IConfig;
-            // config.id = this.getId(arg);
-            config.name = config.name || 'Default';
-            config.engine = config.engine || 'default';
-            config.version = config.version || '1.0.0';
-            config.description = config.description || 'Kozen Engine Default Configuration';
-            config.type = args.type || config.type || 'cli';
+            const config = (args.config && await this.load(args.config)) || {} as IConfig;
+            !config.modules && (config.modules = {});
+            !config.dependencies && (config.dependencies = {} as IDependencyMap);
 
-            if (!config) {
-                return null;
-            }
-
-            if (!this.assistant) {
-                throw new Error("Incorrect dependency injection configuration.");
-            }
-
-            config.dependencies && await this.assistant.register(config.dependencies);
+            config.id = config.id || this.getId(args);
+            config.name = config.name || defConfig.name || 'Default';
+            config.engine = config.engine || defConfig.engine || 'default';
+            config.version = config.version || defConfig.version || '1.0.0';
+            config.description = config.description || defConfig.description || 'Kozen Engine Default Configuration';
+            config.type = args.type || config.type || (defConfig as unknown as IConfig).type || 'cli';
+            config.modules.path = config.modules.path || defConfig.modules?.path;
+            config.modules.load = { ...defConfig.modules.load, ...config.modules?.load };
+            config.dependencies = { ...(defConfig.dependencies as IDependencyMap), ...(config.dependencies as IDependencyMap) };
             return config;
         } catch (error) {
             throw new Error(`Failed to configure: ${error instanceof Error ? error.message : String(error)}`);
@@ -94,13 +90,13 @@ export class KzApp extends KzModule {
     }
 
     public async register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null> {
-        if (!config?.modules?.load?.length) {
+        if (!config?.modules?.load) {
             return null;
         }
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        await this.assistant.register(defConfig.dependencies as IDependencyMap);
+        await this.assistant.register(config.dependencies as IDependencyMap);
         for (const key in config.modules.load || []) {
             let module = config?.modules?.load[key];
             if (module) {
@@ -121,11 +117,9 @@ export class KzApp extends KzModule {
         mod = typeof mod === 'string' ? { name: mod } : mod;
         mod.path = mod.path || config?.modules?.path || "../../../modules";
         let namespace = "module:" + mod.name;
-        await this.assistant?.register({
-            [namespace]: {
-                "path": mod.path,
+        let dep: IDependency = {
+            ...{
                 "lifetime": "singleton",
-                "args": [{}],
                 "dependencies": [
                     {
                         "key": "assistant",
@@ -133,8 +127,10 @@ export class KzApp extends KzModule {
                         "type": "ref"
                     }
                 ]
-            }
-        });
+            },
+            ...mod,
+        };
+        await this.assistant?.register({ [namespace]: dep });
         return await this.assistant?.get<IModule>(namespace) || null;
     }
 
@@ -155,7 +151,7 @@ export class KzApp extends KzModule {
         parsed.action = option?.length > 1 ? option[1] : option[0];
         parsed.type = parsed.type || (process.env.KOZEN_TYPE as IAppType) || 'cli' as IAppType;
         parsed.module = `${(parsed.module || process.env['KOZEN_MODULE'] || option?.length && option[0] || '')}:controller` + (parsed.type ? `:${parsed.type}` : '');
-        parsed.config = parsed.config || process.env.KOZEN_CONFIG || 'cfg/config.json';
+        parsed.config = parsed.config || process.env.KOZEN_CONFIG;
         return parsed as IArgs;
     }
 
