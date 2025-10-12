@@ -14,7 +14,7 @@
 - **Structured Logging**: Native logging support with optional storage in MongoDB for structured, persistent logs.
 - **Cross-Platform Utilities**: Universal tools that simplify operations across diverse environments.
 
-## Installation
+## 🏭 Installation
 
 Install the package via NPM:
 
@@ -39,7 +39,7 @@ await pipeline.deploy({
 });
 ```
 
-## 🏭 Core Concepts
+## 📊 Core Concepts
 
 - **Applications**: Build high-level user interfaces with Kozen (CLI, AI MCP, REST).
 - **Modules**: Define horizontal extensions to add your own components seamlessly.
