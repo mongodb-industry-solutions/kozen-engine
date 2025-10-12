@@ -65,7 +65,7 @@ import { VCategory } from '../src/shared/models/Types';
         console.error({
             flow: config && app.getId(config),
             src: 'bin:Kozen',
-            category: VCategory.cli.secret,
+            category: VCategory.cli.tool,
             message: `❌ CLI execution failed:` + (error as Error).message || error
         });
         process.exit(1);
