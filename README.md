@@ -2,7 +2,7 @@
 
 **Kozen** is a lightweight Task Execution Framework designed not only for creating automation pipelines but also for building versatile tools and applications. It enables seamless AI MCP integration, allowing effortless interaction with large language models (LLMs) just as you would with any traditional framework. Kozen supports multiple interfaces, including CLI and REST, and provides mechanisms for easily defining application types based on its robust extension system. Distributed as an NPM package, Kozen seamlessly integrates into Node.js projects, delivering scalability, extensibility, and simplicity.
 
-## Features
+## 🎯 Features
 
 - **Config-Driven Pipelines**: Design and deploy pipelines using JSON templates (`cfg/templates/*.json`).
 - **IaC Orchestration**: Include pluggable infrastructure-as-code (IaC) managers such as Pulumi and Terraform.
@@ -22,7 +22,7 @@ Install the package via NPM:
 npm install @mongodb-solution-assurance/kozen
 ```
 
-## Quick Usage
+## 🚀 Quick Usage
 
 Here’s how to quickly use Kozen to deploy a pipeline:
 
@@ -39,7 +39,7 @@ await pipeline.deploy({
 });
 ```
 
-## Core Concepts
+## 🏭 Core Concepts
 
 - **Applications**: Build high-level user interfaces with Kozen (CLI, AI MCP, REST).
 - **Modules**: Define horizontal extensions to add your own components seamlessly.
@@ -49,7 +49,7 @@ await pipeline.deploy({
 
 Kozen empowers developers to follow Dependency Injection and Inversion of Control principles, ensuring scalability and extensibility for complex automation as well as AI-driven applications.
 
-### Example Configuration
+### 🔧 Example Configuration
 
 Below is an example configuration file (`cfg/config.json`) for pipeline execution:
 
@@ -63,7 +63,7 @@ Below is an example configuration file (`cfg/config.json`) for pipeline executio
 }
 ```
 
-### Multi-Interface Application Development
+### 📦 Multi-Interface Application Development
 
 Kozen allows developers to create robust Jenkins-style applications using CLI or REST. Its modular architecture even supports exporting tools for AI-based interfaces such as **AI MCP**, which simplifies interaction with large language models (LLMs).
 
@@ -72,13 +72,13 @@ With Kozen, you can quickly define applications tailored to specific needs, inte
 Refer to files like `bin/pipeline.ts` or `bin/kozen.ts` for examples of building CLI applications. Import types from the public package:
 `@mongodb-solution-assurance/kozen`.
 
-## Documentation
+## 📚 Documentation
 
 - **Official Wiki**: [Kozen Engine Wiki](https://github.com/mongodb-industry-solutions/kozen-engine/wiki)
 - **Reported Issues**: [GitHub Issues](https://github.com/mongodb-industry-solutions/kozen-engine/issues)
 - **Local Documentation**: [Explore the project’s documentation directly within the repository](./docs/README.md)
 
-## License
+## 📋 License
 
 MIT © MongoDB Industry Solutions
 Available on [NPM](https://www.npmjs.com/package/@mongodb-solution-assurance/kozen).
