@@ -12,23 +12,43 @@
  * @since 2025-07-01
  */
 
+// CLI app: server and controller
+// Applications: CLI and MCP
 export { CLIServer } from './applications/cli';
 export { CLIController } from './applications/cli/controllers/CLIController';
 export { ServerMCP } from './applications/mcp';
 export { MCPController } from './applications/mcp/controllers/MCPController';
+
+// Components: runtime components
+export { API } from './components/API';
+export { Atlas } from './components/Atlas';
+export { CLI as CLIComponent } from './components/CLI';
+export { DemoFirst } from './components/DemoFirst';
+export { DemoSecond } from './components/DemoSecond';
+export { Docker } from './components/Docker';
+export { K8Pods } from './components/K8Pods';
+
+// Component config types
+export { IAtlasConfig } from './components/Atlas/IAtlasConfig';
+export { IDockerConfig } from './components/Docker/IDockerConfig';
+export { IEcrConfig } from './components/ECR/IEcrConfig';
+export { IEksConfig } from './components/EKS/IEksConfig';
+export { IK8PodsConfig } from './components/K8Pods/IK8PodsConfig';
+
+// Shared controllers: base classes
 export { KzApp } from './shared/controllers/KzApp';
 export { KzApplication } from './shared/controllers/KzApplication';
 export { KzComponent } from './shared/controllers/KzComponent';
 export { KzController } from './shared/controllers/KzController';
 export { KzModule } from './shared/controllers/KzModule';
 
-// Core Pipeline Management
+// Modules: pipeline managers
 export { PipelineManager } from './modules/pipeline/services/PipelineManager';
 export { StackManager } from './modules/pipeline/services/StackManager';
 export { StackManagerNode } from './modules/pipeline/services/StackManagerNode';
 export { StackManagerPulumi } from './modules/pipeline/services/StackManagerPulumi';
 
-// Service Layer
+// Modules: services
 export { LoggerService } from './modules/logger/services/LoggerService';
 export { ReportManager } from './modules/report/services/ReportManager';
 export { ReportManagerMDB } from './modules/report/services/ReportManagerMDB';
@@ -38,11 +58,13 @@ export { SecretManagerMDB } from './modules/secret/services/SecretManagerMDB';
 export { TemplateManager } from './modules/template/services/TemplateManager';
 export { TemplateManagerFile } from './modules/template/services/TemplateManagerFile';
 export { TemplateManagerMDB } from './modules/template/services/TemplateManagerMDB';
+
+// Shared services: core services
 export { BaseService } from './shared/services/BaseService';
 export { FileService } from './shared/services/FileService';
 export { ProcessorService } from './shared/services/ProcessorService';
 
-// Controllers
+// Modules: CLI and MCP controllers
 export { LoggerController } from './modules/logger/controllers/LoggerCLIController';
 export { PipelineController } from './modules/pipeline/controllers/PipelineCLIController';
 export { PipelineController as PipelineMCPController } from './modules/pipeline/controllers/PipelineMCPController';
@@ -51,7 +73,8 @@ export { SecretController as SecretMCPController } from './modules/secret/contro
 export { TemplateController } from './modules/template/controllers/TemplateCLIController';
 export { TemplateController as TemplateMCPController } from './modules/template/controllers/TemplateMCPController';
 
-// IoC Container and Utilities
+// Shared tools: utilities and IoC
+export * from './shared/tools';
 export { JSONT } from './shared/tools';
 export { Env } from './shared/tools/env/Env';
 export { IoC } from './shared/tools/ioc/IoC';
@@ -60,7 +83,7 @@ export { MdbClient } from './shared/tools/mdb/MdbClient';
 export { IMdbClientOpt, IMdbClientOpts } from './shared/tools/mdb/MdbClientOpt';
 export { EnumUtl, getID, readFrom } from './shared/tools/util';
 
-// Modules
+// Modules: bundle exports
 export { LoggerModule } from './modules/logger';
 export { PipelineModule } from './modules/pipeline';
 export { IAMRectificationModule } from './modules/rectification';
@@ -68,11 +91,23 @@ export { ReportModule } from './modules/report';
 export { SecretModule } from './modules/secret';
 export { TemplateModule } from './modules/template';
 
-// Models and Interfaces
+// Shared models and component types
 export { ILogArgs, ILoggerService } from './modules/logger/models/Logger';
 export { IPipeline, IPipelineArgs } from './modules/pipeline/models/Pipeline';
 export { IConfigValue, IProgramFn, ISetupFn, IStackConfig, IStackManager, IStackManagerPulumi, IStackOptions } from './modules/pipeline/models/Stack';
 export { IComponent, IComponentInput, IComponentOutput, IOutputResult, ITransformFn, ITransformOption } from './shared/models/Component';
+// Shared models: export everything
+export * from './shared/models/App';
+export * from './shared/models/Args';
+export * from './shared/models/Component';
+export * from './shared/models/Config';
+export * from './shared/models/Controller';
+export * from './shared/models/Metadata';
+export * from './shared/models/Module';
+export * from './shared/models/Processor';
+export * from './shared/models/Result';
+export * from './shared/models/Struct';
+export * from './shared/models/Types';
 
 export { ISecretArgs, ISecretManager } from './modules/secret/models/Secret';
 export { ITemplate, ITemplateArgs, ITemplateConfig, ITemplateManager } from './modules/template/models/Template';
@@ -86,7 +121,7 @@ export { IProcessorService } from './shared/models/Processor';
 export { IResult } from './shared/models/Result';
 export { IAction, IAppType, IStruct, IStructType, VCategory } from './shared/models/Types';
 
-// Type definitions
+// Shared type definitions
 export * from './shared/tools/env/types';
 export * from './shared/tools/ioc/types';
 export * from './shared/tools/log/types';
