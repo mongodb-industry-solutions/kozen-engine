@@ -1,5 +1,5 @@
 
-import { IDependency } from "../tools";
+import { IDependencyMap } from "../tools";
 import { IArgs } from "./Args";
 import { IModuleOpt } from "./Module";
 import { IAppType } from "./Types";
@@ -48,9 +48,9 @@ export interface IConfig extends IArgs {
 
     /**
      * Service configuration array for IoC container dependency injection
-     * @type {IDependency[]}
+     * @type {IDependencyMap}
      */
-    dependencies?: IDependency[];
+    dependencies?: IDependencyMap;
 
     /**
      * Module loading configuration for dynamic module management
