@@ -3,7 +3,9 @@ import { IArgs } from "./Args";
 import { IConfig } from "./Config";
 
 export interface IModuleOpt {
+    key?: string;
     path?: string;
+    alias?: string;
     name?: string;
 }
 

@@ -63,8 +63,8 @@ export class KzApp extends KzModule {
             config.version = config.version || defConfig.version || '1.0.0';
             config.description = config.description || defConfig.description || 'Kozen Engine Default Configuration';
             config.type = args.type || config.type || (defConfig as unknown as IConfig).type || 'cli';
-            config.modules.path = config.modules.path || defConfig.modules?.path;
-            config.modules.load = { ...defConfig.modules.load, ...config.modules?.load };
+            config.modules.path = config.modules.path || defConfig.modules.path;
+            config.modules.load = config.modules.load || defConfig.modules.load;
             config.dependencies = { ...(defConfig.dependencies as IDependencyMap), ...(config.dependencies as IDependencyMap) };
             return config;
         } catch (error) {
@@ -116,7 +116,7 @@ export class KzApp extends KzModule {
     public async getModule(mod: IModuleOpt | string, config: IConfig | null): Promise<IModule | null> {
         mod = typeof mod === 'string' ? { name: mod } : mod;
         mod.path = mod.path || config?.modules?.path || "../../../modules";
-        let namespace = "module:" + mod.name;
+        let namespace = mod.key || "module:" + (mod.alias || mod.name);
         let dep: IDependency = {
             ...{
                 "lifetime": "singleton",
