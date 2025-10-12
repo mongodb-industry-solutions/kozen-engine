@@ -1,22 +1,24 @@
 # Kozen — Task Execution Framework
 
-**Kozen** is a lightweight Task Execution Framework designed for building custom automation workflows with first-class infrastructure-as-code (IaC) and testing capabilities. Distributed as an NPM package, Kozen seamlessly integrates into Node.js projects, offering scalability, extensibility, and simplicity.
+**Kozen** is a lightweight Task Execution Framework designed not only for creating automation pipelines but also for building versatile tools and applications. It enables seamless AI MCP integration, allowing effortless interaction with large language models (LLMs) just as you would with any traditional framework. Kozen supports multiple interfaces, including CLI and REST, and provides mechanisms for easily defining application types based on its robust extension system. Distributed as an NPM package, Kozen seamlessly integrates into Node.js projects, delivering scalability, extensibility, and simplicity.
 
 ## Features
 
-- **Config-Driven Pipelines**: Create pipelines from JSON templates (`cfg/templates/*.json`).
-- **IaC Orchestration**: Supports pluggable IaC managers such as Pulumi and Terraform.
-- **Comprehensive Test Execution**: Handle end-to-end, integration, and performance testing workflows.
-- **Extensible Components**: Built-in dependency injection (DI) container for easy customization.
-- **Secret and Template Management**: Secure handling of secrets and structured templates.
-- **Structured Logging**: Out-of-the-box logging with optional MongoDB data storage.
-- **Cross-Platform Utilities**: Environment-independent tools for smooth operations.
+- **Config-Driven Pipelines**: Design and deploy pipelines using JSON templates (`cfg/templates/*.json`).
+- **IaC Orchestration**: Include pluggable infrastructure-as-code (IaC) managers such as Pulumi and Terraform.
+- **Flexible Application Development**: Create tools that export via **AI MCP** to interact with **LLMs** in a straightforward manner, leveraging Kozen’s extension framework.
+- **Comprehensive Test Execution**: Execute end-to-end tests, integration tests, and performance workflows.
+- **Extensible Components**: Leverage dependency injection (DI) to extend and customize Kozen easily.
+- **Multi-Interface Support**: Build applications with **CLI**, **REST**, or other interface mechanisms built on Kozen's extensibility model.
+- **Secret and Template Management**: Securely manage sensitive data and templates.
+- **Structured Logging**: Native logging support with optional storage in MongoDB for structured, persistent logs.
+- **Cross-Platform Utilities**: Universal tools that simplify operations across diverse environments.
 
 ## Installation
 
 Install the package via NPM:
 
-````bash
+```bash
 npm install @mongodb-solution-assurance/kozen
 ```
 
@@ -25,27 +27,27 @@ npm install @mongodb-solution-assurance/kozen
 Here’s how to quickly use Kozen to deploy a pipeline:
 
 ```typescript
-import { IoC, PipelineManager } from '@mongodb-solution-assurance/kozen';
+import { IoC, PipelineManager } from "@mongodb-solution-assurance/kozen";
 
 const ioc = new IoC();
 const pipeline = new PipelineManager(ioc);
 
 await pipeline.deploy({
-  template: 'atlas.basic',
-  config: 'cfg/config.json',
-  action: 'deploy'
+  template: "atlas.basic",
+  config: "cfg/config.json",
+  action: "deploy",
 });
 ```
 
 ## Core Concepts
 
-- **Applications**: High-level user interfaces for Kozen (CLI, AI MCP, REST).
-- **Modules**: Horizontal extensions capable of defining their own components.
-- **Components**: Executable units used in pipelines, such as IaC tasks, tests, and APIs.
-- **Templates**: Declarative JSON files specifying tasks and their dependencies.
-- **Shared Utilities**: Includes IoC, DI, logging, environment utilities, and common models.
+- **Applications**: Build high-level user interfaces with Kozen (CLI, AI MCP, REST).
+- **Modules**: Define horizontal extensions to add your own components seamlessly.
+- **Components**: Create reusable execution units for pipelines, including IaC tasks, APIs, and LLM integrations.
+- **Templates**: Provide declarative JSON definitions for defining workflows and dependencies.
+- **Shared Utilities**: A core library including IoC (Inversion of Control), DI (Dependency Injection), logging, environment utilities, and common models.
 
-Kozen adheres to Dependency Injection and Inversion of Control principles, ensuring scalability and extensibility for complex automation pipelines.
+Kozen empowers developers to follow Dependency Injection and Inversion of Control principles, ensuring scalability and extensibility for complex automation as well as AI-driven applications.
 
 ### Example Configuration
 
@@ -61,10 +63,13 @@ Below is an example configuration file (`cfg/config.json`) for pipeline executio
 }
 ```
 
-### CLI Integration
+### Multi-Interface Application Development
 
-Create your own CLI application (Jenkins-style) using Kozen by referring to `bin/pipeline.ts` or `bin/kozen.ts`.
-Import the required types from the public package:
+Kozen allows developers to create robust Jenkins-style applications using CLI or REST. Its modular architecture even supports exporting tools for AI-based interfaces such as **AI MCP**, which simplifies interaction with large language models (LLMs).
+
+With Kozen, you can quickly define applications tailored to specific needs, integrating diverse mechanisms for handling pipelines, automation tasks, and more—all with minimal complexity.
+
+Refer to files like `bin/pipeline.ts` or `bin/kozen.ts` for examples of building CLI applications. Import types from the public package:
 `@mongodb-solution-assurance/kozen`.
 
 ## Documentation
@@ -76,13 +81,3 @@ Import the required types from the public package:
 
 MIT © MongoDB Industry Solutions
 Available on [NPM](https://www.npmjs.com/package/@mongodb-solution-assurance/kozen).
-```
-
-### Key Improvements:
-1. **Enhanced readability**: Simplified and structured sentences for easier understanding.
-2. **Consistent terminology**: Maintained a clearer and more consistent tone throughout.
-3. **Stronger emphasis on features and benefits**: Highlighted Kozen’s strengths and use cases.
-4. **Professional formatting**: Improved markdown formatting for a polished look.
-
-Let me know if there's anything else you'd like to refine!
-````
