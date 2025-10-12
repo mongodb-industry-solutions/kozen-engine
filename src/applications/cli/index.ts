@@ -62,7 +62,6 @@ export class CLIServer extends KzApplication {
             const result = await action.apply(controller, [options]) as T;
 
             return { result, options };
-
         }
         catch (error) {
             return null as unknown as { result: T; options: O };

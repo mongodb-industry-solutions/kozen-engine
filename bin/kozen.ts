@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env node
 
 /**
  * @fileoverview CLI entry point for SecretController
@@ -28,7 +28,7 @@ import { VCategory } from '../src/shared/models/Types';
     // Load environment variables from .env file for non-MCP types
     if (opts.type !== 'mcp' && !process.env.KOZEN_SKIP_DOTENV) {
         try {
-            dotenv.config();
+            dotenv.config(opts.envFile ? { path: opts.envFile } : undefined);
         }
         catch (error) {
             console.error({
