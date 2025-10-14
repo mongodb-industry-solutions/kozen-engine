@@ -142,7 +142,7 @@ Below is an interaction example using AI MCP, including server setups and enviro
     "kozen": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "npx", "kozen", "--type=mcp"],
+      "args": ["-y", "@mongodb-solution-assurance/kozen@latest", "--type=mcp"],
       "env": {
         "MDB_URI": "mongodb+srv://user:pass@server/kozen?retryWrites=true&w=majority&appName=MyApp",
         "MDB_MASTER_KEY": "7icW59e/YatIzyuAxXXCkkr4zW6iHcjopV685wCgFr13iqLcJVtptutaSDPHi4Z",
