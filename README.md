@@ -2,7 +2,7 @@
 
 **Kozen** is a lightweight Task Execution Framework, designed for creating automation pipelines, versatile tools, and applications. It enables seamless integration with AI-based interfaces like AI MCP, allowing effortless interactions with large language models (LLMs) and traditional automation tools alike. Kozen supports multiple interfaces, including CLI and REST, and provides easy-to-extend mechanisms for building application types based on its robust extension model. As an NPM package, Kozen integrates seamlessly into Node.js environments, offering scalability, extensibility, and simplicity.
 
-## ![](./docs/images/banner.jpg)
+![Kozen](https://github.com/mongodb-industry-solutions/kozen-engine/blob/main/docs/images/banner.jpg)
 
 ## 🎯 Features
 
