@@ -63,6 +63,7 @@ export class TriggerCLIController extends CLIController {
         parsed.mdb.collection = parsed.mdb.collection || parsed.collection || process.env.KOZEN_TRIGGER_COLLECTION;
         parsed.mdb.database = parsed.mdb.database || parsed.database || process.env.KOZEN_TRIGGER_DATABASE;
         parsed.mdb.uri = parsed.mdb.uri || parsed.uri || process.env.KOZEN_TRIGGER_URI;
+        parsed.mdb.uri = process.env[parsed.mdb.uri] || parsed.mdb.uri;
         this.assistant?.store[parsed.opt.key] && (parsed.opt = { ...this.assistant.store[parsed.opt.key], ...parsed.opt });
         return parsed as IArgs;
     }
