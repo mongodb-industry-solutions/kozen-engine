@@ -16,13 +16,13 @@
                 "type": "ref"
             },
             {
-                "key": "srvFile",
-                "target": "file:service",
+                "key": "srvTrigger",
+                "target": "trigger:service",
                 "type": "ref"
             },
             {
-                "key": "srvTrigger",
-                "target": "trigger:service",
+                "key": "srvFile",
+                "target": "core:file",
                 "type": "ref"
             }
         ]

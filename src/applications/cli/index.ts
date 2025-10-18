@@ -51,7 +51,7 @@ export class CLIServer extends KzApplication {
             const controller = await this.app?.helper?.get(args.module) as any;
 
             if (!controller) {
-                throw new Error('No valid controller found');
+                throw new Error('No valid controller found for module: ' + args.module);
             }
 
             const options = { ...args, ...(await controller.fill(args)) };

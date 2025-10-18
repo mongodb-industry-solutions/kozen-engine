@@ -8,6 +8,7 @@ import path from 'node:path';
 import { CLIController } from '../../../applications/cli/controllers/CLIController';
 import { IArgs } from '../../../shared/models/Args';
 import { IConfig } from '../../../shared/models/Config';
+import { FileService } from '../../../shared/services/FileService';
 import { IIoC } from '../../../shared/tools';
 import { ILogger } from '../../../shared/tools/log/types';
 import { ITriggerOptions } from '../models/ITriggerOptions';
@@ -22,7 +23,7 @@ export class TriggerCLIController extends CLIController {
 
     private srvTrigger?: ChangeStreamService;
 
-    constructor(dependency?: { assistant: IIoC, logger: ILogger, srvTrigger?: ChangeStreamService }) {
+    constructor(dependency?: { assistant: IIoC, logger: ILogger, srvTrigger?: ChangeStreamService, srvFile?: FileService }) {
         super(dependency);
         this.srvTrigger = dependency?.srvTrigger;
     }
