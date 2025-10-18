@@ -34,15 +34,17 @@ export class TriggerCLIController extends CLIController {
      * @throws {Error} When trigger service initialization fails
      * @public
      */
-    public async start(options: ITriggerOptions): Promise<void> {
+    public async start(options: ITriggerOptions): Promise<{ await: boolean }> {
         try {
             await this.srvTrigger?.start(options);
+            return { await: true };
         } catch (error) {
             this.logger?.error({
                 flow: this.getId(options as unknown as IConfig),
                 src: 'Controller:Trigger:start',
                 message: `❌ Failed to start trigger on <'${options.mdb?.collection}'> collection': ${(error as Error).message}`
             });
+            return { await: false };
         }
     }
 
