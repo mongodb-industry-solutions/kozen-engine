@@ -13,7 +13,6 @@ export class CLIServer extends KzApplication {
         if (!this.app) {
             throw new Error("App Module not properly initialized.");
         }
-
         const { result, options } = await this.dispatch(args);
         args?.action !== 'help' && this.app.log({
             flow: (this.config && this.app.getId(this.config)) || undefined,
@@ -24,7 +23,6 @@ export class CLIServer extends KzApplication {
             }
         });
         await this.app.wait();
-        process.exit(0);
     }
 
     /**
