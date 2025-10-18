@@ -26,6 +26,7 @@ export class CLIServer extends KzApplication {
             }
         });
         await this.app.wait();
+        !result?.await && process.exit(0);
     }
 
     /**
