@@ -1,0 +1,20 @@
+{
+    "trigger:service": {
+        "target": "ChangeStreamService",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/trigger/services",
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            }
+        ]
+    }
+}
