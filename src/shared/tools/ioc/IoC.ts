@@ -1,4 +1,5 @@
 import { aliasTo, asClass, asFunction, asValue, AwilixContainer, createContainer } from 'awilix';
+import * as _path from 'path';
 import { ITplVars, Tpl } from './tpl';
 import { IClassConstructor, IDependency, IDependencyMap, IIoC } from './types';
 
@@ -242,14 +243,17 @@ export class IoC implements IIoC {
     }
 
     if (typeof target === 'string') {
-      const modulePath = file ?? (path ? `${path}/${target}` : null);
+      let modulePath = file ?? (path ? `${path}/${target}` : null);
 
       if (!modulePath) {
         throw new Error(`Path required for dynamic import of: ${target}`);
       }
 
       try {
+        modulePath = require.resolve(modulePath);
         const importedModule = await import(modulePath);
+        this.store[key!].file = modulePath;
+        this.store[key!].path = _path.dirname(modulePath);
         if (raw) {
           return importedModule;
         }
