@@ -133,6 +133,8 @@ export default function (change, tools) {
 }
 ```
 
+**Note:** Your trigger file only needs to export the functions for the operations you want to handle (e.g., `insert`, `update`, `delete`, `replace`, etc.). The example shows a `default` handler to capture all events, while `update` is invoked only when `change.operationType === 'update'`. By naming your exports to match MongoDB operation types, you get native filtering without writing a switch‑case or multiple conditionals in a single global handler.
+
 ### 4) Create the environment file
 Provide connection details and the path to your delegate file.
 
@@ -146,6 +148,9 @@ KOZEN_TRIGGER_DATABASE=test
 KOZEN_TRIGGER_COLLECTION=logs
 KOZEN_TRIGGER_URI=mongodb+srv://user:pass@cluster0.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0
 ```
+
+**Note:** This file is a convenient way to load local environment variables for Kozen without modifying your system configuration. If you prefer, you can define the same variables at the operating system level, and this file will not be required.
+
 
 ### 5) Observe logs
 Confirm startup and see event logs when changes occur in the target collection.
@@ -214,3 +219,5 @@ Confirm startup and see event logs when changes occur in the target collection.
   date: '2025-10-20T09:36:00.666Z'
 }
 ```
+
+**Note:** These logs are produced by the native logger available as `tools.assistant.logger`, which is passed into your handlers via the `tools` parameter. The output format and verbosity are controlled by the environment variables `KOZEN_LOG_LEVEL` and `KOZEN_LOG_TYPE`; you can adjust them to other supported options as needed. Using this logger is optional—you can substitute `console.log` however, the recommended approach is to use Kozen’s native logger because it is optimized for structured output, correlation via `flow`, and common operational use cases.
