@@ -81,6 +81,10 @@ Create a delegate file exporting handlers. Kozen calls the operation-specific ha
 FILE: `/home/user/mytrigger.js`
 
 ```js
+
+/**
+ * Catch: Update Event
+ */
 export async function update(change, tools) {
   const { collection, assistant, flow } = tools;
 
@@ -118,10 +122,12 @@ export async function update(change, tools) {
   });
 }
 
+/**
+ * Catch: All Events
+ */
 export default function (change, tools) {
-  const { assistant, flow } = tools;
-  assistant?.logger?.info({
-    flow,
+  tools.assistant?.logger?.info({
+    flow: tools.flow,
     message: "Global change detected:",
     data: {
       operationType: change.operationType,
