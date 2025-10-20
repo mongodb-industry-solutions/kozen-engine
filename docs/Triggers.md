@@ -1,4 +1,4 @@
-### Self‑Hosted Triggers with Kozen (Layered: Basic → Advanced)
+### Self‑Hosted Triggers with Kozen
 
 Kozen can run MongoDB Change Stream–based triggers on your own infrastructure. If you’ve used MongoDB Atlas Triggers, think of this as a self‑hosted alternative: you write a small JavaScript file (the delegate) that exports simple functions per operation, and Kozen wires everything up to stream change events into your code.
 
