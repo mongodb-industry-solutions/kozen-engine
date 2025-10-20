@@ -11,7 +11,7 @@ import { IConfig } from '../../../shared/models/Config';
 import { FileService } from '../../../shared/services/FileService';
 import { IIoC } from '../../../shared/tools';
 import { ILogger } from '../../../shared/tools/log/types';
-import { ITriggerOptions } from '../models/ITriggerOptions';
+import { ITriggerOptions } from '../models/TriggerOptions';
 import { ChangeStreamService } from '../services/ChangeStreamService';
 
 /**
