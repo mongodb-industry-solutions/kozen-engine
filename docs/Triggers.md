@@ -2,7 +2,7 @@
 
 Kozen can run MongoDB Change Stream–based triggers on your own infrastructure. If you’ve used MongoDB Atlas Triggers, think of this as a self‑hosted alternative: you write a small JavaScript file (the delegate) that exports simple functions per operation, and Kozen wires everything up to stream change events into your code.
 
-- Atlas context: MongoDB Atlas provides a fully managed Triggers service. Kozen offers a similar capability you can run anywhere (local, on‑prem, cloud), while keeping your logic in a single, easy‑to‑maintain JS file.
+- Atlas context: MongoDB Atlas provides a fully managed Triggers service. Kozen offers a similar capability you can run anywhere (local, on‑premises, cloud), while keeping your logic in a single, easy‑to‑maintain JS file.
 
 Basic → Advanced overview:
 - Basic: install Kozen, point to your `.env`, and use the existing example delegate below.
@@ -22,7 +22,7 @@ Parameters passed to your handlers:
 // Tools your handler receives from Kozen
 export interface ITriggerTools {
     assistant?: IIoC;                // Includes assistant.logger for structured logs
-    flow?: string;                   // Correlation id for tracing a single event
+    flow?: string;                   // Correlation ID for tracing a single event
     changeStream?: ChangeStream;     // Underlying change stream (rarely needed)
     collectionName?: string;         // Target collection name
     collection?: Collection;         // Ready-to-use MongoDB collection handle
@@ -40,8 +40,8 @@ How handler resolution works:
 Configuration tips:
 - Required:
   - `KOZEN_TRIGGER_FILE`: absolute path to your delegate JavaScript file.
-  - `KOZEN_TRIGGER_DATABASE`: database name 
-  - `KOZEN_TRIGGER_COLLECTION`: collection name 
+  - `KOZEN_TRIGGER_DATABASE`: database name
+  - `KOZEN_TRIGGER_COLLECTION`: collection name
   - `KOZEN_TRIGGER_URI`: connection string to the MongoDB server
 - Optional:
   - `KOZEN_TRIGGER_KEY` (defaults to `trigger:delegate:default`).
@@ -52,26 +52,31 @@ Best practices:
 - Use least‑privilege credentials; grant write only if your logic updates documents.
 - Avoid heavy I/O inside handlers; offload to queues/background workers if needed.
 - Separate delegates per collection/domain for clarity and maintainability.
-- Run under a process manager (PM2/systemd) or containers/orchestration for resilience.
+- Run under a process manager (PM2/systemd) or container orchestration for resilience.
 
 Quick checklist:
 - Install Kozen.
 - Write the delegate with `insert`/`update`/`delete`/`replace` and optional `on`/`default`.
 - Fill `.env` with `KOZEN_TRIGGER_*` settings.
-- Start the service (see Command below) and verify logs.
+- Start the service (see step 2 below) and verify logs.
 
-### Install 
+## Simple Demo: Step by Step
+
+### 1) Install
+Install Kozen in your project.
 ```shell
 /home/user> npm install @mongodb-solution-assurance/kozen
 ```
 
-### Command:
+### 2) Start the service
+Start Kozen with your environment file. This launches the change stream watcher.
 
 ```shell
 /home/user> npx kozen --action=trigger:start --envFile=/home/user/.env
 ```
 
-### Trigger Example 
+### 3) Create the trigger delegate
+Create a delegate file exporting handlers. Kozen calls the operation-specific handler (e.g., `update`) and then the catch‑all (`default`), if present.
 
 FILE: `/home/user/mytrigger.js`
 
@@ -79,7 +84,7 @@ FILE: `/home/user/mytrigger.js`
 export async function update(change, tools) {
   const { collection, assistant, flow } = tools;
 
-  // Log the change event using the tool's logger if available
+  // Log the change event using the tools' logger if available
   assistant?.logger?.info({
     flow,
     message: "Change detected:",
@@ -117,7 +122,7 @@ export default function (change, tools) {
   const { assistant, flow } = tools;
   assistant?.logger?.info({
     flow,
-    message: "Change detected:",
+    message: "Global change detected:",
     data: {
       operationType: change.operationType,
       database: tools.dbName,
@@ -128,7 +133,8 @@ export default function (change, tools) {
 }
 ```
 
-### Environment File Example
+### 4) Create the environment file
+Provide connection details and the path to your delegate file.
 
 FILE: `/home/user/.env`
 ```env
@@ -141,7 +147,8 @@ KOZEN_TRIGGER_COLLECTION=logs
 KOZEN_TRIGGER_URI=mongodb+srv://user:pass@cluster0.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0
 ```
 
-### Logs Example
+### 5) Observe logs
+Confirm startup and see event logs when changes occur in the target collection.
 
 ```
 {
@@ -196,7 +203,7 @@ KOZEN_TRIGGER_URI=mongodb+srv://user:pass@cluster0.mongodb.net/test?retryWrites=
 }
 {
   flow: '2025102011360055',
-  message: 'Change detected:',
+  message: 'Global change detected:',
   data: {
     operationType: 'update',
     database: 'test',
