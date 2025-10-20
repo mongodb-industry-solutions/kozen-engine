@@ -1,0 +1,98 @@
+===============================================================================
+#    ##....##..#######..########.########.##....##
+#    ##...##..##.....##......##..##.......###...##
+#    ##..##...##.....##.....##...##.......####..##
+#    #####....##.....##....##....######...##.##.##
+#    ##..##...##.....##...##.....##.......##..####
+#    ##...##..##.....##..##......##.......##...###
+#    ##....##..#######..########.########.##....##
+#
+#    Kozen Engine - Task Execution Framework
+...............................................................................
+TOOL: Trigger Module
+===============================================================================
+
+Description:
+    Listen to MongoDB Change Streams for a specific database and collection and
+    dispatch change events to a user-defined delegate resolved via the IoC
+    container. Supports operation-specific handlers (insert, update, delete,
+    replace) and a catch‑all handler. Provides structured logging and safe error
+    handling.
+
+Usage:
+    kozen --action=trigger:<action> [options]
+    kozen --module=trigger --action=<action> [options]
+
+Core Options:
+    --stack=<id>                    Environment identifier (dev, test, staging, prod)
+                                    (default: from NODE_ENV or 'dev')
+    --project=<id>                  Project identifier for grouping logs/flows
+                                    (default: auto-generated timestamp ID)
+    --config=<file>                 Path to Kozen configuration file
+                                    (default: cfg/config.json)
+    --module=trigger                Explicitly set module controller to trigger
+    --action=<[module:]action>      Trigger operation to perform:
+
+Available Actions:
+    start                           Start a MongoDB Change Stream watcher
+                                    - Watches the specified database/collection
+                                    - Resolves and invokes a delegate per change
+                                    - Requires --key, --uri, --database, --collection
+
+    help                            Display usage information for the trigger module
+
+Trigger Options:
+    --key=<name>                    IoC dependency key for the trigger delegate (REQUIRED)
+                                    Example: trigger:delegate:default
+    --file=<path>                   Optional file path associated with delegate resolution
+    --uri=<mongodb_uri>             MongoDB connection URI (REQUIRED)
+                                    Example: mongodb+srv://user:pass@host/db
+    --database=<name>               MongoDB database to watch (REQUIRED)
+    --collection=<name>             MongoDB collection to watch (REQUIRED)
+
+Environment Variables:
+    KOZEN_CONFIG                    Default value assigned to the --config property
+    KOZEN_ACTION                    Default value assigned to the --action property
+    KOZEN_STACK                     Default value assigned to the --stack property
+    KOZEN_PROJECT                   Default value assigned to the --project property
+
+    KOZEN_TRIGGER_KEY               Default value assigned to the --key property
+    KOZEN_TRIGGER_FILE              Default value assigned to the --file property
+    KOZEN_TRIGGER_COLLECTION        Default value assigned to the --collection property
+    KOZEN_TRIGGER_DATABASE          Default value assigned to the --database property
+    KOZEN_TRIGGER_URI               Default value assigned to the --uri property
+
+Backend Providers:
+    MongoDB Change Streams          Real-time change notifications from MongoDB collections
+    
+Security Features:
+    - IoC-based delegate resolution with scoped execution
+    - Built-in logging for info/warn/error events
+    - Honors MongoDB RBAC via provided connection credentials
+    - Graceful error handling during start and on change events
+
+Examples:
+    # Start watching a collection
+    kozen --action=trigger:start \
+         --key=trigger:delegate:default \
+         --uri="mongodb+srv://user:pass@cluster.mongodb.net/?retryWrites=true&w=majority" \
+         --database=app \
+         --collection=orders
+
+    # Alternative syntax with explicit controller
+    kozen --module=trigger --action=start \
+         --key=trigger:delegate:default \
+         --uri="mongodb://localhost:27017" \
+         --database=app \
+         --collection=events
+
+    # Using environment variables for convenience
+    export KOZEN_TRIGGER_KEY=trigger:delegate:default
+    export KOZEN_TRIGGER_URI="mongodb://localhost:27017"
+    export KOZEN_TRIGGER_DATABASE=app
+    export KOZEN_TRIGGER_COLLECTION=orders
+    kozen --action=trigger:start
+
+    # Display help
+    kozen --action=trigger:help
+===============================================================================

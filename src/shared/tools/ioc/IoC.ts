@@ -1,4 +1,5 @@
 import { aliasTo, asClass, asFunction, asValue, AwilixContainer, createContainer } from 'awilix';
+import * as _path from 'path';
 import { ITplVars, Tpl } from './tpl';
 import { IClassConstructor, IDependency, IDependencyMap, IIoC } from './types';
 
@@ -22,7 +23,7 @@ export class IoC implements IIoC {
    * Array storing all registered dependency configurations for tracking
    * @private
    */
-  private readonly store: IDependencyMap = {};
+  public store: IDependencyMap = {};
 
   /**
    * Cache map storing auto-registration patterns by regex keys
@@ -184,6 +185,12 @@ export class IoC implements IIoC {
         await this.registerClass(dependency);
         break;
 
+      case 'object':
+      case 'instance':
+        const obj = await this.resolveClass(dependency, true);
+        this.container.register(key!, asValue(obj));
+        break;
+
       default:
         throw new Error(`Unsupported dependency type: ${type}`);
     }
@@ -228,7 +235,7 @@ export class IoC implements IIoC {
   /**
    * Resolves class constructor supporting dynamic imports.
    */
-  protected async resolveClass(dependency: IDependency): Promise<IClassConstructor> {
+  protected async resolveClass(dependency: IDependency, raw: boolean = false): Promise<IClassConstructor> {
     let { target, path, file, key } = dependency;
 
     if (typeof target === 'function') {
@@ -236,14 +243,20 @@ export class IoC implements IIoC {
     }
 
     if (typeof target === 'string') {
-      const modulePath = file ?? (path ? `${path}/${target}` : null);
+      let modulePath = file ?? (path ? `${path}/${target}` : null);
 
       if (!modulePath) {
         throw new Error(`Path required for dynamic import of: ${target}`);
       }
 
       try {
+        modulePath = require.resolve(modulePath);
         const importedModule = await import(modulePath);
+        this.store[key!].file = modulePath;
+        this.store[key!].path = _path.dirname(modulePath);
+        if (raw) {
+          return importedModule;
+        }
         return importedModule.default ?? importedModule[target] ?? Object.values(importedModule)[0] as IClassConstructor;
       } catch (error) {
         throw new Error(`Failed to import module ${modulePath}: ${error instanceof Error ? error.message : String(error)}`);

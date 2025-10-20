@@ -27,7 +27,7 @@ export type IDependencyList = IDependency[];
 /**
  * Available dependency registration type strategies.
  */
-export type IDependencyType = 'class' | 'value' | 'function' | 'method' | 'action' | 'alias' | 'ref' | 'auto';
+export type IDependencyType = 'class' | 'value' | 'function' | 'method' | 'action' | 'alias' | 'ref' | 'auto' | 'instance' | 'object';
 
 /**
  * Instance lifecycle management strategies for dependency caching.
@@ -101,6 +101,16 @@ export interface IIoC {
   logger: Console | null;
 
   /**
+   * Gets all registered dependency configurations.
+   */
+  readonly config: IDependencyMap;
+
+  /**
+   * Gets all registered dependency configurations.
+   */
+  store: IDependencyMap;
+
+  /**
    * Registers dependencies from array or map.
    */
   register(dependencies: IDependency[] | IDependencyMap): Promise<void>;
@@ -125,9 +135,4 @@ export interface IIoC {
    * Resolves dependency synchronously without auto-registration.
    */
   resolveSync<T = any>(key: string): T;
-
-  /**
-   * Gets all registered dependency configurations.
-   */
-  readonly config: IDependencyMap;
 } 

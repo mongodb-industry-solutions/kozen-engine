@@ -16,6 +16,7 @@ import { ILogger } from "../tools/log/types";
  */
 export class KzModule implements IModule {
 
+    public metadata: IDependency;
     /**
      * IoC container instance for dependency injection and service resolution
      * @type {IIoC | null}
@@ -51,6 +52,7 @@ export class KzModule implements IModule {
      */
     constructor(dependency?: { assistant: IIoC }) {
         this.assistant = dependency?.assistant ?? new IoC();
+        this.metadata = {};
     }
 
     /**

@@ -131,7 +131,9 @@ export class KzApp extends KzModule {
             ...mod,
         };
         await this.assistant?.register({ [namespace]: dep });
-        return await this.assistant?.get<IModule>(namespace) || null;
+        const obj = await this.assistant?.get<IModule>(namespace) || null;
+        obj && (obj.metadata = dep);
+        return obj;
     }
 
     /**

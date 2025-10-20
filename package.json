@@ -1,8 +1,8 @@
 {
     "name": "@mongodb-solution-assurance/kozen",
-    "version": "1.0.9",
+    "version": "1.0.16",
     "description": "Kozen Engine is a versatile Task Execution Framework for CLI apps, REST, AI MCP, IaC, CI/CD, and testing workflows",
-    "main": "dist/bin/kozen.js",
+    "main": "dist/src/index.js",
     "types": "dist/src/index.d.ts",
     "bin": {
         "kozen": "./dist/bin/kozen.js",
@@ -10,7 +10,6 @@
     },
     "files": [
         "dist/*",
-        "LICENSE",
         "README.md"
     ],
     "publishConfig": {
@@ -48,7 +47,7 @@
         "cli"
     ],
     "author": "MDB SAT",
-    "license": "LGPL-3.0-or-later",
+    "license": "MIT",
     "devDependencies": {
         "@types/node": "^18.19.127",
         "copyfiles": "^2.4.1",
