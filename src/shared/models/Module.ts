@@ -14,6 +14,11 @@ export interface IModule {
     readonly helper: IIoC | null | undefined;
 
     /**
+     * Metadata about the module's dependency configuration
+     */
+    metadata: IDependency | null | undefined;
+
+    /**
      * Initializes the module
      * @param argv Optional startup arguments
      * @returns A promise resolving initial args and config

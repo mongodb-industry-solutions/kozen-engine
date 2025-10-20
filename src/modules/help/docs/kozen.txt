@@ -39,6 +39,8 @@ Core Options:
                                     - logger: Manage system logs and monitoring data
                                     - report: Query and retrieve statistical summaries and pipeline execution details from the log database
                                     - rectification: It is designed to validate, audit, and adjust roles and permissions in IAM systems to ensure alignment with security and operational requirements.
+                                    - trigger: Simple MongoDB trigger server based on Change Streams.
+
     --action=<[controller:]action>  Action to perform. Format: 'action' or 'controller:action'
                                     - help: Get help or assistance on how to use a tool
 

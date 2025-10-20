@@ -1,0 +1,30 @@
+{
+    "trigger:controller:cli": {
+        "target": "TriggerCLIController",
+        "type": "class",
+        "lifetime": "transient",
+        "path": "../../../modules/trigger/controllers",
+        "dependencies": [
+            {
+                "key": "assistant",
+                "target": "IoC",
+                "type": "ref"
+            },
+            {
+                "key": "logger",
+                "target": "logger:service",
+                "type": "ref"
+            },
+            {
+                "key": "srvTrigger",
+                "target": "trigger:service",
+                "type": "ref"
+            },
+            {
+                "key": "srvFile",
+                "target": "core:file",
+                "type": "ref"
+            }
+        ]
+    }
+}
