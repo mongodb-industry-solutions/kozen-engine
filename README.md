@@ -15,6 +15,7 @@
 - **Secret and Template Management**: Securely manage sensitive data and workflow templates.
 - **Structured Logging**: Native logging support, with optional storage in MongoDB for persistent structured logs.
 - **Cross-Platform Utilities**: Universal helper functions designed to simplify operations and workflows across diverse environments.
+- **Triggers Utilities**: Self‑Hosted Triggers support.
 
 ---
 
