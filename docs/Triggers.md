@@ -65,14 +65,14 @@ Quick checklist:
 ### 1) Install
 Install Kozen in your project.
 ```shell
-/home/user> npm install @mongodb-solution-assurance/kozen
+npm install @mongodb-solution-assurance/kozen
 ```
 
 ### 2) Start the service
 Start Kozen with your environment file. This launches the change stream watcher.
 
 ```shell
-/home/user> npx kozen --action=trigger:start --envFile=/home/user/.env
+npx kozen --action=trigger:start --envFile=/home/user/.env
 ```
 
 ### 3) Create the trigger delegate
