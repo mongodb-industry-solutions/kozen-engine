@@ -92,6 +92,7 @@ Each component autonomously decides its execution behavior and can:
 | **API Reference**         | Complete API documentation                        | [api-reference.md](api-reference.md)                 |
 | **Deployment**            | Production deployment and NPM integration         | [deployment.md](deployment.md)                       |
 | **Contributing**          | Development, extension, and contribution guide    | [contributing.md](contributing.md)                   |
+| **Triggers**              | Self‑Hosted Triggers guide                        | [Triggers.md](Triggers.md)                           |
 
 ### Template System Architecture
 
