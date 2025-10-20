@@ -1,6 +1,6 @@
 {
     "name": "@mongodb-solution-assurance/kozen",
-    "version": "1.0.14",
+    "version": "1.0.16",
     "description": "Kozen Engine is a versatile Task Execution Framework for CLI apps, REST, AI MCP, IaC, CI/CD, and testing workflows",
     "main": "dist/src/index.js",
     "types": "dist/src/index.d.ts",
