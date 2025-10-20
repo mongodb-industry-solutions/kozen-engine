@@ -4,7 +4,7 @@ import { IDependency } from "../../shared/tools";
 
 import cli from "./configs/cli.json";
 import ioc from "./configs/ioc.json";
-export class TemplateModule extends KzModule {
+export class TriggerModule extends KzModule {
 
     public register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null> {
         let dep = {};

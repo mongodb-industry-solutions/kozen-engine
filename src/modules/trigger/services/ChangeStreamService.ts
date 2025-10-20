@@ -1,8 +1,9 @@
 import { ChangeStream, ChangeStreamDocument, Document, MongoClient } from 'mongodb';
 import { IIoC } from '../../../shared/tools';
 import { ILogger } from '../../../shared/tools/log/types';
-import { ITriggerOptions } from '../models/ITriggerOptions';
 import { ITriggerDelegate } from '../models/TriggerDelegate';
+import { ITriggerOptions } from '../models/TriggerOptions';
+import { ITriggerTools } from '../models/TriggerTools';
 
 export class ChangeStreamService {
     private client?: MongoClient;
@@ -37,24 +38,42 @@ export class ChangeStreamService {
             }
             const db = this.client.db(options.mdb.database);
             const collection = db.collection(options.mdb.collection);
+            const tools = {
+                assistant: this.assistant || undefined,
+                flow: options?.flow,
+                changeStream: this.changeStream,
+                collectionName: options?.mdb?.collection,
+                collection: collection,
+                dbName: options?.mdb?.database,
+                db: db
+            };
             this.changeStream = collection.watch();
-            this.changeStream.on('change', (change) => this.onChange(change, delegate, options?.flow));
+            this.changeStream.on('change', (change) => this.onChange(change, delegate, tools));
+            this.logger?.info({
+                flow: options?.flow,
+                message: `Trigger as service started`,
+                data: {
+                    database: options.mdb.database,
+                    collection: options.mdb.collection
+                }
+            });
         } catch (error) {
             this.logger?.error({
                 flow: options?.flow,
+                src: 'Service:Trigger:start',
                 message: `Error starting change stream: ${error instanceof Error ? error.message : String(error)}`
             });
         }
     }
 
-    async onChange(change: ChangeStreamDocument<Document>, delegate?: ITriggerDelegate, flow?: string): Promise<void> {
+    async onChange(change: ChangeStreamDocument<Document>, delegate?: ITriggerDelegate, tools?: ITriggerTools): Promise<void> {
         try {
             if (!this.assistant) {
                 throw new Error('Dependency injection is not configured properly.');
             }
             if (!delegate) {
                 this.logger?.warn({
-                    flow,
+                    flow: tools?.flow,
                     message: 'No delegate defined for handling change events.'
                 });
                 return;
@@ -65,18 +84,19 @@ export class ChangeStreamService {
 
             if (typeof handler !== 'function' && typeof on !== 'function') {
                 this.logger?.warn({
-                    flow,
+                    flow: tools?.flow,
                     message: `No handler defined for operation type: ${change.operationType}`
                 });
                 return;
             }
 
-            typeof handler === 'function' && await handler.apply(this, [change]);
-            typeof on === 'function' && await on.apply(this, [change, this.assistant]);
+            typeof handler === 'function' && await handler.apply(this, [change, tools]);
+            typeof on === 'function' && await on.apply(this, [change, tools]);
 
         } catch (error) {
             this.logger?.error({
-                flow,
+                flow: tools?.flow,
+                src: 'Service:Trigger:onChange',
                 message: `Error handling change event: <${change.operationType}> ${error instanceof Error ? error.message : String(error)}`
             });
         }

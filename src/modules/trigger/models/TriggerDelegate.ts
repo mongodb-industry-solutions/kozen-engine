@@ -1,13 +1,11 @@
 import { ChangeStreamDocument, Document } from "mongodb";
-import { IIoC } from "../../../shared/tools";
+import { ITriggerTools } from "./TriggerTools";
 
 export interface ITriggerDelegate {
-    default?: (change: ChangeStreamDocument<Document>, assistant?: IIoC) => void;
-    on?: (change: ChangeStreamDocument<Document>, assistant?: IIoC) => void;
-    insert?: (change: ChangeStreamDocument<Document>, assistant?: IIoC) => void;
-    update?: (change: ChangeStreamDocument<Document>, assistant?: IIoC) => void;
-    delete?: (change: ChangeStreamDocument<Document>, assistant?: IIoC) => void;
-    replace?: (change: ChangeStreamDocument<Document>, assistant?: IIoC) => void;
+    default?: (change: ChangeStreamDocument<Document>, tools?: ITriggerTools) => void;
+    on?: (change: ChangeStreamDocument<Document>, tools?: ITriggerTools) => void;
+    insert?: (change: ChangeStreamDocument<Document>, tools?: ITriggerTools) => void;
+    update?: (change: ChangeStreamDocument<Document>, tools?: ITriggerTools) => void;
+    delete?: (change: ChangeStreamDocument<Document>, tools?: ITriggerTools) => void;
+    replace?: (change: ChangeStreamDocument<Document>, tools?: ITriggerTools) => void;
 }
-
-// export declare type GenericListener = (...args: any[]) => void;
