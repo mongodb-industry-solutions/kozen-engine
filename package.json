@@ -10,7 +10,6 @@
     },
     "files": [
         "dist/*",
-        "LICENSE",
         "README.md"
     ],
     "publishConfig": {
@@ -48,7 +47,7 @@
         "cli"
     ],
     "author": "MDB SAT",
-    "license": "LGPL-3.0-or-later",
+    "license": "MIT",
     "devDependencies": {
         "@types/node": "^18.19.127",
         "copyfiles": "^2.4.1",
