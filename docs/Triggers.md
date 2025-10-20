@@ -1,4 +1,4 @@
-### Self‑Hosted Triggers with Kozen (Layered: Basic → Advanced)
+### Self‑Hosted Triggers with Kozen
 
 Kozen can run MongoDB Change Stream–based triggers on your own infrastructure. If you’ve used MongoDB Atlas Triggers, think of this as a self‑hosted alternative: you write a small JavaScript file (the delegate) that exports simple functions per operation, and Kozen wires everything up to stream change events into your code.
 
@@ -65,14 +65,14 @@ Quick checklist:
 ### 1) Install
 Install Kozen in your project.
 ```shell
-/home/user> npm install @mongodb-solution-assurance/kozen
+npm install @mongodb-solution-assurance/kozen
 ```
 
 ### 2) Start the service
 Start Kozen with your environment file. This launches the change stream watcher.
 
 ```shell
-/home/user> npx kozen --action=trigger:start --envFile=/home/user/.env
+npx kozen --action=trigger:start --envFile=/home/user/.env
 ```
 
 ### 3) Create the trigger delegate
@@ -81,6 +81,10 @@ Create a delegate file exporting handlers. Kozen calls the operation-specific ha
 FILE: `/home/user/mytrigger.js`
 
 ```js
+
+/**
+ * Catch: Update Event
+ */
 export async function update(change, tools) {
   const { collection, assistant, flow } = tools;
 
@@ -118,10 +122,12 @@ export async function update(change, tools) {
   });
 }
 
+/**
+ * Catch: All Events
+ */
 export default function (change, tools) {
-  const { assistant, flow } = tools;
-  assistant?.logger?.info({
-    flow,
+  tools.assistant?.logger?.info({
+    flow: tools.flow,
     message: "Global change detected:",
     data: {
       operationType: change.operationType,
