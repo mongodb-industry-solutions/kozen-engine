@@ -13,8 +13,10 @@ export class CLIServer extends KzApplication {
         if (!this.app) {
             throw new Error("App Module not properly initialized.");
         }
-
-        const { result, options } = await this.dispatch(args);
+        const { result, options, error } = await this.dispatch(args);
+        if (error) {
+            throw error;
+        }
         args?.action !== 'help' && this.app.log({
             flow: (this.config && this.app.getId(this.config)) || undefined,
             src: 'bin:Kozen',
@@ -24,7 +26,7 @@ export class CLIServer extends KzApplication {
             }
         });
         await this.app.wait();
-        process.exit(0);
+        !result?.await && process.exit(0);
     }
 
     /**
@@ -33,7 +35,7 @@ export class CLIServer extends KzApplication {
      * @param args
      * @returns {Promise<{ result: T; options: O; }>}
      */
-    async dispatch<T = any, O = any>(args?: IArgs): Promise<{ result: T; options: O }> {
+    async dispatch<T = any, O = any>(args?: IArgs): Promise<{ result: T; options: O, error?: Error }> {
         try {
             if (!args?.module) {
                 throw new Error('No valid module controller was specified');
@@ -50,7 +52,7 @@ export class CLIServer extends KzApplication {
             const controller = await this.app?.helper?.get(args.module) as any;
 
             if (!controller) {
-                throw new Error('No valid controller found');
+                throw new Error('No valid controller found for module: ' + args.module);
             }
 
             const options = { ...args, ...(await controller.fill(args)) };
@@ -64,7 +66,7 @@ export class CLIServer extends KzApplication {
             return { result, options };
         }
         catch (error) {
-            return null as unknown as { result: T; options: O };
+            return { result: {} as T, options: {} as O, error: error as Error };
         }
     }
 }
