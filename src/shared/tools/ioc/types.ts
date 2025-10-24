@@ -69,6 +69,11 @@ export interface IDependency {
   lifetime?: IDependencyLifetime;
 
   /**
+   * Identifies the type of module used for this dependency (ES Module or CommonJS).
+   */
+  moduleType?: "esm" | "cjs";
+
+  /**
    * Template definition for route resolution
    */
   template?: string;
