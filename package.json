@@ -1,12 +1,11 @@
 {
     "name": "@mongodb-solution-assurance/kozen",
-    "version": "1.0.16",
+    "version": "1.0.17",
     "description": "Kozen Engine is a versatile Task Execution Framework for CLI apps, REST, AI MCP, IaC, CI/CD, and testing workflows",
     "main": "dist/src/index.js",
     "types": "dist/src/index.d.ts",
     "bin": {
-        "kozen": "./dist/bin/kozen.js",
-        "pipeline": "./dist/bin/pipeline.js"
+        "kozen": "./dist/bin/kozen.js"
     },
     "files": [
         "dist/*",
@@ -56,6 +55,12 @@
         "tslint": "^6.1.3",
         "typescript": "^5.0.0"
     },
+    "homepage": "https://github.com/mongodb-industry-solutions/kozen-engine/wiki",
+    "bugs": "https://github.com/mongodb-industry-solutions/kozen-engine/issues",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/mongodb-industry-solutions/kozen-engine.git"
+    },
     "dependencies": {
         "@aws-sdk/client-secrets-manager": "^3.840.0",
         "@modelcontextprotocol/sdk": "^1.18.0",
@@ -73,6 +78,6 @@
         "zod": "^3.25.76"
     },
     "engines": {
-        "node": ">=16.0.0"
+        "node": ">=18"
     }
 }
