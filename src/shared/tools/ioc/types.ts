@@ -126,6 +126,12 @@ export interface IIoC {
   store: IDependencyMap;
 
   /**
+   * Map of dependency categories for organized grouping
+   * @public
+   */
+  map: IDependencyClassMap;
+
+  /**
    * Registers dependencies from array or map.
    */
   register(dependencies: IDependency[] | IDependencyMap): Promise<void>;

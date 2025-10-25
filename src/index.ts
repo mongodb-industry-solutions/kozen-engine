@@ -56,7 +56,6 @@ export { IComponent, IComponentInput, IComponentOutput, IOutputResult, ITransfor
 // Shared models: export everything
 export * from './shared/models/App';
 export * from './shared/models/Args';
-export * from './shared/models/Bundle';
 export * from './shared/models/Component';
 export * from './shared/models/Config';
 export * from './shared/models/Metadata';

@@ -18,16 +18,9 @@ Core Options:
                                     (default: from NODE_ENV or 'dev')
     --project=<id>                  Project identifier for resource organization
                                     (default: auto-generated timestamp ID)
-    --config=<file>                 Path to configuration file
-                                    (default: cfg/config.json)
-    --module=<name>                 Explicitly specify the tool or module:
-                                    - pipeline: Manage infrastructure and testing pipelines
-                                    - template: Manage templates from different data sources like MongoDB, Files, etc.
-                                    - secret: Manage encrypted secrets and credentials
-                                    - logger: Manage system logs and monitoring data
-                                    - report: Query and retrieve statistical summaries and pipeline execution details from the log database
-                                    - rectification: It is designed to validate, audit, and adjust roles and permissions in IAM systems to ensure alignment with security and operational requirements.
-                                    - trigger: Simple MongoDB trigger server based on Change Streams.
+    --config=<file>                 Path to configuration file in JSON format
+    --module=<name>                 Name of the module or tool to use. The loaded modules are:
+{MOD}
 
     --action=<[controller:]action>  Action to perform. Format: 'action' or 'controller:action'
                                     - help: Get help or assistance on how to use a tool
@@ -47,4 +40,3 @@ Quick Start Examples:
     kozen --action=pipeline:help                 # Get pipeline help
     kozen --action=secret:help                   # Get secret management help
     kozen --module=pipeline --action=help    # Alternative syntax
-===============================================================================
