@@ -8,9 +8,9 @@
  * @version 1.1.0
  */
 import path from 'path';
-import { CLIController } from '../../../applications/cli/controllers/CLIController';
 import { VCategory } from '../../../shared/models/Types';
 import { JSONT, readFrom } from '../../../shared/tools';
+import { CLIController } from '../../cli/controllers/CLIController';
 import { ILogArgs } from '../models/Logger';
 
 /**

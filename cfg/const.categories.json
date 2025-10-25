@@ -28,5 +28,12 @@
         "secret": "core:secret",
         "iac": "core:iac",
         "report": "core:report"
+    },
+    "category": {
+        "core": "core",
+        "module": "module",
+        "controller": "controller",
+        "component": "component",
+        "application": "application"
     }
 }

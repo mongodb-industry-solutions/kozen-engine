@@ -1,5 +1,5 @@
 import path from "path";
-import { CLIController } from "../../../applications/cli/controllers/CLIController";
+import { CLIController } from "../../cli/controllers/CLIController";
 
 export class PipelineController extends CLIController {
     /**
