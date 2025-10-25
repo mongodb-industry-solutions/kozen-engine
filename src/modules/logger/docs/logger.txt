@@ -57,4 +57,3 @@ Examples:
     
     # Categorized logging for filtering
     kozen --action=logger:log --category=SECURITY --level=warn --message="Failed login attempt"
-===============================================================================
