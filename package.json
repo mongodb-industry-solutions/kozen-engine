@@ -9,6 +9,7 @@
     },
     "files": [
         "dist/*",
+        "LICENSE",
         "README.md"
     ],
     "publishConfig": {
@@ -32,6 +33,7 @@
         "copy:txt": "copyfiles -u 1 src/**/*.txt dist/src"
     },
     "keywords": [
+        "kozen",
         "iac",
         "infrastructure-as-code",
         "pulumi",
@@ -45,7 +47,7 @@
         "ops-manager",
         "cli"
     ],
-    "author": "MDB SAT",
+    "author": "MongoDB Solutions Assurance Team",
     "license": "MIT",
     "devDependencies": {
         "@types/node": "^18.19.127",
