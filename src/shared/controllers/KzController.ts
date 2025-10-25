@@ -89,8 +89,25 @@ export class KzController {
      * @public
      * @returns {void}
      */
-    public async help(): Promise<void> {
-        console.log(`Kozen is a Framework for automated task execution focused on CI/CD pipelines supporting IaC & Test, check it out at https://github.com/mongodb-industry-solutions/kozen-engine/wiki`);
+    public async help(title?: string, body?: string): Promise<void> {
+        console.log(`
+===============================================================================
+#    ##....##..#######..########.########.##....##
+#    ##...##..##.....##......##..##.......###...##
+#    ##..##...##.....##.....##...##.......####..##
+#    #####....##.....##....##....######...##.##.##
+#    ##..##...##.....##...##.....##.......##..####
+#    ##...##..##.....##..##......##.......##...###
+#    ##....##..#######..########.########.##....##
+#
+#    Kozen Engine - Task Execution Framework
+...............................................................................
+${title || 'Kozen - Task Execution Framework'}
+URL: https://github.com/mongodb-industry-solutions/kozen-engine/wiki
+===============================================================================
+${body || ''}
+===============================================================================
+        `);
     }
 
     /**

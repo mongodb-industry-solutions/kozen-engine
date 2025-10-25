@@ -40,7 +40,7 @@ export class LoggerController extends CLIController {
     public async help(): Promise<void> {
         const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
         const helpText = await this.srvFile?.select('logger', dir);
-        console.log(helpText);
+        super.help('TOOL: Logger Manager', helpText);
     }
 
     /**

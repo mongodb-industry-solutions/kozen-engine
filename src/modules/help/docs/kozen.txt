@@ -1,15 +1,3 @@
-===============================================================================
-#    ##....##..#######..########.########.##....##
-#    ##...##..##.....##......##..##.......###...##
-#    ##..##...##.....##.....##...##.......####..##
-#    #####....##.....##....##....######...##.##.##
-#    ##..##...##.....##...##.....##.......##..####
-#    ##...##..##.....##..##......##.......##...###
-#    ##....##..#######..########.########.##....##
-#
-#    Kozen Engine - Task Execution Framework
-===============================================================================
-
 Description:
     Kozen is a Task Execution Framework designed to streamline and automate the coordination of workflows,
     including dynamic infrastructure management, automated testing pipelines, data modeling validation,
@@ -32,7 +20,7 @@ Core Options:
                                     (default: auto-generated timestamp ID)
     --config=<file>                 Path to configuration file
                                     (default: cfg/config.json)
-    --module=<name>                 Explicitly specify the tool or module controller. Available tool controllers:
+    --module=<name>                 Explicitly specify the tool or module:
                                     - pipeline: Manage infrastructure and testing pipelines
                                     - template: Manage templates from different data sources like MongoDB, Files, etc.
                                     - secret: Manage encrypted secrets and credentials
