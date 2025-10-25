@@ -257,7 +257,7 @@ export class IoC implements IIoC {
     }
 
     if (typeof target === 'string') {
-      let modulePath = file ?? (path ? `${path}/${target}` : null);
+      let modulePath = file ?? (path ? `${path}/${target}` : null) ?? target;
 
       if (!modulePath) {
         throw new Error(`Path required for dynamic import of: ${target}`);
