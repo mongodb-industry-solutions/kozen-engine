@@ -147,8 +147,8 @@ export class KzApp extends KzModule {
             obj.metadata = obj.metadata || {};
             obj.metadata.src = dep;
             obj.metadata.namespace = namespace;
-            obj.metadata.name = mod.name;
-            obj.metadata.alias = mod.alias || mod.name;
+            obj.metadata.name = obj.metadata.name || mod.name;
+            obj.metadata.alias = obj.metadata.alias || mod.alias || mod.name;
         }
         return obj;
     }
