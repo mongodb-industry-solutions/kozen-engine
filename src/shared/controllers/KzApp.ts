@@ -54,18 +54,20 @@ export class KzApp extends KzModule {
     public async configure(args: IArgs): Promise<IConfig | null> {
         try {
             const config = (args.config && await this.load(args.config)) || {} as IConfig;
+            const defCfg = defConfig as unknown as IConfig;
+
             !config.modules && (config.modules = {});
             !config.dependencies && (config.dependencies = {} as IDependencyMap);
 
             config.id = config.id || this.getId(args);
-            config.name = config.name || defConfig.name || 'Default';
-            config.engine = config.engine || defConfig.engine || 'default';
-            config.version = config.version || defConfig.version || '1.0.0';
-            config.description = config.description || defConfig.description || 'Kozen Engine Default Configuration';
-            config.type = args.type || config.type || (defConfig as unknown as IConfig).type || 'cli';
-            config.modules.path = config.modules.path || defConfig.modules.path;
-            config.modules.load = config.modules.load || defConfig.modules.load;
-            config.dependencies = { ...(defConfig.dependencies as IDependencyMap), ...(config.dependencies as IDependencyMap) };
+            config.name = config.name || defCfg.name || 'Default';
+            config.engine = config.engine || defCfg.engine || 'default';
+            config.version = config.version || defCfg.version || '1.0.0';
+            config.description = config.description || defCfg.description || 'Kozen Engine Default Configuration';
+            config.type = args.type || config.type || defCfg.type || 'cli';
+            config.modules.path = config.modules.path || defCfg.modules?.path || args.modulePath || process.env.KOZEN_MODULE_PATH;
+            config.modules.load = config.modules.load || defCfg.modules?.load || args.moduleLoad?.split(',') || process.env.KOZEN_MODULE_LOAD?.split(',') || [];
+            config.dependencies = { ...(defCfg.dependencies as IDependencyMap), ...(config.dependencies as IDependencyMap) };
             return config;
         } catch (error) {
             throw new Error(`Failed to configure: ${error instanceof Error ? error.message : String(error)}`);
@@ -115,10 +117,11 @@ export class KzApp extends KzModule {
 
     public async getModule(mod: IModuleOpt | string, config: IConfig | null): Promise<IModule | null> {
         mod = typeof mod === 'string' ? { name: mod } : mod;
-        mod.path = mod.path || config?.modules?.path || "../../../modules";
+        mod.path = mod.path || config?.modules?.path || process.env.KOZEN_MODULE_PATH || "../../../modules";
         let namespace = mod.key || "module:" + (mod.alias || mod.name);
         let dep: IDependency = {
             ...{
+                "category": "module",
                 "lifetime": "singleton",
                 "dependencies": [
                     {
