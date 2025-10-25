@@ -66,7 +66,12 @@ export class MongoDBLogProcessor extends LogProcessor {
     catch (error) {
       console.log({
         src: 'Tool:Log:Processor:MDB',
-        message: (error as Error).message
+        message: 'Invalid log processing: ' + (error as Error).message,
+        data: {
+          uri: this.uri,
+          database: this.database,
+          collection: this.collection
+        }
       })
     }
   }
