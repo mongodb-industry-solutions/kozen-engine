@@ -12,6 +12,6 @@ export class PipelineController extends CLIController {
     public async help(): Promise<void> {
         const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
         const helpText = await this.srvFile?.select('kozen', dir);
-        console.log(helpText);
+        super.help('Kozen - Task Execution Framework', helpText);
     }
 } 
