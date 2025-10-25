@@ -16,7 +16,6 @@ export { MCPController } from './modules/mcp/controllers/MCPController';
 // Shared controllers: base classes
 export { KzApp } from './shared/controllers/KzApp';
 export { KzApplication } from './shared/controllers/KzApplication';
-export { KzComponent } from './shared/controllers/KzComponent';
 export { KzController } from './shared/controllers/KzController';
 export { KzModule } from './shared/controllers/KzModule';
 
@@ -60,7 +59,6 @@ export * from './shared/models/Args';
 export * from './shared/models/Bundle';
 export * from './shared/models/Component';
 export * from './shared/models/Config';
-export * from './shared/models/Controller';
 export * from './shared/models/Metadata';
 export * from './shared/models/Module';
 export * from './shared/models/Processor';
@@ -72,7 +70,6 @@ export { ISecretArgs, ISecretManager } from './modules/secret/models/Secret';
 export { IKzApplication } from './shared/models/App';
 export { IArgs } from './shared/models/Args';
 export { IConfig } from './shared/models/Config';
-export { IController } from './shared/models/Controller';
 export { IMetadata } from './shared/models/Metadata';
 export { IModule, IModuleOpt } from './shared/models/Module';
 export { IProcessorService } from './shared/models/Processor';
