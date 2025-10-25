@@ -1,5 +1,8 @@
 import { aliasTo, asClass, asFunction, asValue, AwilixContainer, createContainer } from 'awilix';
+import { promises as fsp } from 'fs';
+import { createRequire } from 'module';
 import * as _path from 'path';
+import { pathToFileURL } from 'url';
 import { ITplVars, Tpl } from './tpl';
 import { IClassConstructor, IDependency, IDependencyMap, IIoC } from './types';
 
@@ -250,8 +253,23 @@ export class IoC implements IIoC {
       }
 
       try {
-        modulePath = require.resolve(modulePath);
-        const importedModule = await import(modulePath);
+        const nodeRequire = typeof require === 'function' ? require : createRequire(__filename);
+        modulePath = nodeRequire.resolve(modulePath);
+        const isESModule = await this.isEsmModule(modulePath, dependency);
+        let importedModule: any;
+        if (isESModule) {
+          importedModule = await this.dynamicImport(modulePath);
+        } else {
+          try {
+            importedModule = nodeRequire(modulePath);
+          } catch (err: any) {
+            if (err && (err.code === 'ERR_REQUIRE_ESM' || /must be imported using ESM/.test(String(err.message)))) {
+              importedModule = await this.dynamicImport(modulePath);
+            } else {
+              throw err;
+            }
+          }
+        }
         this.store[key!].file = modulePath;
         this.store[key!].path = _path.dirname(modulePath);
         if (raw) {
@@ -264,6 +282,57 @@ export class IoC implements IIoC {
     }
 
     throw new Error(`Invalid class target for dependency: ${key}`);
+  }
+
+  /**
+   * Determines whether a resolved file should be treated as an ES module.
+   */
+  private async isEsmModule(resolvedPath: string, dependency: IDependency): Promise<boolean> {
+    if (dependency.moduleType === 'esm') return true;
+    if (dependency.moduleType === 'cjs') return false;
+    if (resolvedPath.endsWith('.mjs')) return true;
+    if (resolvedPath.endsWith('.cjs')) return false;
+    // For .js, check nearest package.json "type" field
+    const pkgType = await this.findNearestPackageType(resolvedPath);
+    return pkgType === 'module';
+  }
+
+  /**
+   * Walks up directories from a file to find nearest package.json and returns its "type" field.
+   */
+  private async findNearestPackageType(resolvedPath: string): Promise<'module' | 'commonjs' | null> {
+    try {
+      let dir = _path.dirname(resolvedPath);
+      const root = _path.parse(dir).root;
+      while (true) {
+        const pkgPath = _path.join(dir, 'package.json');
+        try {
+          const content = await fsp.readFile(pkgPath, 'utf-8');
+          const json = JSON.parse(content) as { type?: string };
+          if (json && typeof json.type === 'string') {
+            return json.type === 'module' ? 'module' : 'commonjs';
+          }
+          return 'commonjs';
+        } catch {
+          // not found in this dir -> continue up
+        }
+        if (dir === root) break;
+        dir = _path.dirname(dir);
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  }
+
+  /**
+   * Performs a dynamic import using a runtime construct to avoid TS downlevel transforms.
+   */
+  private async dynamicImport(resolvedPath: string): Promise<any> {
+    const url = pathToFileURL(resolvedPath).href;
+    // Using Function constructor prevents TypeScript from transforming import()
+    const dynamicImporter = new Function('u', 'return import(u)') as (u: string) => Promise<any>;
+    return dynamicImporter(url);
   }
 
   /**
@@ -294,7 +363,7 @@ export class IoC implements IIoC {
       }
       return await this.resolve<T>(key);
     } catch (error) {
-      // this.logger?.error({ src: 'IoC', message: `Failed to save get dependency: ${error instanceof Error ? error.message : String(error)}` });
+      // this.logger?.error({ src: 'IoC', message: `Failed to get dependency: ${error instanceof Error ? error.message : String(error)}` });
       return null;
     }
   }
