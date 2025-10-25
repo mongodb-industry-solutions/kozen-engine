@@ -66,7 +66,15 @@ export class KzApp extends KzModule {
             config.description = config.description || defCfg.description || 'Kozen Engine Default Configuration';
             config.type = args.type || config.type || defCfg.type || 'cli';
             config.modules.path = config.modules.path || defCfg.modules?.path || args.modulePath || process.env.KOZEN_MODULE_PATH;
-            config.modules.load = config.modules.load || defCfg.modules?.load || args.moduleLoad?.split(',') || process.env.KOZEN_MODULE_LOAD?.split(',') || [];
+            config.modules.mode = config.modules.mode || defCfg.modules?.mode || args.moduleMode || process.env.KOZEN_MODULE_MODE || 'inherit';
+            config.modules.load = config.modules.load || args.moduleLoad?.split(',') || process.env.KOZEN_MODULE_LOAD?.split(',');
+            if (config.modules.mode === 'inherit') {
+                const baseLoad = Array.isArray(config.modules.load) ? config.modules.load : [];
+                const defLoad = Array.isArray(defCfg.modules?.load) ? defCfg.modules.load : [];
+                config.modules.load = [...new Set([...defLoad, ...baseLoad])];
+            } else {
+                config.modules.load = config.modules.load || defCfg.modules?.load;
+            }
             config.dependencies = { ...(defCfg.dependencies as IDependencyMap), ...(config.dependencies as IDependencyMap) };
             return config;
         } catch (error) {
@@ -117,7 +125,7 @@ export class KzApp extends KzModule {
 
     public async getModule(mod: IModuleOpt | string, config: IConfig | null): Promise<IModule | null> {
         mod = typeof mod === 'string' ? { name: mod } : mod;
-        mod.path = mod.path || config?.modules?.path || process.env.KOZEN_MODULE_PATH || "../../../modules";
+        mod.path = mod.path || config?.modules?.path || process.env.KOZEN_MODULE_PATH;
         let namespace = mod.key || "module:" + (mod.alias || mod.name);
         let dep: IDependency = {
             ...{
