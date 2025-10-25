@@ -75,19 +75,15 @@ export class MdbClient {
      */
     protected async initClient(options?: IMdbClientOpts): Promise<MongoClient> {
         const { mdb } = options || this.options;
-
         if (!mdb?.uri) {
             throw new Error("The MongoDB URI is required to initialize the MongoDB Secrets Manager.");
         }
-
         const uri = process.env[mdb.uri] as string;
-
         // Initialize MongoDB client if not done already
         if (!this.client) {
             this.client = new MongoClient(uri);
             await this.client.connect();
         }
-
         return this.client;
     }
 
