@@ -1,8 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
 import path from "path";
 import { z } from "zod";
-import { MCPController } from "../../../applications/mcp/controllers/MCPController";
 import { FileService } from "../../../shared/services/FileService";
+import { MCPController } from "../../mcp/controllers/MCPController";
 
 export class HelpController extends MCPController {
 

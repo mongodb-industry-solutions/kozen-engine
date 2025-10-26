@@ -20,6 +20,11 @@ export type IFunction<T = any> = (...args: any[]) => T;
 export type IDependencyMap = { [key: string]: IDependency };
 
 /**
+ * Map of dependency configuration maps categorized by string keys.
+ */
+export type IDependencyClassMap = { [key: string]: IDependencyMap };
+
+/**
  * Array of dependency configuration objects.
  */
 export type IDependencyList = IDependency[];
@@ -97,6 +102,11 @@ export interface IDependency {
    * Nested dependencies for injection.
    */
   dependencies?: IDependencyList | IDependencyMap;
+
+  /**
+   * Optional category for grouping dependencies.
+   */
+  category?: string;
 }
 
 /**
@@ -114,6 +124,12 @@ export interface IIoC {
    * Gets all registered dependency configurations.
    */
   store: IDependencyMap;
+
+  /**
+   * Map of dependency categories for organized grouping
+   * @public
+   */
+  map: IDependencyClassMap;
 
   /**
    * Registers dependencies from array or map.

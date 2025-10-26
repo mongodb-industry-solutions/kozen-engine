@@ -4,20 +4,32 @@
   "engine": ">=1.0.0",
   "description": "Default configuration for Kozen as Task Execution Framework",
   "modules": {
-    "path": "../../../modules",
     "load": [
-      "logger",
-      "secret",
-      "template",
-      "pipeline",
-      "rectification",
-      "report",
-      "trigger",
-      "help"
+      {
+        "name": "logger",
+        "path": "../../../modules"
+      },
+      {
+        "name": "secret",
+        "path": "../../../modules"
+      },
+      {
+        "name": "help",
+        "path": "../../../modules"
+      },
+      {
+        "name": "cli",
+        "path": "../../../modules"
+      },
+      {
+        "name": "mcp",
+        "path": "../../../modules"
+      }
     ]
   },
   "dependencies": {
     "core:components": {
+      "category": "core",
       "path": "../../../components",
       "type": "auto",
       "lifetime": "singleton",
@@ -38,6 +50,7 @@
       ]
     },
     "core:file": {
+      "category": "core",
       "target": "FileService",
       "type": "class",
       "lifetime": "transient",
@@ -51,6 +64,7 @@
       ]
     },
     "core:processor": {
+      "category": "core",
       "target": "ProcessorService",
       "type": "class",
       "lifetime": "singleton",

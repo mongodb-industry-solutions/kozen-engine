@@ -8,6 +8,12 @@ import mcp from "./configs/mcp.json";
 
 export class SecretModule extends KzModule {
 
+    constructor(dependency?: any) {
+        super(dependency);
+        this.metadata.summary = 'Manage encrypted secrets and credentials';
+        this.metadata.alias = 'secret';
+    }
+
     public register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null> {
         let dep = {};
         switch (config?.type) {
