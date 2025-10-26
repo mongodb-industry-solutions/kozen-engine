@@ -8,10 +8,10 @@
  * @version 1.1.0
  */
 import path from 'path';
-import { CLIController } from '../../../applications/cli/controllers/CLIController';
 import { IArgs } from '../../../shared/models/Args';
 import { IConfig } from '../../../shared/models/Config';
 import { IAction } from '../../../shared/models/Types';
+import { CLIController } from '../../cli/controllers/CLIController';
 import { ISecretArgs, ISecretManager } from '../models/Secret';
 
 /**
@@ -136,7 +136,7 @@ export class SecretController extends CLIController {
     public async help(): Promise<void> {
         const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
         const helpText = await this.srvFile?.select('secret', dir);
-        console.log(helpText);
+        super.help('TOOL: Secret Manager', helpText);
     }
 
     /**

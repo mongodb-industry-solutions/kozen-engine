@@ -1,5 +1,6 @@
 import path from "path";
-import { CLIController } from "../../../applications/cli/controllers/CLIController";
+import { IModule } from "../../../shared/models/Module";
+import { CLIController } from "../../cli/controllers/CLIController";
 
 export class PipelineController extends CLIController {
     /**
@@ -10,8 +11,18 @@ export class PipelineController extends CLIController {
      * @public
      */
     public async help(): Promise<void> {
-        const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
-        const helpText = await this.srvFile?.select('kozen', dir);
-        console.log(helpText);
+        let dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
+        let helpText = await this.srvFile?.select('kozen', dir);
+        let map = this.assistant?.map?.module || {};
+        let mod = '';
+        for (const key of Object.keys(map)) {
+            if (key.includes('help')) continue;
+            const dep = await this.assistant?.get(key) as IModule;
+            const name = dep.metadata?.alias || dep.metadata?.name || key;
+            const from = name !== dep.metadata?.name ? `from <${dep.metadata?.name}>` : '';
+            dep.metadata?.summary && (mod += `                                    - ${name}: ${dep.metadata?.summary || 'No description available'}, ${from}\n`);
+        }
+        helpText = helpText?.replace('{MOD}', mod) || '';
+        super.help('Kozen - Task Execution Framework', helpText);
     }
 } 

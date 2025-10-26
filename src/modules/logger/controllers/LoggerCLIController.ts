@@ -8,9 +8,9 @@
  * @version 1.1.0
  */
 import path from 'path';
-import { CLIController } from '../../../applications/cli/controllers/CLIController';
 import { VCategory } from '../../../shared/models/Types';
 import { JSONT, readFrom } from '../../../shared/tools';
+import { CLIController } from '../../cli/controllers/CLIController';
 import { ILogArgs } from '../models/Logger';
 
 /**
@@ -40,7 +40,7 @@ export class LoggerController extends CLIController {
     public async help(): Promise<void> {
         const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
         const helpText = await this.srvFile?.select('logger', dir);
-        console.log(helpText);
+        super.help('TOOL: Logger Manager', helpText);
     }
 
     /**

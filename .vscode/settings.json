@@ -15,8 +15,6 @@
     "debug.console.lineHeight": 20,
     "terminal.integrated.defaultProfile.windows": "PowerShell",
     "files.exclude": {
-        "**/node_modules": true,
-        "**/dist": true,
         "**/.pulumi": true,
         "**/logs": true
     },
@@ -32,4 +30,4 @@
     "[typescript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
     }
-} 
+}
