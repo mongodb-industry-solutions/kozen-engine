@@ -35,21 +35,19 @@ export class ServerMCP extends KzApplication {
     }
 
     async init(config: IConfig, app: IModule, node?: McpServer): Promise<void> {
-        const modules = [Promise.resolve()];
         node = node || this._node;
         app = app || this.app;
-
+        const modules = [Promise.resolve()];
+        const mods = app.helper?.map?.module;
         if (!config || config.modules?.load === undefined) {
             throw new Error("App Module not properly initialized: missing config.");
         }
-
-        for (const key in config.modules.load || []) {
-            let item = config.modules?.load[key];
-            let name = typeof item === 'string' ? item : item.name;
-            let module = name && await app.helper?.get<MCPController>(name + ":controller:mcp") || null;
-            module && modules.push(module.register(node));
+        for (const key in mods) {
+            let mod = await app.helper?.get<IModule>(key);
+            let name = mod?.metadata?.alias || mod?.metadata?.name || key;
+            let ctl = name && await app.helper?.get<MCPController>(name + ":controller:mcp") || null;
+            ctl && modules.push(ctl.register(node));
         }
-
         await Promise.all(modules);
     }
 }
