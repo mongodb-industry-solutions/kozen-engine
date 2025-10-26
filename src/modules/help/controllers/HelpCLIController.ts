@@ -18,7 +18,9 @@ export class PipelineController extends CLIController {
         for (const key of Object.keys(map)) {
             if (key.includes('help')) continue;
             const dep = await this.assistant?.get(key) as IModule;
-            dep.metadata?.summary && (mod += `                                    - ${dep.metadata?.alias || dep.metadata?.name || key}: ${dep.metadata?.summary || 'No description available.'} from <${dep.metadata?.name}>\n`);
+            const name = dep.metadata?.alias || dep.metadata?.name || key;
+            const from = name !== dep.metadata?.name ? `from <${dep.metadata?.name}>` : '';
+            dep.metadata?.summary && (mod += `                                    - ${name}: ${dep.metadata?.summary || 'No description available'}, ${from}\n`);
         }
         helpText = helpText?.replace('{MOD}', mod) || '';
         super.help('Kozen - Task Execution Framework', helpText);

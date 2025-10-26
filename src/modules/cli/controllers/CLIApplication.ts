@@ -58,7 +58,7 @@ export class CLIServer extends KzApplication {
             const options = { ...args, ...(await controller.fill(args)) };
             const action = controller[args.action];
             if (!action) {
-                throw new Error('No valid action found');
+                throw new Error('No valid action found: ' + args.action);
             }
 
             const result = await action.apply(controller, [options]) as T;
