@@ -1,6 +1,7 @@
 import { IDependency, IIoC, ILogInput, ILogLevel } from "../tools";
 import { IArgs } from "./Args";
 import { IConfig } from "./Config";
+import { IMetadata } from "./Metadata";
 
 export interface IModuleOpt {
     key?: string;
@@ -16,7 +17,7 @@ export interface IModule {
     /**
      * Metadata about the module's dependency configuration
      */
-    metadata: IDependency | null | undefined;
+    metadata?: IMetadata;
 
     /**
      * Initializes the module

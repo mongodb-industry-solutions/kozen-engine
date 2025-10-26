@@ -1,8 +1,10 @@
+import path from "path";
 import { IArgs } from "../models/Args";
 import { IConfig } from "../models/Config";
+import { IMetadata } from "../models/Metadata";
 import { IModule } from "../models/Module";
 import { VCategory } from "../models/Types";
-import { IDependency, IIoC, ILogInput, ILogLevel, IoC } from "../tools";
+import { IDependency, IDependencyMap, IIoC, ILogInput, ILogLevel, IoC } from "../tools";
 import { ILogger } from "../tools/log/types";
 
 /**
@@ -16,7 +18,8 @@ import { ILogger } from "../tools/log/types";
  */
 export class KzModule implements IModule {
 
-    public metadata: IDependency;
+    public metadata: IMetadata;
+
     /**
      * IoC container instance for dependency injection and service resolution
      * @type {IIoC | null}
@@ -103,5 +106,13 @@ export class KzModule implements IModule {
 
     public async register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null> {
         return Promise.resolve(null);
+    }
+
+    public fix(dep: IDependencyMap): IDependencyMap {
+        for (const key in dep) {
+            let item = dep[key] as IDependency;
+            item.path = path.join(this.metadata.src?.path || '', item.path || '');
+        }
+        return dep;
     }
 }

@@ -4,7 +4,7 @@ import { createRequire } from 'module';
 import * as _path from 'path';
 import { pathToFileURL } from 'url';
 import { ITplVars, Tpl } from './tpl';
-import { IClassConstructor, IDependency, IDependencyMap, IIoC } from './types';
+import { IClassConstructor, IDependency, IDependencyClassMap, IDependencyMap, IIoC } from './types';
 
 /**
  * IoC container with auto-registration and recursive dependency resolution.
@@ -24,9 +24,15 @@ export class IoC implements IIoC {
 
   /**
    * Array storing all registered dependency configurations for tracking
-   * @private
+   * @public
    */
-  public store: IDependencyMap = {};
+  public store: IDependencyMap;
+
+  /**
+   * Map of dependency categories for organized grouping
+   * @public
+   */
+  public map: IDependencyClassMap;
 
   /**
    * Cache map storing auto-registration patterns by regex keys
@@ -47,6 +53,8 @@ export class IoC implements IIoC {
     this.container = createContainer();
     this.logger = logger ?? null;
     this.tpl = new Tpl();
+    this.store = {};
+    this.map = {};
 
     // Auto-register IoC instance as "assistant" for reuse principle
     this.container.register('IoC', asValue(this));
@@ -82,6 +90,7 @@ export class IoC implements IIoC {
     try {
       // Determine dependency key if not provided
       (!dependency.key) && (dependency.key = this.getKey(dependency.target, dependency.type));
+      (!dependency.category) && (dependency.category = 'core');
 
       if (this.store[dependency.key!]) {
         // this.logger?.info({ src: 'IoC', message: `Cached dependency: ${dependency.key}` });
@@ -93,7 +102,9 @@ export class IoC implements IIoC {
       }
 
       // Store dependency configuration
-      this.store[dependency.key!] = dependency;
+      this.store[dependency.key] = dependency;
+      !this.map[dependency.category] && (this.map[dependency.category] = {});
+      this.map[dependency.category][dependency.key] = dependency;
 
       // Handle auto-registration storage
       if (dependency.type === 'auto') {
@@ -117,7 +128,7 @@ export class IoC implements IIoC {
       // this.logger?.info({ src: 'IoC', message: `Enrolled dependency: ${dependency.key}` });
     }
     catch (error) {
-      // this.logger?.error({ src: 'IoC', message: `Failed to enroll dependency: ${error instanceof Error ? error.message : String(error)}` });
+      this.logger?.warn({ src: 'IoC', message: `Failed to enroll dependency: ${error instanceof Error ? error.message : String(error)}` });
     }
   }
 
@@ -246,7 +257,7 @@ export class IoC implements IIoC {
     }
 
     if (typeof target === 'string') {
-      let modulePath = file ?? (path ? `${path}/${target}` : null);
+      let modulePath = file ?? (path ? `${path}/${target}` : null) ?? target;
 
       if (!modulePath) {
         throw new Error(`Path required for dynamic import of: ${target}`);
@@ -363,7 +374,7 @@ export class IoC implements IIoC {
       }
       return await this.resolve<T>(key);
     } catch (error) {
-      // this.logger?.error({ src: 'IoC', message: `Failed to get dependency: ${error instanceof Error ? error.message : String(error)}` });
+      this.logger?.warn({ src: 'IoC', message: `Failed to get dependency: ${error instanceof Error ? error.message : String(error)}` });
       return null;
     }
   }
@@ -402,7 +413,7 @@ export class IoC implements IIoC {
           // this.logger?.info({ src: 'IoC', message: `Auto-registered dependency: ${key}` });
           return true;
         } catch (error) {
-          // this.logger?.warn({ src: 'IoC', message: `Auto-registration failed for ${key}: ${error instanceof Error ? error.message : String(error)}` });
+          this.logger?.warn({ src: 'IoC', message: `Auto-registration failed for ${key}: ${error instanceof Error ? error.message : String(error)}` });
         }
       }
     }
@@ -444,4 +455,4 @@ export class IoC implements IIoC {
       // this.logger?.info({ src: 'IoC', message: `Unregistered dependency: ${key}` });
     }
   }
-} 
+}

@@ -57,6 +57,7 @@ export interface IConfig extends IArgs {
      */
     modules?: {
         path?: string;
+        mode?: "inherit" | "override";
         load?: Array<string | IModuleOpt>;
     }
 }

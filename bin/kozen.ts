@@ -47,12 +47,7 @@ import { VCategory } from '../src/shared/models/Types';
         }
         await app.register(config);
 
-        const srv = await app.helper?.get<IKzApplication>({
-            "key": config.type,
-            "path": process.env.KOZEN_APP_PATH || "../../../applications",
-            "args": [config, app],
-            "lifetime": "singleton"
-        });
+        const srv = await app.helper?.get<IKzApplication>("application:" + config.type);
 
         if (!srv) {
             throw new Error(`No valid application found for type: ${config.type}`);
