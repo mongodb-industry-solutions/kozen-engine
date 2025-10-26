@@ -28,27 +28,6 @@
     ]
   },
   "dependencies": {
-    "core:components": {
-      "category": "core",
-      "path": "../../../components",
-      "type": "auto",
-      "lifetime": "singleton",
-      "args": [
-        {}
-      ],
-      "dependencies": [
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "logger:service",
-          "type": "ref"
-        }
-      ]
-    },
     "core:file": {
       "category": "core",
       "target": "FileService",
