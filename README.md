@@ -2,7 +2,7 @@
 
 **Kozen** is a lightweight Task Execution Framework, designed for creating automation pipelines, versatile tools, and applications. It enables seamless integration with AI-based interfaces like AI MCP, allowing effortless interactions with large language models (LLMs) and traditional automation tools alike. Kozen supports multiple interfaces, including CLI and REST, and provides easy-to-extend mechanisms for building application types based on its robust extension model. As an NPM package, Kozen integrates seamlessly into Node.js environments, offering scalability, extensibility, and simplicity.
 
-![Kozen](https://github.com/mongodb-industry-solutions/kozen-engine/blob/main/docs/images/banner.jpg)
+![](https://github.com/mongodb-industry-solutions/kozen-engine/blob/main/docs/images/banner.jpg)
 
 ## 🎯 Features
 
@@ -60,30 +60,6 @@ Kozen enables following Dependency Injection (DI) and Inversion of Control (IoC)
 
 ---
 
-### 🔧 Example Configuration
-
-An example configuration file (`cfg/config.json`) for pipeline execution:
-
-```json
-{
-  "project": "demo",
-  "stack": "dev",
-  "modules": [
-    "pipeline",
-    "template",
-    "secret",
-    "logger",
-    {
-      "path": "/home/user/modules",
-      "target": "myCustomModule",
-      "name": "mytool"
-    }
-  ]
-}
-```
-
----
-
 ## 📦 Multi-Interface Application Development
 
 Kozen empowers developers to create Jenkins-style applications that support CLI, REST, and AI-based interfaces like **AI MCP** for interacting with LLMs. The modular design ensures applications and tools are customizable while remaining straightforward to implement.
@@ -106,19 +82,25 @@ npx kozen --action=help
 ### Run the `list` method from the `template` module/tool
 
 ```bash
-npx kozen --action=template:list
+npx kozen --action=template:list --moduleLoad=@mongodb-solution-assurance/kozen-template
 ```
 
 ### Create the environment file: `/home/user/.env`
 
 ```
 MDB_URI=mongodb+srv://***REDACTED***@server/kozen?retryWrites=true&w=majority&appName=MyApp
-MDB_MASTER_KEY=7icW59e/YatIzyuAxXXCkkr4zW6iHcjopV685wCgFr13iqLcJVtptutaSDPHi4Z
-ATLAS_PROJECT_ID=111
-ATLAS_PRIVATE_KEY=111
-ATLAS_PUBLIC_KEY=111
+MDB_MASTER_KEY=opV685wCgFr13iqLcJVtptutaSDPHi4Z
+
+ATLAS_PROJECT_ID=SDPHi4Z
+ATLAS_PRIVATE_KEY=V685wCg
+ATLAS_PUBLIC_KEY=13iqLc
+
 PULUMI_CONFIG_PASSPHRASE=demo
-KOZEN_LOG_LEVEL=NONE
+
+KOZEN_LOG_LEVEL=INFO
+KOZEN_LOG_TYPE=object
+KOZEN_MODULE_LOAD=@mongodb-solution-assurance/kozen-template
+
 ```
 
 ### Run the `list` method from the `template` module/tool with a static environment file
@@ -146,12 +128,14 @@ Below is an interaction example using AI MCP, including server setups and enviro
       "args": ["-y", "@mongodb-solution-assurance/kozen@latest", "--type=mcp"],
       "env": {
         "MDB_URI": "mongodb+srv://***REDACTED***@server/kozen?retryWrites=true&w=majority&appName=MyApp",
-        "MDB_MASTER_KEY": "7icW59e/YatIzyuAxXXCkkr4zW6iHcjopV685wCgFr13iqLcJVtptutaSDPHi4Z",
-        "ATLAS_PROJECT_ID": "111",
-        "ATLAS_PRIVATE_KEY": "111",
-        "ATLAS_PUBLIC_KEY": "111",
+        "MDB_MASTER_KEY": "opV685wCgFr13iqLcJVtptutaSDPHi4Z",
+        "ATLAS_PROJECT_ID": "SDPHi4Z",
+        "ATLAS_PRIVATE_KEY": "V685wCg",
+        "ATLAS_PUBLIC_KEY": "13iqLc",
         "PULUMI_CONFIG_PASSPHRASE": "demo",
-        "KOZEN_LOG_LEVEL": "NONE"
+        "KOZEN_LOG_LEVEL": "NONE",
+        "KOZEN_LOG_TYPE": "object",
+        "KOZEN_MODULE_LOAD": "@mongodb-solution-assurance/kozen-template"
       }
     }
   },
@@ -165,7 +149,7 @@ Below is an interaction example using AI MCP, including server setups and enviro
 
 Explore additional resources and documentation:
 
-- **Official Wiki**: [Kozen Engine Wiki](https://github.com/mongodb-industry-solutions/kozen-engine/wiki)
+- **Official Wiki**: [Kozen Wiki](https://github.com/mongodb-industry-solutions/kozen-engine/wiki)
 - **Reported Issues**: [GitHub Issues](https://github.com/mongodb-industry-solutions/kozen-engine/issues)
 - **Local Documentation**: [Direct Repository - Docs Folder](./docs/README.md)
 
