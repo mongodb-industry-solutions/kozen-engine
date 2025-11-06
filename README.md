@@ -19,6 +19,19 @@
 
 ---
 
+## 📊 Core Concepts
+
+- **Modules**: Extend and add functionality via horizontal modules like pipeline orchestration, logging, and more. Modules play a critical role by internally registering one or more of the following: applications, components, and controllers:
+  - **Applications**: Build high-level interfaces such as CLI, AI MCP, and REST with Kozen.
+  - **Components**: Fine-grained reusable execution units for tasks like IaC provisioning, API communication, and LLM integrations.
+  - **Controllers**: Responsible for handling actions based on the executed application. Controllers are a cornerstone of Kozen, responding to tasks and providing specific functionalities linked to the application's communication interface.
+- **Templates**: Ensure workflows and dependencies are declaratively defined using JSON files.
+- **Shared Utilities**: Out-of-the-box utilities including dependency injection, environment management, logging, and common abstractions, making Kozen ideal for scalable automation and AI-driven applications.
+
+For better understanding, please read the ['Introduction' section](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/Introduction)
+
+---
+
 ## 🏭 Installation
 
 Install Kozen via NPM:
@@ -27,121 +40,29 @@ Install Kozen via NPM:
 npm install @mongodb-solution-assurance/kozen
 ```
 
----
-
-## 🚀 Quick Usage
-
-Below is an example of quickly using Kozen to deploy a pipeline:
-
-```typescript
-import { IoC, PipelineManager } from "@mongodb-solution-assurance/kozen";
-
-const ioc = new IoC();
-const pipeline = new PipelineManager(ioc);
-
-await pipeline.deploy({
-  template: "atlas.basic",
-  config: "cfg/config.json",
-  action: "deploy",
-});
-```
-
----
-
-## 📊 Core Concepts
-
-- **Applications**: Build high-level interfaces such as CLI, AI MCP, and REST with Kozen.
-- **Modules**: Extend and add functionality via horizontal modules like pipeline orchestration, logging, and more.
-- **Components**: Fine-grained reusable execution units for tasks like IaC provisioning, API communication, and LLM integrations.
-- **Templates**: Ensure workflows and dependencies are declaratively defined using JSON files.
-- **Shared Utilities**: Out-of-the-box utilities including dependency injection, environment management, logging, and common abstractions.
-
-Kozen enables following Dependency Injection (DI) and Inversion of Control (IoC) principles, making it ideal for scalable automation and AI-driven applications.
+For better understanding, please read the ['Get-Started' section](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/Get-Started)
 
 ---
 
 ## 📦 Multi-Interface Application Development
 
-Kozen empowers developers to create Jenkins-style applications that support CLI, REST, and AI-based interfaces like **AI MCP** for interacting with LLMs. The modular design ensures applications and tools are customizable while remaining straightforward to implement.
+Kozen empowers developers to build applications that support multiple interfaces, including CLI, REST, and AI-based interfaces such as **AI MCP** for interacting with LLMs and more. Its modular design ensures that applications and tools are both customizable and easy to implement.
 
-Refer to examples in files like `bin/pipeline.ts` or `bin/kozen.ts` to build CLI applications or explore the extensibility model for REST/MCP interfaces. Import required modules from the following package:
-`@mongodb-solution-assurance/kozen`.
-
----
-
-## 🖥️ CLI Interactions
+### 🖥️ CLI Interactions
 
 Below are examples of how to interact with **Kozen** through its **CLI interface**:
-
-### General Help Command
 
 ```bash
 npx kozen --action=help
 ```
 
-### Run the `list` method from the `template` module/tool
+For better understanding, please read the ['App-CLI' section](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/App-CLI)
 
-```bash
-npx kozen --action=template:list --moduleLoad=@mongodb-solution-assurance/kozen-template
-```
+### 🤖 AI MCP Interactions
 
-### Create the environment file: `/home/user/.env`
+**MCP (Model Context Protocol)** for Artificial Intelligence Systems is an interface for interacting with Kozen and its modules through JSON-based communication protocols.
 
-```
-MDB_URI=mongodb+srv://***REDACTED***@server/kozen?retryWrites=true&w=majority&appName=MyApp
-MDB_MASTER_KEY=opV685wCgFr13iqLcJVtptutaSDPHi4Z
-
-ATLAS_PROJECT_ID=SDPHi4Z
-ATLAS_PRIVATE_KEY=V685wCg
-ATLAS_PUBLIC_KEY=13iqLc
-
-PULUMI_CONFIG_PASSPHRASE=demo
-
-KOZEN_LOG_LEVEL=INFO
-KOZEN_LOG_TYPE=object
-KOZEN_MODULE_LOAD=@mongodb-solution-assurance/kozen-template
-
-```
-
-### Run the `list` method from the `template` module/tool with a static environment file
-
-```bash
-npx kozen --action=template:list --envFile=/home/user/.env
-```
-
----
-
-## 🤖 AI MCP Interactions
-
-**AI MCP (Model Context Protocol)** is an interface for interacting with Kozen and its modules through JSON-based communication protocols.
-
-### Example of AI MCP Configuration
-
-Below is an interaction example using AI MCP, including server setups and environment configurations:
-
-```json
-{
-  "servers": {
-    "kozen": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@mongodb-solution-assurance/kozen@latest", "--type=mcp"],
-      "env": {
-        "MDB_URI": "mongodb+srv://***REDACTED***@server/kozen?retryWrites=true&w=majority&appName=MyApp",
-        "MDB_MASTER_KEY": "opV685wCgFr13iqLcJVtptutaSDPHi4Z",
-        "ATLAS_PROJECT_ID": "SDPHi4Z",
-        "ATLAS_PRIVATE_KEY": "V685wCg",
-        "ATLAS_PUBLIC_KEY": "13iqLc",
-        "PULUMI_CONFIG_PASSPHRASE": "demo",
-        "KOZEN_LOG_LEVEL": "NONE",
-        "KOZEN_LOG_TYPE": "object",
-        "KOZEN_MODULE_LOAD": "@mongodb-solution-assurance/kozen-template"
-      }
-    }
-  },
-  "inputs": []
-}
-```
+For better understanding, please read the ['App-MCP' section](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/App-MCP)
 
 ---
 
@@ -149,9 +70,9 @@ Below is an interaction example using AI MCP, including server setups and enviro
 
 Explore additional resources and documentation:
 
-- **Official Wiki**: [Kozen Wiki](https://github.com/mongodb-industry-solutions/kozen-engine/wiki)
+- **Official Wiki**: [Kozen Full Documentation](https://github.com/mongodb-industry-solutions/kozen-engine/wiki)
 - **Reported Issues**: [GitHub Issues](https://github.com/mongodb-industry-solutions/kozen-engine/issues)
-- **Local Documentation**: [Direct Repository - Docs Folder](./docs/README.md)
+- **Next Step**: [Get Started](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/Get-Started)
 
 ---
 
