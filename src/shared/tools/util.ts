@@ -72,6 +72,28 @@ export async function readFrom(path: string, opts?: { format?: string, error?: {
 }
 
 /**
+ * @description get a valid value for boolean format
+ * @param {String|Number|Boolean|Object|Array} value
+ * @returns {Boolean}
+ */
+export function asBoolean(value?: String | Number | Boolean | Object | Array<any>, strict: boolean = true): boolean {
+    if (!value) {
+        return false;
+    }
+    if (typeof value === "string") {
+        value = value.trim().toLowerCase();
+        value = !(!value || value === "false");
+    }
+    if (strict && typeof (value) === "object") {
+        if (Array.isArray(value)) {
+            return value.length > 0;
+        }
+        value = (Object.keys(value).length + Object.getOwnPropertySymbols(value).length);
+    }
+    return !!value;
+}
+
+/**
  * @class EnumUtl
  * @description Utility class for working with TypeScript enums and enum-like objects.
  * Provides methods for bidirectional enum lookups, supporting both numeric and string enums.
