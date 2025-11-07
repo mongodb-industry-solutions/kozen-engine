@@ -41,6 +41,8 @@ Environment Variables:
 
     KOZEN_LOG_FILE                  Default value assigned to the --file property, Ex: tmp/report-jest.json
     KOZEN_LOG_LEVEL                 Default value assigned to the --level property, Ex: ERROR
+    KOZEN_LOG_CONSOLE_ENABLED       Enable or disable sending logs to Console, by default true
+    KOZEN_LOG_MDB_ENABLED           Enable or disable sending logs to MongoDB, by default true
 
 Examples:
     # Basic text logging

@@ -1,4 +1,4 @@
-import { IIoC } from '../../../shared/tools';
+import { asBoolean, IIoC } from '../../../shared/tools';
 import {
     ConsoleLogProcessor,
     HybridLogProcessor,
@@ -68,12 +68,19 @@ export class LoggerService implements ILoggerService {
         // Create processors for dual output destination
         const processors = [];
         const logType = (process.env.KOZEN_LOG_TYPE as ILogOutputType) || config?.type || 'json';
+
+        !config.console && (config.console = {});
+        !config.mdb && (config.mdb = {});
+
+        config.console.enabled = process.env.KOZEN_LOG_CONSOLE_ENABLED !== undefined ? asBoolean(process.env.KOZEN_LOG_CONSOLE_ENABLED, false) : config.console.enabled;
+        config.mdb.enabled = process.env.KOZEN_LOG_MDB_ENABLED !== undefined ? asBoolean(process.env.KOZEN_LOG_MDB_ENABLED, false) : config.mdb.enabled;
+
         config.console?.enabled && processors.push(new ConsoleLogProcessor({
             level: ILogLevel[((process.env.KOZEN_LOG_LEVEL || config.console?.level) as unknown) as keyof typeof ILogLevel] ?? level,
             skip: config.console?.skip ?? skip,
             type: logType
         }));
-        config.mdb?.enabled && processors.push(new MongoDBLogProcessor({
+        config.mdb?.enabled && config.mdb.uri && processors.push(new MongoDBLogProcessor({
             level: ILogLevel[(process.env.KOZEN_LOG_LEVEL_REMOTE || config.mdb?.level as unknown) as keyof typeof ILogLevel] ?? level,
             uri: process.env[config.mdb.uri] || config.mdb.uri,
             database: config.mdb.database || 'kozen',

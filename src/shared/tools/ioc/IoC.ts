@@ -4,7 +4,7 @@ import { createRequire } from 'module';
 import * as _path from 'path';
 import { pathToFileURL } from 'url';
 import { ITplVars, Tpl } from './tpl';
-import { IClassConstructor, IDependency, IDependencyClassMap, IDependencyMap, IIoC } from './types';
+import { IClassConstructor, IDependency, IDependencyClassMap, IDependencyMap, IIoC, IModuleType } from './types';
 
 /**
  * IoC container with auto-registration and recursive dependency resolution.
@@ -299,8 +299,9 @@ export class IoC implements IIoC {
    * Determines whether a resolved file should be treated as an ES module.
    */
   private async isEsmModule(resolvedPath: string, dependency: IDependency): Promise<boolean> {
-    if (dependency.moduleType === 'esm') return true;
-    if (dependency.moduleType === 'cjs') return false;
+    dependency.moduleType = dependency.moduleType?.toLocaleLowerCase() as IModuleType;
+    if (dependency.moduleType === 'esm' || dependency.moduleType === 'mjs' || dependency.moduleType === 'module') return true;
+    if (dependency.moduleType === 'cjs' || dependency.moduleType === 'commonjs') return false;
     if (resolvedPath.endsWith('.mjs')) return true;
     if (resolvedPath.endsWith('.cjs')) return false;
     // For .js, check nearest package.json "type" field
@@ -313,7 +314,12 @@ export class IoC implements IIoC {
    */
   private async findNearestPackageType(resolvedPath: string): Promise<'module' | 'commonjs' | null> {
     try {
+      let skip = process.env.KOZEN_IOC_MOD_SKIP || '@mongodb-solution-assurance';
+      let mod = process.env.KOZEN_IOC_MOD_TYPE || 'commonjs';
       let dir = _path.dirname(resolvedPath);
+      if (resolvedPath.indexOf(skip) !== -1) {
+        return mod as 'module' | 'commonjs';
+      }
       const root = _path.parse(dir).root;
       while (true) {
         const pkgPath = _path.join(dir, 'package.json');
@@ -333,7 +339,7 @@ export class IoC implements IIoC {
     } catch {
       // ignore
     }
-    return null;
+    return 'module';
   }
 
   /**
