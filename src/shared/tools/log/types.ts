@@ -64,9 +64,9 @@ export interface ILoggerConfig {
 }
 
 export interface ILoggerConfigMDB extends ILoggerConfig {
-  uri: string;
-  database: string;
-  collection: string;
+  uri?: string;
+  database?: string;
+  collection?: string;
 }
 
 /**
