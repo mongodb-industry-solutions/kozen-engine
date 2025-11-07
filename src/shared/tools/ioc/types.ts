@@ -35,6 +35,11 @@ export type IDependencyList = IDependency[];
 export type IDependencyType = 'class' | 'value' | 'function' | 'method' | 'action' | 'alias' | 'ref' | 'auto' | 'instance' | 'object';
 
 /**
+ * Module types for dependency resolution.
+ */
+export type IModuleType = "esm" | "mjs" | "cjs" | "module" | "commonjs";
+
+/**
  * Instance lifecycle management strategies for dependency caching.
  */
 export type IDependencyLifetime = 'singleton' | 'transient' | 'scoped';
@@ -76,7 +81,7 @@ export interface IDependency {
   /**
    * Identifies the type of module used for this dependency (ES Module or CommonJS).
    */
-  moduleType?: "esm" | "cjs";
+  moduleType?: IModuleType;
 
   /**
    * Template definition for route resolution

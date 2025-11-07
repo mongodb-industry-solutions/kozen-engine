@@ -19,9 +19,15 @@ export class CLIServer extends KzApplication {
         }
         args?.action !== 'help' && this.app.log({
             flow: (this.config && this.app.getId(this.config)) || undefined,
-            src: 'bin:Kozen',
+            src: 'cli:start',
             data: {
-                params: options,
+                params: {
+                    action: options?.action,
+                    stack: options?.stack,
+                    project: options?.project,
+                    type: options?.type,
+                    module: options?.module
+                },
                 result
             }
         });
