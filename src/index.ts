@@ -21,19 +21,14 @@ export { KzModule } from './shared/controllers/KzModule';
 
 // Modules: services
 export { LoggerService } from './modules/logger/services/LoggerService';
-export { SecretManager } from './modules/secret/services/SecretManager';
-export { SecretManagerAWS } from './modules/secret/services/SecretManagerAWS';
-export { SecretManagerMDB } from './modules/secret/services/SecretManagerMDB';
+
 // Modules: CLI and MCP controllers
 export { LoggerController } from './modules/logger/controllers/LoggerCLIController';
-export { SecretController } from './modules/secret/controllers/SecretCLIController';
-export { SecretController as SecretMCPController } from './modules/secret/controllers/SecretMCPController';
 
 
 // Shared services: core services
 export { BaseService } from './shared/services/BaseService';
 export { FileService } from './shared/services/FileService';
-export { ProcessorService } from './shared/services/ProcessorService';
 
 // Shared tools: utilities and IoC
 export * from './shared/tools';
@@ -47,7 +42,6 @@ export { EnumUtl, getID, readFrom } from './shared/tools/util';
 
 // Modules: bundle exports
 export { LoggerModule } from './modules/logger';
-export { SecretModule } from './modules/secret';
 
 // Shared models and component types
 export { ILogArgs, ILoggerService } from './modules/logger/models/Logger';
@@ -65,7 +59,6 @@ export * from './shared/models/Result';
 export * from './shared/models/Struct';
 export * from './shared/models/Types';
 
-export { ISecretArgs, ISecretManager } from './modules/secret/models/Secret';
 export { IKzApplication } from './shared/models/App';
 export { IArgs } from './shared/models/Args';
 export { IConfig } from './shared/models/Config';

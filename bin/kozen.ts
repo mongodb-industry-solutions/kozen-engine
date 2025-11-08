@@ -8,7 +8,7 @@
  */
 
 import dotenv from 'dotenv';
-import { IArgs } from '../src';
+import { asBoolean, IArgs } from '../src';
 import { KzApp } from '../src/shared/controllers/KzApp';
 import { IKzApplication } from '../src/shared/models/App';
 import { VCategory } from '../src/shared/models/Types';
@@ -24,9 +24,11 @@ import { VCategory } from '../src/shared/models/Types';
 
     // Initialize application (parse args and load config)
     const opts = app.extract(process.argv);
+    opts.type = opts.type || process.env.KOZEN_APP_TYPE;
+    opts.skipDotEnv = asBoolean(process.env.KOZEN_SKIP_DOTENV || opts.skipDotEnv);
 
     // Load environment variables from .env file for non-MCP types
-    if (opts.type !== 'mcp' && !process.env.KOZEN_SKIP_DOTENV) {
+    if (opts.type !== 'mcp' && !opts.skipDotEnv) {
         try {
             dotenv.config(opts.envFile ? { path: opts.envFile } : undefined);
         }
@@ -47,7 +49,7 @@ import { VCategory } from '../src/shared/models/Types';
         }
         await app.register(config);
 
-        const srv = await app.helper?.get<IKzApplication>("application:" + config.type);
+        const srv = await app.helper?.get<IKzApplication>("application:" + config.type?.toLowerCase());
 
         if (!srv) {
             throw new Error(`No valid application found for type: ${config.type}`);
@@ -61,7 +63,8 @@ import { VCategory } from '../src/shared/models/Types';
             flow: config && app.getId(config),
             src: 'bin:Kozen',
             category: VCategory.cli.tool,
-            message: `❌ CLI execution failed: ` + (error as Error).message || error
+            message: `❌ application execution failed: ` + (error as Error).message || error,
+            data: { type: config?.type || args?.type || opts.type, action: args?.action, opts }
         });
         process.exit(1);
     }
