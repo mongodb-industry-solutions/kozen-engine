@@ -1,6 +1,3 @@
-import { IOutputResult, ITransformOption } from "../models/Component";
-import { IProcessorService } from "../models/Processor";
-import { IStruct } from "../models/Types";
 import { IIoC } from "../tools";
 import { ILogger } from "../tools/log/types";
 
@@ -24,15 +21,6 @@ export class BaseService {
      * 
      * @protected
      * @type {IIoC}
-     * Protected IoC container providing dependency injection capabilities
-     * to derived service classes. This allows services to resolve dependencies without
-     * tight coupling to specific implementations, promoting modularity and testability.
-     * 
-     * The assistant property enables services to:
-     * - Resolve other services and dependencies
-     * - Maintain loose coupling between components
-     * - Support dependency injection patterns
-     * - Enable easy mocking for unit testing
      */
     protected assistant?: IIoC | null;
 
@@ -53,40 +41,6 @@ export class BaseService {
         this.assistant = dependency?.assistant ?? null;
         this.logger = dependency?.logger ?? null;
         // this.assistant?.resolve<ILogger>('logger:service').then(obj => this.logger = obj);
-    }
-
-    /**
-     * Transforms component input by processing variables through ProcessorService
-     * @protected
-     * @param {ITransformOption} options - Component containing input definitions
-     * @returns {Promise<IStruct>} Promise resolving to processed input variables
-     */
-    public async transformInput(options: ITransformOption): Promise<IStruct> {
-        const { component, output = {}, key = "input", flow } = options;
-        if (!this.assistant) {
-            throw new Error("Incorrect dependency injection configuration.");
-        }
-        const srvVar = await this.assistant.resolve<IProcessorService>('core:processor');
-        const input = (srvVar && Array.isArray(component[key]) && await srvVar.process(component[key], output, flow));
-        return input || {};
-    }
-
-    /**
-     * Transforms component input by processing variables through ProcessorService
-     * @protected
-     * @param {ITransformOption} options - Component containing input definitions
-     * @returns {Promise<IOutputResult>} Promise resolving to processed input variables
-     */
-    public async transformOutput(options: ITransformOption): Promise<IOutputResult> {
-        let { component, key = "output", flow, output = {} } = options;
-        if (!this.assistant) {
-            throw new Error("Incorrect dependency injection configuration.");
-        }
-        const srvVar = await this.assistant.resolve<IProcessorService>('core:processor');
-        const meta = (srvVar && Array.isArray(component[key]) && await srvVar.map(component[key], flow)) as IOutputResult;
-        output.items = { ...output.items, ...meta?.items };
-        output.warns = { ...output.warns, ...meta?.warns };
-        return meta || {};
     }
 
     /**
