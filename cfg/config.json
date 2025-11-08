@@ -10,10 +10,6 @@
         "path": "../../../modules"
       },
       {
-        "name": "secret",
-        "path": "../../../modules"
-      },
-      {
         "name": "help",
         "path": "../../../modules"
       },
@@ -39,33 +35,6 @@
           "extension": ".txt",
           "dir": "./docs/tools",
           "encoding": "utf-8"
-        }
-      ]
-    },
-    "core:processor": {
-      "category": "core",
-      "target": "ProcessorService",
-      "type": "class",
-      "lifetime": "singleton",
-      "path": "../../services",
-      "args": [
-        {}
-      ],
-      "dependencies": [
-        {
-          "key": "srvSecret",
-          "target": "secret:manager",
-          "type": "ref"
-        },
-        {
-          "key": "assistant",
-          "target": "IoC",
-          "type": "ref"
-        },
-        {
-          "key": "logger",
-          "target": "logger:service",
-          "type": "ref"
         }
       ]
     }
