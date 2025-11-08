@@ -1,6 +1,6 @@
 {
     "name": "@mongodb-solution-assurance/kozen",
-    "version": "1.1.6",
+    "version": "1.1.9",
     "description": "Kozen is a versatile Task Execution Framework for CLI apps, REST, AI MCP, IaC, CI/CD, and testing workflows",
     "main": "dist/src/index.js",
     "types": "dist/src/index.d.ts",
@@ -17,6 +17,7 @@
     },
     "scripts": {
         "build": "tsc && npm run copy:txt",
+        "versions": "npm view @mongodb-solution-assurance/kozen versions",
         "publish": "npm run build && npm publish",
         "start": "node dist/bin/kozen.js",
         "help": "ts-node bin/kozen.ts --action=help",
@@ -59,12 +60,10 @@
         "url": "git+https://github.com/mongodb-industry-solutions/kozen-engine.git"
     },
     "dependencies": {
-        "@aws-sdk/client-secrets-manager": "^3.917.0",
         "@modelcontextprotocol/sdk": "^1.18.0",
         "awilix": "^8.0.1",
         "dotenv": "^16.0.3",
         "mongodb": "^6.20.0",
-        "ora": "^8.2.0",
         "zod": "^3.25.76"
     },
     "engines": {

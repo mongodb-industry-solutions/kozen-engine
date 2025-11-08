@@ -168,7 +168,7 @@ export class KzApp extends KzModule {
         parsed.stack = (parsed.stack || process.env.KOZEN_STACK || process.env["NODE_ENV"] || 'dev').toUpperCase();
         parsed.project = parsed.project || process.env.KOZEN_PROJECT || getID();
         parsed.action = option?.length > 1 ? option[1] : option[0];
-        parsed.type = parsed.type || (process.env.KOZEN_TYPE as IAppType) || 'cli' as IAppType;
+        parsed.type = parsed.type || (process.env.KOZEN_APP_TYPE as IAppType) || 'cli' as IAppType;
         parsed.module = `${(parsed.module || process.env['KOZEN_MODULE'] || option?.length && option[0] || '')}:controller` + (parsed.type ? `:${parsed.type}` : '');
         parsed.config = parsed.config || process.env.KOZEN_CONFIG;
         return parsed as IArgs;
