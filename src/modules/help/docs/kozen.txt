@@ -24,12 +24,16 @@ Core Options:
 
     --action=<[controller:]action>  Action to perform. Format: 'action' or 'controller:action'
                                     - help: Get help or assistance on how to use a tool
+    --type=<name>                   Name of the application driver to use, such as CLI, MCP, etc.
+    --skipDotEnv=<value>            Avoid loading the local environment file, by default is false
 
 Environment Variables:
     KOZEN_CONFIG                    Default value assigned to the --config property
     KOZEN_ACTION                    Default value assigned to the --action property
     KOZEN_STACK                     Default value assigned to the --stack property
     KOZEN_PROJECT                   Default value assigned to the --project property
+    KOZEN_APP_TYPE                  Default value assigned to the --type property
+    KOZEN_SKIP_DOTENV               Default value assigned to the --skipDotEnv property
 
 Controller-Specific Help:
     kozen --action=help --module=pipeline    # Pipeline management help
