@@ -3,25 +3,25 @@ export interface IMdbClientOpt {
      * MongoDB integration enabled flag for secret storage
      * @type {boolean}
      */
-    enabled: boolean;
+    enabled?: boolean;
 
     /**
      * Database name for secret storage operations
      * @type {string}
      */
-    database: string;
+    database?: string;
 
     /**
      * Collection name for secret document storage
      * @type {string}
      */
-    collection: string;
+    collection?: string;
 
     /**
      * Connection URI reference for MongoDB authentication
      * @type {string}
      */
-    uri: string;
+    uri?: string;
 
     /**
      * Secret source strategy for encryption key management
