@@ -59,12 +59,10 @@
         "url": "git+https://github.com/mongodb-industry-solutions/kozen-engine.git"
     },
     "dependencies": {
-        "@aws-sdk/client-secrets-manager": "^3.917.0",
         "@modelcontextprotocol/sdk": "^1.18.0",
         "awilix": "^8.0.1",
         "dotenv": "^16.0.3",
         "mongodb": "^6.20.0",
-        "ora": "^8.2.0",
         "zod": "^3.25.76"
     },
     "engines": {
