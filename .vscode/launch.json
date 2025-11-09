@@ -26,7 +26,9 @@
       "console": "integratedTerminal",
       "runtimeArgs": [
         "run",
-        "mcp:start"
+        "mcp:start",
+        "--",
+        "--moduleLoad=@mongodb-solution-assurance/kozen-trigger,@mongodb-solution-assurance/kozen-iam-rectification"
       ],
       "skipFiles": [
         "<node_internals>/**"
