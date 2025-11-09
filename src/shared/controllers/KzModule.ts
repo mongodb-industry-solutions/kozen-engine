@@ -2,7 +2,7 @@ import path from "path";
 import { IArgs } from "../models/Args";
 import { IConfig } from "../models/Config";
 import { IMetadata } from "../models/Metadata";
-import { IModule } from "../models/Module";
+import { IModule, IModuleOpt } from "../models/Module";
 import { VCategory } from "../models/Types";
 import { IDependency, IDependencyMap, IIoC, ILogInput, ILogLevel, IoC } from "../tools";
 import { ILogger } from "../tools/log/types";
@@ -100,14 +100,40 @@ export class KzModule implements IModule {
         this.logger?.log(input, level);
     }
 
+    /**
+     * Initializes the module with the provided arguments
+     * @param argv Command line arguments or pre-parsed arguments
+     * @returns A promise resolving initial args and config
+     */
     public async init<T = IArgs>(argv?: string[] | IArgs): Promise<{ args?: T, config?: IConfig | null }> {
         return {};
     }
 
+    /**
+     * Registers the module with the provided configuration and options
+     * @param config Module configuration
+     * @param opts Additional options for registration
+     * @returns A promise resolving with the registered dependencies
+     */
     public async register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null> {
         return Promise.resolve(null);
     }
 
+    /**
+     * Checks module requirements
+     * @param config Module configuration
+     * @param opts Additional options for requirement checking
+     * @returns A promise resolving with the module requirements
+     */
+    public async requires(config: IConfig | null, opts?: any): Promise<Array<string | IModuleOpt> | null> {
+        return Promise.resolve(null);
+    }
+
+    /**
+     * Fixes the provided dependency map by resolving paths and ensuring consistency
+     * @param dep Dependency map to fix
+     * @returns Fixed dependency map
+     */
     public fix(dep: IDependencyMap): IDependencyMap {
         for (const key in dep) {
             let item = dep[key] as IDependency;

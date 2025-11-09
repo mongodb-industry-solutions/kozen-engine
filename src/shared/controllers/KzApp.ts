@@ -107,22 +107,58 @@ export class KzApp extends KzModule {
             throw new Error("Incorrect dependency injection configuration.");
         }
         await this.assistant.register(config.dependencies as IDependencyMap);
-        for (const key in config.modules.load || []) {
-            let module = config?.modules?.load[key];
-            if (module) {
-                const mod = await this.getModule(module, config);
-                if (mod?.register instanceof Function) {
-                    const dependencies = await mod.register(config, opts);
-                    dependencies && await this.assistant.register(dependencies);
-                }
-                if (!this.assistant.logger) {
-                    this.assistant.logger = await this.assistant.get<ILogger>('logger:service') as unknown as Console;
-                }
-            }
-        }
+        await this.importList(config.modules.load, config, opts);
         return null;
     }
 
+    /**
+     * Imports and registers a list of modules based on provided configuration
+     * @param list List of modules to import
+     * @param config Module configuration
+     * @param opts Additional options for registration
+     */
+    public async importList(list: Array<string | IModuleOpt>, config: IConfig | null, opts?: any) {
+        for (const key in list || []) {
+            let module = list[key];
+            module && await this.importItem(module, config, opts);
+        }
+    }
+
+    /**
+     * Imports and registers a single module based on provided configuration
+     * @param module Module to import
+     * @param config Module configuration
+     * @param opts Additional options for registration
+     */
+    public async importItem(module: string | IModuleOpt, config: IConfig | null, opts?: any) {
+        // Ensure assistant is available
+        if (!this.assistant) {
+            throw new Error("Incorrect dependency injection configuration.");
+        }
+        // Get module instance
+        const mod = await this.getModule(module, config);
+        // Check module requirements
+        if (mod?.requires instanceof Function) {
+            const dependencies = await mod.requires(config, opts);
+            dependencies?.length && await this.importList(dependencies, config, opts);
+        }
+        // Register module dependencies
+        if (mod?.register instanceof Function) {
+            const dependencies = await mod.register(config, opts);
+            dependencies && await this.assistant.register(dependencies);
+        }
+        // Ensure logger is available
+        if (!this.assistant.logger) {
+            this.assistant.logger = await this.assistant.get<ILogger>('logger:service') as unknown as Console;
+        }
+    }
+
+    /**
+     * Retrieves a module instance based on the provided configuration
+     * @param mod Module options or name
+     * @param config Module configuration
+     * @returns The resolved module instance or null if not found
+     */
     public async getModule(mod: IModuleOpt | string, config: IConfig | null): Promise<IModule | null> {
         mod = typeof mod === 'string' ? { name: mod } : mod;
         mod.path = mod.path || config?.modules?.path || process.env.KOZEN_MODULE_PATH;
