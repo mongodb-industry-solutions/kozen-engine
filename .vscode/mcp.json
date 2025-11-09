@@ -11,11 +11,11 @@
             ],
             "env": {
                 "MDB_URI": "mongodb+srv://<user>:<pass>@<cluster>/<database>?retryWrites=true&w=majority&appName=<app>",
-                "MDB_MASTER_KEY": "<MDB_MASTER_KEY>",
-                "ATLAS_PROJECT_ID": "<ATLAS_PROJECT_ID>",
-                "ATLAS_PRIVATE_KEY": "<ATLAS_PRIVATE_KEY>",
-                "ATLAS_PUBLIC_KEY": "<ATLAS_PUBLIC_KEY>",
-                "PULUMI_CONFIG_PASSPHRASE": "<PULUMI_CONFIG_PASSPHRASE>",
+                "MDB_MASTER_KEY": "<masterkey>",
+                "ATLAS_PROJECT_ID": "<projectid>",
+                "ATLAS_PRIVATE_KEY": "<privatekey>",
+                "ATLAS_PUBLIC_KEY": "<publickey>",
+                "PULUMI_CONFIG_PASSPHRASE": "<passphrase>",
                 "KOZEN_LOG_LEVEL": "NONE",
                 "KOZEN_MODULE_LOAD": ""
             }
