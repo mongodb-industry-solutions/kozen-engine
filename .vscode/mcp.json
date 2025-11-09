@@ -10,14 +10,14 @@
                 "--type=mcp"
             ],
             "env": {
-                "MDB_URI": "<MDB_URI>",
+                "MDB_URI": "mongodb+srv://<user>:<pass>@<cluster>/<database>?retryWrites=true&w=majority&appName=<app>",
                 "MDB_MASTER_KEY": "<MDB_MASTER_KEY>",
-                "ATLAS_PROJECT_ID": "111",
-                "ATLAS_PRIVATE_KEY": "111",
-                "ATLAS_PUBLIC_KEY": "111",
+                "ATLAS_PROJECT_ID": "<ATLAS_PROJECT_ID>",
+                "ATLAS_PRIVATE_KEY": "<ATLAS_PRIVATE_KEY>",
+                "ATLAS_PUBLIC_KEY": "<ATLAS_PUBLIC_KEY>",
                 "PULUMI_CONFIG_PASSPHRASE": "<PULUMI_CONFIG_PASSPHRASE>",
                 "KOZEN_LOG_LEVEL": "NONE",
-                "KOZEN_MODULE_LOAD": "@mongodb-solution-assurance/kozen-trigger,@mongodb-solution-assurance/kozen-iam-rectification"
+                "KOZEN_MODULE_LOAD": ""
             }
         }
     },
