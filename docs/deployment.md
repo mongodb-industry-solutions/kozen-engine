@@ -7,15 +7,19 @@ This guide covers deployment options for Kozen Engine, from development setup to
 ## Deployment Patterns
 
 ### 1. Standalone CLI Application
+
 Direct execution of the pipeline engine as a command-line tool.
 
 ### 2. NPM Package Integration
+
 Integration into existing applications as a library dependency.
 
 ### 3. Container Deployment
+
 Containerized deployment for cloud-native environments.
 
 ### 4. Service Platform
+
 Deployment as a service for Infrastructure/Testing as a Service platforms.
 
 ## Development Environment Setup
@@ -52,6 +56,7 @@ npm run dev -- --template=demo --config=cfg/config.json --action=deploy
 Create environment-specific configuration files:
 
 #### Development Environment (`.env.development`)
+
 ```env
 # Application
 NODE_ENV=development
@@ -74,6 +79,7 @@ MONGODB_URI=mongodb://localhost:27017/kozen-dev
 ```
 
 #### Production Environment (`.env.production`)
+
 ```env
 # Application
 NODE_ENV=production
@@ -224,7 +230,7 @@ CMD ["node", "dist/bin/pipeline.js"]
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
+version: "3.8"
 
 services:
   kozen-engine:
@@ -322,67 +328,67 @@ spec:
         app: kozen-engine
     spec:
       containers:
-      - name: kozen-engine
-        image: kozen-engine:latest
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 3000
-        env:
-        - name: NODE_ENV
-          value: "production"
-        - name: LOG_LEVEL
-          value: "info"
-        - name: MONGODB_URI
-          valueFrom:
-            secretKeyRef:
-              name: kozen-secrets
-              key: mongodb-uri
-        - name: AWS_ACCESS_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              name: kozen-secrets
-              key: aws-access-key-id
-        - name: AWS_SECRET_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: kozen-secrets
-              key: aws-secret-access-key
-        - name: PULUMI_CONFIG_PASSPHRASE
-          valueFrom:
-            secretKeyRef:
-              name: kozen-secrets
-              key: pulumi-passphrase
-        volumeMounts:
-        - name: config-volume
-          mountPath: /app/cfg/config.json
-          subPath: config.json
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          exec:
-            command:
-            - node
-            - dist/bin/pipeline.js
-            - --action=health
-          initialDelaySeconds: 30
-          periodSeconds: 30
-        readinessProbe:
-          exec:
-            command:
-            - node
-            - dist/bin/pipeline.js
-            - --action=health
-          initialDelaySeconds: 5
-          periodSeconds: 10
+        - name: kozen-engine
+          image: kozen-engine:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: kozen-secrets
+                  key: mongodb-uri
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: kozen-secrets
+                  key: aws-access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: kozen-secrets
+                  key: aws-secret-access-key
+            - name: PULUMI_CONFIG_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: kozen-secrets
+                  key: pulumi-passphrase
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/cfg/config.json
+              subPath: config.json
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            exec:
+              command:
+                - node
+                - dist/bin/pipeline.js
+                - --action=health
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            exec:
+              command:
+                - node
+                - dist/bin/pipeline.js
+                - --action=health
+            initialDelaySeconds: 5
+            periodSeconds: 10
       volumes:
-      - name: config-volume
-        configMap:
-          name: kozen-config
+        - name: config-volume
+          configMap:
+            name: kozen-config
 ---
 # k8s/service.yaml
 apiVersion: v1
@@ -394,9 +400,9 @@ spec:
   selector:
     app: kozen-engine
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 3000
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
   type: ClusterIP
 ```
 
@@ -461,35 +467,35 @@ spec:
 
 ```yaml
 # azure-container-instance.yaml
-apiVersion: '2021-03-01'
+apiVersion: "2021-03-01"
 location: eastus
 type: Microsoft.ContainerInstance/containerGroups
 properties:
   containers:
-  - name: kozen-engine
-    properties:
-      image: kozenengine.azurecr.io/kozen-engine:latest
-      ports:
-      - port: 3000
-        protocol: TCP
-      environmentVariables:
-      - name: NODE_ENV
-        value: production
-      - name: LOG_LEVEL
-        value: info
-      - name: MONGODB_URI
-        secureValue: mongodb+srv://<user>:<pass>@<cluster>/<database>
-      resources:
-        requests:
-          cpu: 0.5
-          memoryInGB: 1
+    - name: kozen-engine
+      properties:
+        image: kozenengine.azurecr.io/kozen-engine:latest
+        ports:
+          - port: 3000
+            protocol: TCP
+        environmentVariables:
+          - name: NODE_ENV
+            value: production
+          - name: LOG_LEVEL
+            value: info
+          - name: MONGODB_URI
+            secureValue: mongodb+srv://<user>:<pass>@<cluster>/<database>
+        resources:
+          requests:
+            cpu: 0.5
+            memoryInGB: 1
   osType: Linux
   restartPolicy: Always
   ipAddress:
     type: Public
     ports:
-    - protocol: TCP
-      port: 3000
+      - protocol: TCP
+        port: 3000
 ```
 
 ## NPM Package Distribution
@@ -509,13 +515,7 @@ properties:
     "kozen": "dist/bin/pipeline.js",
     "kozen-pipeline": "dist/bin/pipeline.js"
   },
-  "files": [
-    "dist/**/*",
-    "cfg/**/*",
-    "templates/**/*",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["dist/**/*", "cfg/**/*", "templates/**/*", "README.md", "LICENSE"],
   "scripts": {
     "prepublishOnly": "npm run build && npm run test",
     "build": "tsc",
@@ -525,7 +525,7 @@ properties:
   "keywords": [
     "infrastructure",
     "testing",
-    "pipeline", 
+    "pipeline",
     "iac",
     "mongodb",
     "pulumi",
@@ -582,15 +582,8 @@ properties:
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.ts",
-    "**/*.spec.ts"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }
 ```
 
@@ -610,27 +603,27 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        registry-url: 'https://registry.npmjs.org'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Run tests
-      run: npm test
-    
-    - name: Build package
-      run: npm run build
-    
-    - name: Publish to NPM
-      run: npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish to NPM
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
 #### Manual Publishing Process
@@ -658,25 +651,25 @@ npm publish --tag beta
 
 ```typescript
 // app.ts
-import { PipelineManager, IoC } from 'kozen-engine';
+import { PipelineManager, IoC } from "kozen-engine";
 
 async function main() {
-    const container = IoC.getInstance();
-    const pipeline = new PipelineManager(container);
-    
-    await pipeline.configure({
-        template: 'infrastructure-deploy',
-        config: './config/production.json',
-        action: 'deploy'
-    });
-    
-    const result = await pipeline.deploy({
-        template: 'infrastructure-deploy',
-        config: './config/production.json',
-        action: 'deploy'
-    });
-    
-    console.log(`Deployment result: ${result.success}`);
+  const container = IoC.getInstance();
+  const pipeline = new PipelineManager(container);
+
+  await pipeline.configure({
+    template: "infrastructure-deploy",
+    config: "./config/production.json",
+    action: "deploy",
+  });
+
+  const result = await pipeline.deploy({
+    template: "infrastructure-deploy",
+    config: "./config/production.json",
+    action: "deploy",
+  });
+
+  console.log(`Deployment result: ${result.success}`);
 }
 
 main().catch(console.error);
@@ -686,8 +679,8 @@ main().catch(console.error);
 
 ```typescript
 // server.ts
-import express from 'express';
-import { PipelineManager, IoC } from 'kozen-engine';
+import express from "express";
+import { PipelineManager, IoC } from "kozen-engine";
 
 const app = express();
 app.use(express.json());
@@ -695,24 +688,24 @@ app.use(express.json());
 const container = IoC.getInstance();
 const pipeline = new PipelineManager(container);
 
-app.post('/api/deploy', async (req, res) => {
-    try {
-        const { template, environment } = req.body;
-        
-        const result = await pipeline.deploy({
-            template,
-            config: `./config/${environment}.json`,
-            action: 'deploy'
-        });
-        
-        res.json(result);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+app.post("/api/deploy", async (req, res) => {
+  try {
+    const { template, environment } = req.body;
+
+    const result = await pipeline.deploy({
+      template,
+      config: `./config/${environment}.json`,
+      action: "deploy",
+    });
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.listen(3000, () => {
-    console.log('Kozen Engine API server running on port 3000');
+  console.log("Kozen Engine API server running on port 3000");
 });
 ```
 
@@ -723,31 +716,33 @@ app.listen(3000, () => {
 ```typescript
 // health.ts
 export class HealthChecker {
-    async checkHealth(): Promise<any> {
-        const checks = {
-            database: await this.checkDatabase(),
-            secrets: await this.checkSecrets(),
-            templates: await this.checkTemplates(),
-            pulumi: await this.checkPulumi()
-        };
-        
-        const healthy = Object.values(checks).every(check => check.status === 'ok');
-        
-        return {
-            status: healthy ? 'healthy' : 'unhealthy',
-            timestamp: new Date(),
-            checks
-        };
+  async checkHealth(): Promise<any> {
+    const checks = {
+      database: await this.checkDatabase(),
+      secrets: await this.checkSecrets(),
+      templates: await this.checkTemplates(),
+      pulumi: await this.checkPulumi(),
+    };
+
+    const healthy = Object.values(checks).every(
+      (check) => check.status === "ok"
+    );
+
+    return {
+      status: healthy ? "healthy" : "unhealthy",
+      timestamp: new Date(),
+      checks,
+    };
+  }
+
+  private async checkDatabase(): Promise<any> {
+    try {
+      // Database connectivity check
+      return { status: "ok", message: "Database connected" };
+    } catch (error) {
+      return { status: "error", message: error.message };
     }
-    
-    private async checkDatabase(): Promise<any> {
-        try {
-            // Database connectivity check
-            return { status: 'ok', message: 'Database connected' };
-        } catch (error) {
-            return { status: 'error', message: error.message };
-        }
-    }
+  }
 }
 ```
 
@@ -755,15 +750,15 @@ export class HealthChecker {
 
 ```typescript
 // logging.ts
-import { Logger } from 'kozen-engine';
+import { Logger } from "kozen-engine";
 
 const productionLogger = new Logger({
-    level: 'info',
-    category: 'Production',
-    processors: [
-        new MongoDBLogProcessor(process.env.MONGODB_LOGS_URI),
-        new FileLogProcessor('/var/log/kozen/application.log')
-    ]
+  level: "info",
+  category: "Production",
+  processors: [
+    new MongoDBLogProcessor(process.env.MONGODB_LOGS_URI),
+    new FileLogProcessor("/var/log/kozen/application.log"),
+  ],
 });
 
 export { productionLogger };
@@ -774,14 +769,14 @@ export { productionLogger };
 ```typescript
 // metrics.ts
 export class MetricsCollector {
-    async collectMetrics(): Promise<any> {
-        return {
-            pipeline_executions_total: await this.getPipelineExecutions(),
-            success_rate: await this.getSuccessRate(),
-            average_execution_time: await this.getAverageExecutionTime(),
-            active_deployments: await this.getActiveDeployments()
-        };
-    }
+  async collectMetrics(): Promise<any> {
+    return {
+      pipeline_executions_total: await this.getPipelineExecutions(),
+      success_rate: await this.getSuccessRate(),
+      average_execution_time: await this.getAverageExecutionTime(),
+      active_deployments: await this.getActiveDeployments(),
+    };
+  }
 }
 ```
 
@@ -832,23 +827,23 @@ spec:
     matchLabels:
       app: kozen-engine
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: allowed-namespace
-    ports:
-    - protocol: TCP
-      port: 3000
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: allowed-namespace
+      ports:
+        - protocol: TCP
+          port: 3000
   egress:
-  - to: []
-    ports:
-    - protocol: TCP
-      port: 443  # HTTPS
-    - protocol: TCP
-      port: 27017  # MongoDB
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443 # HTTPS
+        - protocol: TCP
+          port: 27017 # MongoDB
 ```
 
 ## Performance Optimization
@@ -890,4 +885,4 @@ resources:
     cpu: "1000m"
 ```
 
-This comprehensive deployment guide ensures successful deployment of Kozen Engine across different environments and use cases, from development to enterprise production deployments. 
+This comprehensive deployment guide ensures successful deployment of Kozen Engine across different environments and use cases, from development to enterprise production deployments.
