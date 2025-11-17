@@ -70,9 +70,10 @@ For better understanding, please read the ['App-MCP' section](https://github.com
 
 Explore additional resources and documentation:
 
-- **Official Wiki**: [Kozen Full Documentation](https://github.com/mongodb-industry-solutions/kozen-engine/wiki)
-- **Reported Issues**: [GitHub Issues](https://github.com/mongodb-industry-solutions/kozen-engine/issues)
-- **Next Step**: [Get Started](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/Get-Started)
+- [Official Wiki Documentation](https://github.com/mongodb-industry-solutions/kozen-engine/wiki)
+- [Kozen through DeepWiki](https://deepwiki.com/mongodb-industry-solutions/kozen-engine)
+- [GitHub Reported Issues](https://github.com/mongodb-industry-solutions/kozen-engine/issues)
+- [Get Started](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/Get-Started)
 
 ---
 
