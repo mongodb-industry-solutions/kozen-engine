@@ -9,6 +9,7 @@ export class LoggerModule extends KzModule {
         super(dependency);
         this.metadata.summary = 'Manage system logs and monitoring data';
         this.metadata.alias = 'logger';
+        this.metadata.version = '1.1.0';
     }
 
     public register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null> {

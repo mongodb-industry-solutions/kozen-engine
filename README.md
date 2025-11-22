@@ -7,7 +7,8 @@
 ## 🎯 Features
 
 - **Config-Driven Pipelines**: Design and deploy pipelines using JSON templates (`cfg/templates/*.json`).
-- **IaC Orchestration**: Include pluggable infrastructure-as-code (IaC) managers such as Pulumi and Terraform.
+- **IaC Orchestration**: Support for Infrastructure as Code (IaC) tools such as Pulumi and Terraform.
+- **CaC Orchestration**: Support for managing Configurations/Changes as Code (CaC).
 - **Flexible Application Development**: Create automation tools and applications that export via **AI MCP**, enabling intuitive interactions with **LLMs**.
 - **Comprehensive Test Execution**: Execute end-to-end tests, integration tests, and performance workflows.
 - **Extensible Components**: Use dependency injection (DI) and inversion of control (IoC) for extending and customizing Kozen.
@@ -62,7 +63,7 @@ For better understanding, please read the ['App-CLI' section](https://github.com
 
 **MCP (Model Context Protocol)** for Artificial Intelligence Systems is an interface for interacting with Kozen and its modules through JSON-based communication protocols.
 
-For better understanding, please read the ['App-MCP' section](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/App-MCP)
+For better understanding, please read the ['App-MCP' section](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/App-MCP). To avoid confusion, it is recommended to review the license and the "[Disclaimer and Usage Policy](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/POLICY)" section.
 
 ---
 
@@ -70,6 +71,8 @@ For better understanding, please read the ['App-MCP' section](https://github.com
 
 Explore additional resources and documentation:
 
+- [Disclaimer and Usage Policy](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/POLICY)
+- [How to Contribute to Kozen Ecosystem](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/Contribute)
 - [Official Wiki Documentation](https://github.com/mongodb-industry-solutions/kozen-engine/wiki)
 - [Kozen through DeepWiki](https://deepwiki.com/mongodb-industry-solutions/kozen-engine)
 - [GitHub Reported Issues](https://github.com/mongodb-industry-solutions/kozen-engine/issues)
@@ -80,3 +83,7 @@ Explore additional resources and documentation:
 ## 📋 License
 
 Kozen is distributed under the **MIT License** and is available via [NPM](https://www.npmjs.com/package/@kozen/engine).
+
+---
+
+← Previous: — | Next: [Introduction](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/Introduction) →

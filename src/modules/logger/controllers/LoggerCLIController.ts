@@ -8,6 +8,7 @@
  * @version 1.1.0
  */
 import path from 'path';
+import { IModule } from '../../../shared/models/Module';
 import { VCategory } from '../../../shared/models/Types';
 import { JSONT, readFrom } from '../../../shared/tools';
 import { CLIController } from '../../cli/controllers/CLIController';
@@ -38,9 +39,15 @@ export class LoggerController extends CLIController {
      * @public
      */
     public async help(): Promise<void> {
+        const mod = await this.assistant?.get<IModule>('module:logger');
         const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
         const helpText = await this.srvFile?.select('logger', dir);
-        super.help('TOOL: Logger Manager', helpText);
+        super.help({
+            title: mod?.metadata?.alias || 'Logger Manager',
+            body: helpText || '',
+            version: mod?.metadata?.version,
+            uri: mod?.metadata?.uri
+        });
     }
 
     /**
