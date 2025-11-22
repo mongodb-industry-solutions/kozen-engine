@@ -91,6 +91,16 @@ export interface IMetadata {
      */
     format?: string
 
+    /**
+     * URI pointing to external resources or documentation
+     * @type {string}
+     */
+    uri?: string;
+
+    /**
+     * Source dependency information
+     * @type {IDependency}
+     */
     src?: IDependency;
 
     /**

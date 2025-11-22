@@ -6,7 +6,7 @@ Description:
     for task management, Kozen empowers users to efficiently handle critical operations in development
     and deployment environments.
 
-    Kozen supports the use of direct tools through its "controller" and "action" options. These options allow you
+    Kozen supports the use of direct tools through its "module" and "action" options. These options allow you
     to specify and execute predefined functionalities or tasks within the framework, making it easier to implement
     tools directly in your projects.
 
@@ -22,7 +22,7 @@ Core Options:
     --module=<name>                 Name of the module or tool to use. The loaded modules are:
 {MOD}
 
-    --action=<[controller:]action>  Action to perform. Format: 'action' or 'controller:action'
+    --action=<[module:]action>      Action to perform. Format: 'action' or 'module:action'
                                     - help: Get help or assistance on how to use a tool
     --type=<name>                   Name of the application driver to use, such as CLI, MCP, etc.
     --skipDotEnv=<value>            Avoid loading the local environment file, by default is false
@@ -35,12 +35,12 @@ Environment Variables:
     KOZEN_APP_TYPE                  Default value assigned to the --type property
     KOZEN_SKIP_DOTENV               Default value assigned to the --skipDotEnv property
 
-Controller-Specific Help:
+Module Controller-Specific Help:
     kozen --action=help --module=pipeline    # Pipeline management help
     kozen --action=help --module=secret      # Secret management help
     kozen --action=help --module=logger      # Logging system help
 
 Quick Start Examples:
-    kozen --action=pipeline:help                 # Get pipeline help
-    kozen --action=secret:help                   # Get secret management help
+    kozen --action=pipeline:help             # Get pipeline help
+    kozen --action=secret:help               # Get secret management help
     kozen --module=pipeline --action=help    # Alternative syntax

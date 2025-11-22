@@ -314,7 +314,7 @@ export class IoC implements IIoC {
    */
   private async findNearestPackageType(resolvedPath: string): Promise<'module' | 'commonjs' | null> {
     try {
-      let skip = process.env.KOZEN_IOC_MOD_SKIP || '@mongodb-solution-assurance';
+      let skip = process.env.KOZEN_IOC_MOD_SKIP || '@kozen';
       let mod = process.env.KOZEN_IOC_MOD_TYPE || 'commonjs';
       let dir = _path.dirname(resolvedPath);
       if (resolvedPath.indexOf(skip) !== -1) {
