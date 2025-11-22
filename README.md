@@ -7,7 +7,8 @@
 ## 🎯 Features
 
 - **Config-Driven Pipelines**: Design and deploy pipelines using JSON templates (`cfg/templates/*.json`).
-- **IaC Orchestration**: Include pluggable infrastructure-as-code (IaC) managers such as Pulumi and Terraform.
+- **IaC Orchestration**: Support for Infrastructure as Code (IaC) tools such as Pulumi and Terraform.
+- **CaC Orchestration**: Support for managing Configurations/Changes as Code (CaC).
 - **Flexible Application Development**: Create automation tools and applications that export via **AI MCP**, enabling intuitive interactions with **LLMs**.
 - **Comprehensive Test Execution**: Execute end-to-end tests, integration tests, and performance workflows.
 - **Extensible Components**: Use dependency injection (DI) and inversion of control (IoC) for extending and customizing Kozen.

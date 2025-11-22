@@ -1,6 +1,6 @@
 {
     "name": "@kozen/engine",
-    "version": "1.1.9",
+    "version": "1.1.10",
     "description": "Kozen is a versatile Task Execution Framework for CLI apps, REST, AI MCP, IaC, CI/CD, and testing workflows",
     "main": "dist/src/index.js",
     "types": "dist/src/index.d.ts",
