@@ -28,7 +28,7 @@
         "run",
         "mcp:start",
         "--",
-        "--moduleLoad=@mongodb-solution-assurance/kozen-trigger,@mongodb-solution-assurance/kozen-iam-rectification"
+        "--moduleLoad=@kozen/trigger,@kozen/iam-rectification"
       ],
       "skipFiles": [
         "<node_internals>/**"
