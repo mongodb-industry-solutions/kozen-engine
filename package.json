@@ -17,7 +17,7 @@
     },
     "scripts": {
         "build": "tsc && npm run copy:txt",
-        "versions": "npm view @mongodb-solution-assurance/kozen versions",
+        "versions": "npm view @kozen/engine versions",
         "publish": "npm run build && npm publish",
         "start": "node dist/bin/kozen.js",
         "help": "ts-node bin/kozen.ts --action=help",
