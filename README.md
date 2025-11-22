@@ -37,7 +37,7 @@ For better understanding, please read the ['Introduction' section](https://githu
 Install Kozen via NPM:
 
 ```bash
-npm install @mongodb-solution-assurance/kozen
+npm install @kozen/engine
 ```
 
 For better understanding, please read the ['Get-Started' section](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/Get-Started)
@@ -79,4 +79,4 @@ Explore additional resources and documentation:
 
 ## 📋 License
 
-Kozen is distributed under the **MIT License** and is available via [NPM](https://www.npmjs.com/package/@mongodb-solution-assurance/kozen).
+Kozen is distributed under the **MIT License** and is available via [NPM](https://www.npmjs.com/package/@kozen/engine).
