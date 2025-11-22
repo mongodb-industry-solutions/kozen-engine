@@ -11,6 +11,7 @@
 import * as fs from 'fs';
 import { IArgs } from '../models/Args';
 import { IConfig } from '../models/Config';
+import { IModule } from '../models/Module';
 import { VCategory } from '../models/Types';
 import { FileService } from '../services/FileService';
 import { getID, IIoC, ILogInput, ILogLevel, IoC } from '../tools';
@@ -89,7 +90,9 @@ export class KzController {
      * @public
      * @returns {void}
      */
-    public async help(title?: string, body?: string): Promise<void> {
+    public async help(info: { title?: string; body?: string; version?: string; uri?: string }): Promise<void> {
+        const { title, body, version, uri } = info || {};
+        const kz = await this.assistant?.get<IModule>('module:help');
         console.log(`
 ===============================================================================
 #    ##....##..#######..########.########.##....##
@@ -100,10 +103,14 @@ export class KzController {
 #    ##...##..##.....##..##......##.......##...###
 #    ##....##..#######..########.########.##....##
 #
-#    Kozen Engine - Task Execution Framework
+#    Engine: Task Execution Framework
+#    ${kz?.metadata?.version ? `Version: ${kz?.metadata?.version}` : '1.0.0'}
+#    ${kz?.metadata?.license ? `License: ${kz?.metadata?.license}` : ''}
+#    ${kz?.metadata?.uri ? `Homepage: ${kz?.metadata?.uri}` : ''}
 ...............................................................................
-${title || 'Kozen - Task Execution Framework'}
-URL: https://github.com/mongodb-industry-solutions/kozen-engine/wiki
+#    ${title ? `Module: ${title}` : ''}
+#    ${version ? `Version: ${version}` : ''}
+#    ${uri ? `Wiki: ${kz?.metadata?.uri}` : ''}
 ===============================================================================
 ${body || ''}
 ===============================================================================

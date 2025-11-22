@@ -20,9 +20,10 @@ export class PipelineController extends CLIController {
             const dep = await this.assistant?.get(key) as IModule;
             const name = dep.metadata?.alias || dep.metadata?.name || key;
             const from = name !== dep.metadata?.name ? `, from <${dep.metadata?.name}>` : '';
-            dep.metadata?.summary && (mod += `                                    - ${name}: ${dep.metadata?.summary || 'No description available'}${from}\n`);
+            const version = dep.metadata?.version ? `, (v${dep.metadata?.version})` : '';
+            dep.metadata?.summary && (mod += `                                    - ${name}: ${dep.metadata?.summary || 'No description available'}${from}${version}\n`);
         }
         helpText = helpText?.replace('{MOD}', mod) || '';
-        super.help('Kozen - Task Execution Framework', helpText);
+        super.help({ body: helpText });
     }
 } 
