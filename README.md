@@ -86,4 +86,4 @@ Kozen is distributed under the **MIT License** and is available via [NPM](https:
 
 ---
 
-← Previous: — | Next: [Introduction](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/Introduction) →
+← Previous: [Home](https://github.com/mongodb-industry-solutions/kozen-engine/wiki) | Next: [Introduction](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/Introduction) →
