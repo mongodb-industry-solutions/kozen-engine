@@ -35,3 +35,10 @@ export type IStructType = "reference" | "value" | "environment" | "secret" | "pr
 
 
 export type IAppType = 'cli' | 'mcp' | 'rest' | 'sdk' | 'graphql' | 'rpc';
+
+export interface IHelpInfo {
+    title?: string;
+    body?: string;
+    version?: string;
+    uri?: string;
+}
