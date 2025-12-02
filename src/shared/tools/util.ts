@@ -8,6 +8,8 @@
  * @version 1.1.0
  */
 
+import { dateToStr } from "./time";
+
 /**
  * Generates a unique timestamped identifier with format K + YYYYMMDDHHMMSSX
  * Creates IDs suitable for project names, flow tracking, and resource identification
@@ -22,15 +24,7 @@
  * ```
  */
 export function getID(): string {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    const random = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-    return `K${year}${month}${day}${hours}${minutes}${seconds}${random}`;
+    return `K${dateToStr()}`;
 }
 
 const fs = require('fs').promises;
@@ -45,22 +39,6 @@ const fs = require('fs').promises;
  * @param {Object} [opts.error] - Error object to populate if reading fails
  * @param {string} [opts.error.message] - Error message property to set on failure
  * @returns {Promise<string | undefined>} Promise resolving to file content or undefined if reading fails
- * 
- * @example
- * ```typescript
- * // Basic file reading
- * const content = await readFrom('./config.json');
- * 
- * // With error handling
- * const errorInfo = {};
- * const data = await readFrom('./data.txt', { 
- *   format: 'utf8', 
- *   error: errorInfo 
- * });
- * if (!data) {
- *   console.error('Read failed:', errorInfo);
- * }
- * ```
  */
 export async function readFrom(path: string, opts?: { format?: string, error?: { message?: string } }) {
     const { format = 'utf8', error = {} } = opts || {};
