@@ -3,7 +3,7 @@ import { KzApplication } from "../../../shared/controllers/KzApplication";
 import { IArgs } from "../../../shared/models/Args";
 import { IModule } from "../../../shared/models/Module";
 
-export class CLIServer extends KzApplication {
+export class CLIApplication extends KzApplication {
 
     async register(app: IModule): Promise<void> {
         this.app = app;
@@ -76,3 +76,5 @@ export class CLIServer extends KzApplication {
         }
     }
 }
+
+export default CLIApplication;

@@ -28,3 +28,5 @@ export class HelpModule extends KzModule {
         return Promise.resolve((config?.type === 'mcp' ? mcp as Record<string, IDependency> : cli) as Record<string, IDependency>);
     }
 }
+
+export default HelpModule;

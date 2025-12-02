@@ -15,3 +15,5 @@ export class CLIModule extends KzModule {
         }) as Record<string, IDependency>);
     }
 }
+
+export default CLIModule;
