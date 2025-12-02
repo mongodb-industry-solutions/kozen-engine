@@ -1,6 +1,6 @@
 {
     "name": "@kozen/engine",
-    "version": "1.1.13",
+    "version": "1.1.14",
     "description": "Kozen is a versatile Task Execution Framework for CLI apps, REST, AI MCP, IaC, CI/CD, and testing workflows",
     "main": "dist/src/index.js",
     "types": "dist/src/index.d.ts",
@@ -48,7 +48,7 @@
         "cross-env": "^7.0.3",
         "ts-node": "^10.9.0",
         "tslint": "^5.8.0",
-        "typescript": "^5.0.0"
+        "typescript": "^5.9.3"
     },
     "homepage": "https://github.com/mongodb-industry-solutions/kozen-engine/wiki",
     "bugs": "https://github.com/mongodb-industry-solutions/kozen-engine/issues",
@@ -57,11 +57,11 @@
         "url": "git+https://github.com/mongodb-industry-solutions/kozen-engine.git"
     },
     "dependencies": {
-        "@modelcontextprotocol/sdk": "^1.18.0",
+        "@modelcontextprotocol/sdk": "^1.24.1",
         "awilix": "^8.0.1",
         "dotenv": "^16.0.3",
         "mongodb": "^6.20.0",
-        "zod": "^3.25.76"
+        "zod": "^4.1.13"
     },
     "engines": {
         "node": ">=18"
