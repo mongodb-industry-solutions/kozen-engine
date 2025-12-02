@@ -184,25 +184,33 @@ export class IoC implements IIoC {
         if (typeof target !== 'function') {
           throw new Error(`Invalid function target for dependency: ${key}`);
         }
-        this.container.register(key!, asValue(target));
+        this.registerObject(dependency, target);
         break;
 
       case 'alias':
-        this.container.register(key!, aliasTo(target));
+        this.registerAlias(dependency, target);
         break;
 
       case 'ref':
-        this.container.register(key!, aliasTo(target));
+        this.registerAlias(dependency, target);
         break;
 
       case 'class':
-        await this.registerClass(dependency);
+        dependency.raw = dependency.raw === undefined ? false : !!dependency.raw;
+        // Resolve class constructor
+        const Cls = await this.resolveClass(dependency);
+        await this.registerClass(dependency, Cls);
         break;
 
       case 'object':
       case 'instance':
-        const obj = await this.resolveClass(dependency, true);
-        this.container.register(key!, asValue(obj));
+        dependency.raw = dependency.raw === undefined ? true : !!dependency.raw;
+        const aim = await this.resolveClass(dependency);
+        if (typeof aim !== 'object') {
+          this.registerClass(dependency, aim as IClassConstructor);
+        } else {
+          this.registerObject(dependency, aim);
+        }
         break;
 
       default:
@@ -213,11 +221,8 @@ export class IoC implements IIoC {
   /**
    * Registers class with constructor arguments and dependency injection.
    */
-  protected async registerClass(dependency: IDependency): Promise<void> {
-    const { key, target, lifetime = 'transient', args, dependencies, path, file } = dependency;
-
-    // Resolve class constructor
-    const Cls = await this.resolveClass(dependency);
+  protected registerClass(dependency: IDependency, Cls: IClassConstructor): void {
+    const { key, lifetime = 'transient', args, dependencies } = dependency;
 
     // Use simple class registration for cases without special configuration
     if (!args?.length && !dependencies?.length && key) {
@@ -246,11 +251,24 @@ export class IoC implements IIoC {
     this.container.register(key!, asFunction(factory)[lifetime]());
   }
 
+  protected registerObject(dependency: IDependency, target: Object): void {
+    this.container.register(dependency.key!, asValue(target));
+  }
+
+  protected registerAlias(dependency: IDependency, target: string): void {
+    this.container.register(dependency.key!, aliasTo(target));
+  }
+
+  protected registerMethod(dependency: IDependency, target: Function): void {
+    const { key, lifetime = 'transient' } = dependency;
+    this.container.register(key!, asFunction(target as (...args: any[]) => any)[lifetime]());
+  }
+
   /**
    * Resolves class constructor supporting dynamic imports.
    */
-  protected async resolveClass(dependency: IDependency, raw: boolean = false): Promise<IClassConstructor> {
-    let { target, path, file, key } = dependency;
+  protected async resolveClass(dependency: IDependency): Promise<IClassConstructor> {
+    let { target, path, file, key, raw = false } = dependency;
 
     if (typeof target === 'function') {
       return target as IClassConstructor;
@@ -286,7 +304,7 @@ export class IoC implements IIoC {
         if (raw) {
           return importedModule;
         }
-        return importedModule.default ?? importedModule[target] ?? Object.values(importedModule)[0] as IClassConstructor;
+        return importedModule.default ?? importedModule[target] ?? importedModule; // Object.values(importedModule)[0] as IClassConstructor;
       } catch (error) {
         throw new Error(`Failed to import module ${modulePath}: ${error instanceof Error ? error.message : String(error)}`);
       }
