@@ -2,7 +2,7 @@ import path from "path";
 import { IModule } from "../../../shared/models/Module";
 import { CLIController } from "../../cli/controllers/CLIController";
 
-export class PipelineController extends CLIController {
+export class HelpCLIController extends CLIController {
     /**
      * Displays comprehensive CLI usage information and command examples for pipeline operations
      * Shows available templates, actions, and detailed usage patterns for infrastructure management

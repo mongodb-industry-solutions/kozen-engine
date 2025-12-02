@@ -4,7 +4,7 @@ import { z } from "zod";
 import { FileService } from "../../../shared/services/FileService";
 import { MCPController } from "../../mcp/controllers/MCPController";
 
-export class HelpController extends MCPController {
+export class HelpMCPController extends MCPController {
 
     public async register(server: McpServer): Promise<void> {
         // select tool

@@ -6,25 +6,25 @@
  * @since 2025-07-01
  */
 
-// CLI app: server and controller
-// Applications: CLI and MCP
-export { CLIServer } from './modules/cli/controllers/CLIApplication';
+// Applications: CLI
+export { CLIApplication } from './modules/cli/controllers/CLIApplication';
 export { CLIController } from './modules/cli/controllers/CLIController';
-export { ServerMCP } from './modules/mcp/controllers/MCPApplication';
+
+// Applications: MCP
+export { MCPApplication } from './modules/mcp/controllers/MCPApplication';
 export { MCPController } from './modules/mcp/controllers/MCPController';
+
+// Modules: services
+export { LoggerService } from './modules/logger/services/LoggerService';
+
+// Modules: CLI and MCP controllers
+export { LoggerCLIController } from './modules/logger/controllers/LoggerCLIController';
 
 // Shared controllers: base classes
 export { KzApp } from './shared/controllers/KzApp';
 export { KzApplication } from './shared/controllers/KzApplication';
 export { KzController } from './shared/controllers/KzController';
 export { KzModule } from './shared/controllers/KzModule';
-
-// Modules: services
-export { LoggerService } from './modules/logger/services/LoggerService';
-
-// Modules: CLI and MCP controllers
-export { LoggerController } from './modules/logger/controllers/LoggerCLIController';
-
 
 // Shared services: core services
 export { BaseService } from './shared/services/BaseService';

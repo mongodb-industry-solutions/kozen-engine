@@ -112,6 +112,11 @@ export interface IDependency {
    * Optional category for grouping dependencies.
    */
   category?: string;
+
+  /**
+   * Indicates if the target is a raw value without further processing.
+   */
+  raw?: boolean;
 }
 
 /**

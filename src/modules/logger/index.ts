@@ -17,3 +17,5 @@ export class LoggerModule extends KzModule {
         return Promise.resolve(merged as Record<string, IDependency>);
     }
 }
+
+export default LoggerModule;
