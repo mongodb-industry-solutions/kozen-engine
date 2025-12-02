@@ -12,7 +12,7 @@ import * as fs from 'fs';
 import { IArgs } from '../models/Args';
 import { IConfig } from '../models/Config';
 import { IModule } from '../models/Module';
-import { VCategory } from '../models/Types';
+import { IHelpInfo, VCategory } from '../models/Types';
 import { FileService } from '../services/FileService';
 import { getID, IIoC, ILogInput, ILogLevel, IoC } from '../tools';
 import { ILogger } from '../tools/log/types';
@@ -90,7 +90,7 @@ export class KzController {
      * @public
      * @returns {void}
      */
-    public async help(info: { title?: string; body?: string; version?: string; uri?: string }): Promise<void> {
+    public async help(info?: IHelpInfo): Promise<void> {
         const { title, body, version, uri } = info || {};
         const kz = await this.assistant?.get<IModule>('module:help');
         console.log(`
