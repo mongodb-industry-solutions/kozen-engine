@@ -29,7 +29,7 @@ import { ILogArgs } from '../models/Logger';
  * await loggerController.init(['--action=log', '--message=Test message']);
  * ```
  */
-export class LoggerController extends CLIController {
+export class LoggerCLIController extends CLIController {
 
     /**
      * Displays comprehensive CLI usage information for logging operations

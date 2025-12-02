@@ -10,7 +10,7 @@ console.info = console.log;
 console.warn = console.log;
 console.debug = console.log;
 
-export class ServerMCP extends KzApplication {
+export class MCPApplication extends KzApplication {
     private _node: McpServer;
 
     get node(): McpServer {
@@ -51,3 +51,5 @@ export class ServerMCP extends KzApplication {
         await Promise.all(modules);
     }
 }
+
+export default MCPApplication;

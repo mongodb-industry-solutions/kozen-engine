@@ -15,3 +15,5 @@ export class MCPModule extends KzModule {
         }) as Record<string, IDependency>);
     }
 }
+
+export default MCPModule;
