@@ -1,3 +1,4 @@
+import { dateToStr } from '../time';
 import { ConsoleLogProcessor } from './processors/ConsoleLogProcessor';
 import { ILogEntry, ILoggerConfig, ILogInput, ILogLevel, ILogOutputType, ILogProcessor } from './types';
 
@@ -116,23 +117,6 @@ export class Logger {
   }
 
   /**
-   * Generates a unique flow ID with format YYYYMMDDDHHMMSSXX
-   * @returns A unique flow identifier
-   */
-  private generateFlowId(): string {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    const random = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-
-    return `${year}${month}${day}${hours}${minutes}${seconds}${random}`;
-  }
-
-  /**
    * Normalizes input to ILogEntry format
    * @param input - The input to normalize (string, number, or ILogEntry)
    * @returns Normalized ILogEntry object
@@ -157,7 +141,8 @@ export class Logger {
       ...options,
       level: this.getLevelName(level),
       date: options.date || new Date().toISOString(),
-      flow: options.flow || this.generateFlowId(),
+      // Generates a unique flow ID with format YYYYMMDDDHHMMSSXX
+      flow: options.flow || dateToStr(),
     };
 
     // Remove undefined fields to keep the log clean

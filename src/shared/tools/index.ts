@@ -13,6 +13,9 @@ export * from './util';
 // Export env functions
 export * from './env';
 
+// Export time functions
+export * from './time';
+
 // Export json functions
 export { JSONT };
 
