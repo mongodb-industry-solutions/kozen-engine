@@ -99,6 +99,12 @@ export class KzApp extends KzModule {
         return { args: args as T, config };
     }
 
+    /**
+     * Registers dependencies in the IoC container
+     * @param config Configuration data
+     * @param opts Optional additional options
+     * @returns Promise resolving to a record of registered dependencies or null
+     */
     public async register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null> {
         if (!config?.modules?.load) {
             return null;
@@ -108,6 +114,12 @@ export class KzApp extends KzModule {
         return null;
     }
 
+    /**
+     * Processes and registers required modules recursively
+     * @param modules Array of module names or module options to process
+     * @param config Configuration data for module initialization
+     * @param opts Optional additional options for module processing
+     */
     public async process(modules: Array<string | IModuleOpt>, config: IConfig | null, opts?: any) {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");

@@ -40,7 +40,7 @@ export class LoggerCLIController extends CLIController {
      */
     public async help(): Promise<void> {
         const mod = await this.assistant?.get<IModule>('module:logger');
-        const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
+        const dir = process.env.KOZEN_DOCS_DIR || path.resolve(__dirname, '../docs');
         const helpText = await this.srvFile?.select('logger', dir);
         super.help({
             title: mod?.metadata?.alias || 'Logger Manager',
