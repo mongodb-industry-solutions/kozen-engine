@@ -2,7 +2,7 @@ import path from "path";
 import { IArgs } from "../models/Args";
 import { IConfig } from "../models/Config";
 import { IMetadata } from "../models/Metadata";
-import { IModule } from "../models/Module";
+import { IModule, IModuleOpt } from "../models/Module";
 import { VCategory } from "../models/Types";
 import { IDependency, IDependencyMap, IIoC, ILogInput, ILogLevel, IoC } from "../tools";
 import { ILogger } from "../tools/log/types";
@@ -100,14 +100,43 @@ export class KzModule implements IModule {
         this.logger?.log(input, level);
     }
 
+    /**
+     * Initializes the module with optional startup arguments
+     * @param argv Optional startup arguments
+     * @returns A promise resolving initial args and config
+     */
     public async init<T = IArgs>(argv?: string[] | IArgs): Promise<{ args?: T, config?: IConfig | null }> {
         return {};
     }
 
+    /**
+     * Registers dependencies in the IoC container
+     * @param config Configuration data
+     * @param opts Optional parameters
+     * @returns Registered dependencies or null
+     */
     public async register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null> {
-        return Promise.resolve(null);
+        return null;
     }
 
+    /**
+     * Returns the module requirements based on configuration and options
+     * Can be overridden by subclasses to specify specific dependencies
+     * 
+     * @param {IConfig | null} config - Configuration object
+     * @param {any} [opts] - Optional parameters
+     * @returns {Promise<Array<string | IModuleOpt> | null>} Array of required modules or null
+     */
+    async requires(config: IConfig | null, opts?: any): Promise<Array<string | IModuleOpt> | null> {
+        // Base implementation returns null - subclasses should override with specific requirements
+        return null;
+    }
+
+    /**
+     * Fixes the paths in the dependency map by joining with the source path metadata
+     * @param dep Dependency map to fix paths for
+     * @returns Fixed dependency map with updated paths
+     */
     public fix(dep: IDependencyMap): IDependencyMap {
         for (const key in dep) {
             let item = dep[key] as IDependency;
