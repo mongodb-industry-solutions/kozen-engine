@@ -209,8 +209,35 @@ export class Env {
         }
     }
 
-    public load() {
+    /**
+     * Load environment variables from a local `.env` file using `dotenv`.
+     * Loading can be disabled by setting the KOZEN_SKIP_DOTENV environment
+     * variable to a truthy value (e.g. "true", "1", "yes").
+     */
+    public load(): void {
+        if (this.shouldSkipDotEnv()) {
+            return;
+        }
         dotenv.config();
+    }
+
+    /**
+     * Determines whether loading from `.env` should be skipped based on the
+     * KOZEN_SKIP_DOTENV environment variable.
+     *
+     * Recognised truthy values (case-insensitive):
+     * - "1"
+     * - "true"
+     * - "yes"
+     * - "y"
+     */
+    private shouldSkipDotEnv(): boolean {
+        const raw = process.env["KOZEN_SKIP_DOTENV"];
+        if (!raw) {
+            return false;
+        }
+        const value = raw.trim().toLowerCase();
+        return value === "1" || value === "true" || value === "yes" || value === "y";
     }
 }
 

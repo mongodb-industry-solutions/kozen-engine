@@ -34,9 +34,28 @@ export interface IModule {
      */
     register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null>;
 
+    /**
+     * Determines required modules based on configuration
+     * @param config Configuration data
+     * @param opts Additional options for determining requirements
+     */
+    requires(config: IConfig | null, opts?: any): Promise<Array<string | IModuleOpt> | null>;
+
+    /**
+     * Generates a unique identifier for the module
+     * @param opt Optional configuration to influence ID generation
+     */
     getId(opt?: IConfig): string;
 
+    /**
+     * Waits for the module to be fully ready
+     */
     wait(): Promise<void>;
 
+    /**
+     * Logs information related to the module
+     * @param input Log input data
+     * @param level Optional log level
+     */
     log(input: ILogInput, level?: ILogLevel): void;
 }

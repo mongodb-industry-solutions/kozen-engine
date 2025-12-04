@@ -43,6 +43,8 @@ Environment Variables:
     KOZEN_LOG_LEVEL                 Default value assigned to the --level property, Ex: ERROR
     KOZEN_LOG_CONSOLE_ENABLED       Enable or disable sending logs to Console, by default true
     KOZEN_LOG_MDB_ENABLED           Enable or disable sending logs to MongoDB, by default true
+    KOZEN_LOG_TYPE                  Controls the log output format (for example: json, text)
+    KOZEN_LOG_LEVEL_REMOTE          Default value assigned to the MongoDB remote log level, Ex: ERROR
 
 Examples:
     # Basic text logging
