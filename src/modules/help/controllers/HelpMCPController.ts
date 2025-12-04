@@ -65,7 +65,7 @@ export class HelpMCPController extends MCPController {
 
     public async list(options?: { format?: string }): Promise<{ content: { type: "text"; text: string; }[] }> {
         try {
-            const dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
+            const dir = process.env.KOZEN_DOCS_DIR || path.resolve(__dirname, '../docs');
             const text = await this.srvFile?.select('kozen', dir);
             if (!text) {
                 throw new Error(`Failed to resolve Kozen content in ${this.srvFile?.dir}`);

@@ -11,7 +11,7 @@ export class HelpCLIController extends CLIController {
      * @public
      */
     public async help(): Promise<void> {
-        let dir = process.env.DOCS_DIR || path.resolve(__dirname, '../docs');
+        let dir = process.env.KOZEN_DOCS_DIR || path.resolve(__dirname, '../docs');
         let helpText = await this.srvFile?.select('kozen', dir);
         let map = this.assistant?.map?.module || {};
         let mod = '';

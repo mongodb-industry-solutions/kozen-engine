@@ -26,6 +26,9 @@ Core Options:
                                     - help: Get help or assistance on how to use a tool
     --type=<name>                   Name of the application driver to use, such as CLI, MCP, etc.
     --skipDotEnv=<value>            Avoid loading the local environment file, by default is false
+    --modulePath=<value>            The base path used to resolve and load Kozen modules
+    --moduleMode=<value>            Module loading mode (for example: inherit) that controls how default modules are merged
+    --moduleLoad=<value>            Comma-separated list of modules to load at startup
 
 Environment Variables:
     KOZEN_CONFIG                    Default value assigned to the --config property
@@ -34,6 +37,18 @@ Environment Variables:
     KOZEN_PROJECT                   Default value assigned to the --project property
     KOZEN_APP_TYPE                  Default value assigned to the --type property
     KOZEN_SKIP_DOTENV               Default value assigned to the --skipDotEnv property
+    KOZEN_MODULE_PATH               Default value assigned to the --modulePath property
+    KOZEN_MODULE_MODE               Default value assigned to the --moduleMode property
+    KOZEN_MODULE_LOAD               Default value assigned to the --moduleLoad property
+    KOZEN_MODULE                    Default module controller name when --module is not provided
+    KOZEN_DOC_PATH                  Base directory path for Kozen documentation files
+    KOZEN_ENV_PREFIX                Default prefix applied to environment variables managed by the Env tool (defaults to KOZEN_PL)
+    KOZEN_ENV_SCOPE                 Scope for exported environment variables (for example: GLOBAL or local shell)
+    KOZEN_ENV_LIMIT                 Maximum length for encoded environment variable values managed by the Env tool
+    KOZEN_ENV_QUOTE                 Replacement character used instead of double quotes in encoded environment values
+    KOZEN_IOC_MOD_SKIP              Package prefix to skip when auto-discovering IoC modules (default: @kozen)
+    KOZEN_IOC_MOD_TYPE              Module system type used by the IoC loader (for example: commonjs)
+    KOZEN_DOCS_DIR                  Overrides the default documentation directory used for CLI and MCP help content
 
 Module Controller-Specific Help:
     kozen --action=help --module=pipeline    # Pipeline management help

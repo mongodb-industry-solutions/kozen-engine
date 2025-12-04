@@ -99,18 +99,39 @@ export class KzApp extends KzModule {
         return { args: args as T, config };
     }
 
+    /**
+     * Registers dependencies in the IoC container
+     * @param config Configuration data
+     * @param opts Optional additional options
+     * @returns Promise resolving to a record of registered dependencies or null
+     */
     public async register(config: IConfig | null, opts?: any): Promise<Record<string, IDependency> | null> {
         if (!config?.modules?.load) {
             return null;
         }
+        await this.assistant?.register(config.dependencies as IDependencyMap);
+        await this.process(config.modules.load, config, opts);
+        return null;
+    }
+
+    /**
+     * Processes and registers required modules recursively
+     * @param modules Array of module names or module options to process
+     * @param config Configuration data for module initialization
+     * @param opts Optional additional options for module processing
+     */
+    public async process(modules: Array<string | IModuleOpt>, config: IConfig | null, opts?: any) {
         if (!this.assistant) {
             throw new Error("Incorrect dependency injection configuration.");
         }
-        await this.assistant.register(config.dependencies as IDependencyMap);
-        for (const key in config.modules.load || []) {
-            let module = config?.modules?.load[key];
+        for (const key in modules) {
+            let module = modules[key];
             if (module) {
                 const mod = await this.getModule(module, config);
+                if (mod?.requires instanceof Function) {
+                    const requirements = await mod.requires(config, opts);
+                    requirements && await this.process(requirements, config, opts);
+                }
                 if (mod?.register instanceof Function) {
                     const dependencies = await mod.register(config, opts);
                     dependencies && await this.assistant.register(dependencies);
@@ -120,9 +141,16 @@ export class KzApp extends KzModule {
                 }
             }
         }
-        return null;
     }
 
+    /**
+     * Retrieves and initializes a module based on the provided module options or name
+     * @param mod Module options or name string to identify the module
+     * @param config Configuration data for module initialization
+     * @returns Promise resolving to the initialized module instance or null if not found
+     * @throws Error when module retrieval or initialization fails
+     * @public
+     */
     public async getModule(mod: IModuleOpt | string, config: IConfig | null): Promise<IModule | null> {
         mod = typeof mod === 'string' ? { name: mod } : mod;
         mod.path = mod.path || config?.modules?.path || process.env.KOZEN_MODULE_PATH;
