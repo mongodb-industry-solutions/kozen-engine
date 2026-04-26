@@ -2,6 +2,21 @@
 
 **Kozen** is a lightweight Task Execution Framework, designed for creating automation pipelines, versatile tools, and applications. It enables seamless integration with AI-based interfaces like AI MCP, allowing effortless interactions with large language models (LLMs) and traditional automation tools alike. Kozen supports multiple interfaces, including CLI and REST, and provides easy-to-extend mechanisms for building application types based on its robust extension model. As an NPM package, Kozen integrates seamlessly into Node.js environments, offering scalability, extensibility, and simplicity..
 
+---
+
+## Disclaimer
+
+This repository was created as part of an initiative to promote best practices for integrating solutions with MongoDB. It is distributed under the [Apache 2.0 license](./LICENSE) and is open source. However, please note that this repository is **not actively maintained** by the MongoDB team, nor is it part of MongoDB's official product catalog.
+
+The use of this repository in production environments is solely at your own discretion and risk. MongoDB does not provide any guarantees, warranties, or technical support for this repository. Furthermore, MongoDB shall **not be held liable** for any issues, bugs, or damages caused by its use or implementation.
+
+Please carefully evaluate suitability and perform thorough testing before using this resource in a production environment.
+
+Thank you for understanding,
+The MongoDB Team
+
+---
+
 ![](https://github.com/mongodb-industry-solutions/kozen-engine/blob/main/docs/images/banner.jpg)
 
 ## 🎯 Features
@@ -77,12 +92,6 @@ Explore additional resources and documentation:
 - [Kozen through DeepWiki](https://deepwiki.com/mongodb-industry-solutions/kozen-engine)
 - [GitHub Reported Issues](https://github.com/mongodb-industry-solutions/kozen-engine/issues)
 - [Get Started](https://github.com/mongodb-industry-solutions/kozen-engine/wiki/Get-Started)
-
----
-
-## 📋 License
-
-Kozen is distributed under the **MIT License** and is available via [NPM](https://www.npmjs.com/package/@kozen/engine).
 
 ---
 
